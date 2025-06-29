@@ -22,10 +22,8 @@
 
 1. Starting backend server:
    - cd backend
-   - npm install
    - npm start
 
 2. Starting frontend server:
    - cd frontend
-   - npm install
    - npm start
