@@ -1,17 +1,12 @@
-# Ignore backend dependencies and builds
+# Backend
 backend/node_modules/
 backend/.env
-backend/dist/
 
-# Ignore frontend dependencies and builds
+# Frontend
 frontend/node_modules/
 frontend/dist/
+frontend/.env
 
-# General Node files
-.env
-node_modules/
-dist/
-
-# macOS & VSCode
+# OS + IDE defaults
 .DS_Store
-.vscode/
+*.log
