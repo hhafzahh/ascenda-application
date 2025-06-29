@@ -7,8 +7,8 @@
    - cd backend
    - npm install
    - touch .env
-3. In the .env file, add in the following, replacing username and password:
-   - MONGODB_CONNECTIONSTR=mongodb+srv://<username>:<password>@cluster0.mongodb.net/hotelbookingdb?retryWrites=true&w=majority&appName=Cluster0
+3. In the .env file, add in the following, replacing (username) and (password):
+   - MONGODB_CONNECTIONSTR=mongodb+srv://(username):(password)@cluster0.mongodb.net/hotelbookingdb?retryWrites=true&w=majority&appName=Cluster0
 
 ### Frontend (React with Vite) Environment Configuration 
 
