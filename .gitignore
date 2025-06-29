@@ -1,0 +1,17 @@
+# Ignore backend dependencies and builds
+backend/node_modules/
+backend/.env
+backend/dist/
+
+# Ignore frontend dependencies and builds
+frontend/node_modules/
+frontend/dist/
+
+# General Node files
+.env
+node_modules/
+dist/
+
+# macOS & VSCode
+.DS_Store
+.vscode/
