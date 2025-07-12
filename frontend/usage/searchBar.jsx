@@ -11,7 +11,7 @@ export default function SearchBar({ onHotelsFetched, setLoading }) {
   const [suggestions, setSuggestions] = useState([]);
   const [destinations, setDestinations] = useState([]);
   const [selectedUID, setSelectedUID] = useState(null);
-  const metaRef = useRef({}); // for passing meta from LocationAutoInput
+  const metaRef = useRef({});
 
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -26,17 +26,20 @@ export default function SearchBar({ onHotelsFetched, setLoading }) {
       .then((data) => setDestinations(data));
   }, []);
 
-  // Memoize fuse instance
   const fuseInstance = useMemo(() => {
     return new Fuse(destinations, {
-      keys: ['term', 'city', 'state'],
+      keys: [
+        { name: 'term', weight: 0.9 },
+        { name: 'city', weight: 0.05 },
+        { name: 'state', weight: 0.05 }
+      ],
       threshold: 0.4,
       distance: 100,
       minMatchCharLength: 2,
+      ignoreLocation: true
     });
   }, [destinations]);
 
-  // debounce only suggestion logic, not setQuery
   const debouncedSuggest = useRef(
     debounce((input, fuse) => {
       if (input.length > 1 && fuse) {
@@ -52,7 +55,7 @@ export default function SearchBar({ onHotelsFetched, setLoading }) {
     const input = e.target.value;
     setQuery(input);
     setSelectedUID(null);
-    metaRef.current = {}; // reset meta
+    metaRef.current = {};
     debouncedSuggest(input, fuseInstance);
   };
 
@@ -60,62 +63,47 @@ export default function SearchBar({ onHotelsFetched, setLoading }) {
     setQuery(destination.term);
     setSelectedUID(destination.uid);
     setSuggestions([]);
-    metaRef.current = { uid: destination.uid }; // update metaRef for handleSearch
+    metaRef.current = { uid: destination.uid };
   };
+const handleSearch = async (meta = {}) => {
+  console.log('handleSearch triggered', { query, metaRef: metaRef.current, selectedUID });
 
-  const handleSearch = async (meta = {}) => {
-    console.log('handleSearch triggered', { query, metaRef: metaRef.current, selectedUID });
-    if (!query) {
-      alert('Please enter a destination.');
-      return;
-    }
+  if (!query) {
+    alert('Please enter a destination.');
+    return;
+  }
 
-    // us UID from meta (from LocationAutoInput) or selectedUID or fallback
-    let uidToUse = meta.uid || metaRef.current.uid || selectedUID;
-    console.log('Initial UID:', uidToUse);
-    if (!uidToUse) {
-      const fuseMatch = fuseInstance.search(query);
-      console.log('Fuse matches:', fuseMatch);
+  let uidToUse = meta.uid || metaRef.current.uid || selectedUID;
 
-      if (fuseMatch.length > 0) {
-        const corrected = fuseMatch[0].item;
-        uidToUse = corrected.uid;
-        setQuery(corrected.term); // update input with corrected term
-        console.log('Using fuzzy UID:', uidToUse);
-      } else {
-        const fallbackMatch = destinations.find((d) =>
-          d.term?.toLowerCase().includes(query.toLowerCase())
-        );
-        if (fallbackMatch) {
-          uidToUse = fallbackMatch.uid;
-          setQuery(fallbackMatch.term); // update input with corrected term
-          console.log('Using fallback UID:', uidToUse);
-        }
-      }
-    }
+  if (!uidToUse) {
+    const fuseMatch = fuseInstance.search(query);
+    console.log('Fuse matches:', fuseMatch);
 
-    setSuggestions([]); // hide dropdown after search
-
-    if (!uidToUse) {
+    if (fuseMatch.length > 0) {
+      const corrected = fuseMatch[0].item;
+      uidToUse = corrected.uid;
+      handleSelectSuggestion(corrected);
+      console.log('✅ Using corrected fuzzy match:', corrected.term, '→', uidToUse);
+    } else {
       alert('Destination not recognized. Please try again.');
       return;
     }
+  }
 
-    console.log("UID to search with:", uidToUse);
+  setSuggestions([]); // Hide suggestions after submit
 
-    setLoading?.(true);
-    try {
-      const res = await axios.get(`http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`);
-      console.log(res.data)
-      const hotelsList = Array.isArray(res.data) ? res.data : res.data.hotels || [];
-      setHotels(hotelsList);
-      onHotelsFetched?.(hotelsList);
-    } catch (err) {
-      console.error('Failed to fetch hotels:', err);
-    } finally {
-      setLoading?.(false);
-    }
-  };
+  setLoading?.(true);
+  try {
+    const res = await axios.get(`http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`);
+    const hotelsList = Array.isArray(res.data) ? res.data : res.data.hotels || [];
+    setHotels(hotelsList);
+    onHotelsFetched?.(hotelsList);
+  } catch (err) {
+    console.error('Failed to fetch hotels:', err);
+  } finally {
+    setLoading?.(false);
+  }
+};
 
   return (
     <div className="search-bar">
@@ -187,7 +175,6 @@ export default function SearchBar({ onHotelsFetched, setLoading }) {
           <button onClick={() => handleSearch()}>Search Hotels</button>
         </div>
       </div>
-
     </div>
   );
 }
