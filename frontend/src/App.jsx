@@ -1,27 +1,27 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import Booking from '../pages/Bookings'; 
-import './App.css';
-
-function Home() {
-  const navigate = useNavigate();
-  return (
-    <>
-      <h1>Hotel Booking App</h1>
-      <button onClick={() => navigate('/bookings')}>
-        View Bookings
-      </button>
-    </>
-  );
-}
+import {
+  //BrowserRouter as Router, //removed this and added in main.jsx
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
+import Booking from "./pages/Booking";
+import "./App.css";
+import Home from "./pages/Home";
+import NavBar from "./components/Navbar";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/bookings" element={<Booking />} />
-      </Routes>
-    </Router>
+    <>
+      <div>
+        <NavBar />
+        <main className="main-content"></main>
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/booking" element={<Booking />} />
+        </Routes>
+      </div>
+    </>
   );
 }
 

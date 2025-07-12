@@ -1,0 +1,22 @@
+.booking-page {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    background-color: #f9fafb;
+  }
+  
+  .booking-left {
+    flex: 2;
+  }
+  
+  .booking-right {
+    flex: 1;
+  }
+  
+  /* Optional responsive behavior */
+  @media (max-width: 768px) {
+    .booking-page {
+      flex-direction: column;
+    }
+  }
+  
