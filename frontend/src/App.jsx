@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Booking from '../pages/Bookings'; 
 import './App.css';
+import HotelRooms from '../pages/HotelRooms';
 
 function Home() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/bookings" element={<Booking />} />
+        <Route path="/rooms" element={<HotelRooms />} />
       </Routes>
     </Router>
   );

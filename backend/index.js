@@ -1,28 +1,28 @@
-// const { connect } = require('./Models/db');
+const { connect } = require('./Models/db');
 
-// async function main() {
-//     const db = await connect();
-//     const bookings = db.collection('bookings');
+async function main() {
+     const db = await connect();
+     const bookings = db.collection('bookings');
 
-//     const results = await bookings.find({}).toArray();
+     const results = await bookings.find({}).toArray();
 
-//     for (let doc of results) {
-//         console.log("Name:", doc.name);
-//     }
+     for (let doc of results) {
+         console.log("Name:", doc.name);
+     }
 
-//     process.exit();
-// }
+     process.exit();
+ }
 
-// main().catch(err => {
-//     console.error("Error:", err);
-// });
+ main().catch(err => {
+     console.error("Error:", err);
+ });
 
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const { connect } = require('./Models/db'); 
+//const { connect } = require('./Models/db'); 
 const bookingsRouter = require('./routes/bookings');
 const hotelProxyRouter = require('./routes/hotelproxy'); 
 
@@ -34,7 +34,7 @@ app.use('/api/hotelproxy', hotelProxyRouter);
 
 (async () => {
     try {
-        await connect(); 
+        //await connect(); 
         console.log("Connected to MongoDB");
 
         app.listen(PORT, () => {
