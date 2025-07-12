@@ -23,10 +23,6 @@ export default function BookingForm() {
       <h2>Booking Form</h2>
 
       <h3>Your Details</h3>
-      <p className="desc-text">
-        Whether you are in town for business or leisure, San Francisco Marriott
-        welcomes travelers to Northern California with exceptional service.
-      </p>
 
       <div className="form-grid">
         <select>
@@ -34,7 +30,7 @@ export default function BookingForm() {
           <option>Ms</option>
           <option>Mrs</option>
         </select>
-        <input placeholder="Fast Name" />
+        <input placeholder="First Name" />
         <input placeholder="Last Name" />
       </div>
 

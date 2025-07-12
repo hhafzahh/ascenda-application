@@ -9,17 +9,17 @@ function HotelDetails() {
         alt="Hotel"
         className="summary-image"
       />
-      <h4>San Francisco Marriott Marquis ..</h4>
-      <p>780 Mission Street, San Francisco</p>
+      <h4>New Majestic Hotel</h4>
+      <p>31-37 Bukit Pasoh Road</p>
 
       <div className="summary-info">
         <div>
           <p className="label">Check In</p>
-          <p>22 Aug, 2024, Tuesday</p>
+          <p className="border-box">22 Aug, 2024, Tuesday</p>
         </div>
         <div>
           <p className="label">Check Out</p>
-          <p>22 Aug, 2024, Tuesday</p>
+          <p className="border-box">22 Aug, 2024, Tuesday</p>
         </div>
       </div>
 

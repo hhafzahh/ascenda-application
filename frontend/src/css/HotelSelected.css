@@ -18,13 +18,25 @@
   }
   
   .label {
-    font-size: 0.85rem;
-    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #6b7280; /* gray-500 */
+    margin-bottom: 0.3rem;
   }
+  
+  .border-box {
+    border: 1px solid #d1d5db; /* light gray border */
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+    background: #f9fafb; /* optional light background for subtle contrast */
+  }
+  
   
   .summary-info {
     margin-top: 0.5rem;
   }
+  
   
   .price-section {
     display: flex;
