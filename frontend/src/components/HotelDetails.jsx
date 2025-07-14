@@ -27,8 +27,6 @@ function HotelDetails() {
         <p className="discount">20% OFF</p>
         <p className="price">399 USD</p>
       </div>
-
-      <button className="pay-now">PAY NOW</button>
     </div>
   );
 }

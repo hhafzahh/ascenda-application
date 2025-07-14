@@ -1,82 +1,65 @@
 import { useState } from "react";
 import "../css/BookingForm.css";
+import Progress from "./Progress";
+import { Confirmation, PaymentDetails, PersonalDetails } from "./Form";
 export default function BookingForm() {
-  const [isBookingForSomeone, setIsBookingForSomeone] = useState(false);
-  const [guestInfo, setGuestInfo] = useState({
-    guestName: "",
-    guestPhone: "",
-  });
+  //const message = ["Input Personal Details", "Input Payment Details", "Confirmation Details"];
 
-  const handleCheckboxChange = () => {
-    setIsBookingForSomeone(!isBookingForSomeone);
+  const [step, setSteps] = useState(1);
+  const totalSteps = 3; //use as props for Progress
+  function handlePrev() {
+    if (step > 1) setSteps((step) => step - 1);
+  }
+
+  function handleNext() {
+    if (step < 3) setSteps((step) => step + 1);
+  }
+
+  const renderSteps = () => {
+    switch (step) {
+      case 1:
+        return <PersonalDetails />;
+      case 2:
+        return <PaymentDetails />;
+      case 3:
+        return <Confirmation />;
+      default:
+        return null;
+    }
   };
 
-  const handleGuestChange = (e) => {
-    const { name, value } = e.target;
-    setGuestInfo((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
   return (
     <div className="form-card">
       <h2>Booking Form</h2>
-
-      <h3>Your Details</h3>
-
-      <div className="form-grid">
-        <select>
-          <option>Mr</option>
-          <option>Ms</option>
-          <option>Mrs</option>
-        </select>
-        <input placeholder="First Name" />
-        <input placeholder="Last Name" />
+      <div className="progress_container">
+        <Progress totalSteps={totalSteps} step={step} />
+        <div className={`${step >= 1 ? "circle active" : "circle"}`}>1</div>
+        <div className={`${step >= 2 ? "circle active" : "circle"}`}>2</div>
+        <div className={`${step >= 3 ? "circle active" : "circle"}`}>3</div>
       </div>
 
-      <input placeholder="Email" className="full-width" />
-
-      <div className="form-grid">
-        <select>
-          <option>+65 (Singapore)</option>
-          <option>+60 (Malaysia)</option>
-          <option>+62 (Indonesia)</option>
-        </select>
-        <input placeholder="Mobile" />
+      <div className="content">
+        {/* <Message step={step} /> */}
+        {renderSteps()}
       </div>
-
-      <div className="guest-section">
-        <label>
-          <input
-            type="checkbox"
-            checked={isBookingForSomeone}
-            onChange={handleCheckboxChange}
-          />{" "}
-          Booking for someone?
-        </label>
-
-        {isBookingForSomeone && (
-          <div className="guest-fields">
-            <input
-              type="text"
-              name="guestName"
-              value={guestInfo.guestName}
-              onChange={handleGuestChange}
-              placeholder="Guest full name"
-            />
-            <input
-              type="text"
-              name="guestPhone"
-              value={guestInfo.guestPhone}
-              onChange={handleGuestChange}
-              placeholder="Guest phone number"
-            />
-          </div>
-        )}
+      <div className="btns">
+        <button
+          className={`${step <= 1 ? "disabled" : "btn"}`}
+          onClick={handlePrev}
+        >
+          Prev
+        </button>
+        <button
+          className={`${step >= totalSteps ? "disabled" : "btn"}`}
+          onClick={handleNext}
+        >
+          Next
+        </button>
       </div>
-      <button className="next-step-btn" onClick={() => alert("Next step!")}>
-        NEXT STEP
-      </button>
     </div>
   );
+
+  // function Message({ step }) { //TESTING
+  //   return <h2>{message[step - 1]}</h2>;
+  // }
 }
