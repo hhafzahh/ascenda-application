@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import Booking from '../pages/Bookings'; 
 import Landing from '../pages/Landing'
 import './App.css';
+import HotelRooms from '../pages/HotelRooms';
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/bookings" element={<Booking />} />
+        <Route path="/rooms" element={<HotelRooms />} />
       </Routes>
     </Router>
   );
