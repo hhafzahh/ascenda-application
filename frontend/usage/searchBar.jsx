@@ -97,7 +97,7 @@ export default function SearchBar({ queryval, setLoading }) {
         uidToUse = corrected.uid;
         handleSelectSuggestion(corrected);
         console.log(
-          "✅ Using corrected fuzzy match:",
+          "Using corrected fuzzy match:",
           corrected.term,
           "→",
           uidToUse
@@ -171,10 +171,17 @@ export default function SearchBar({ queryval, setLoading }) {
           startDate={startDate}
           endDate={endDate}
           placeholderText="Check-in"
+          minDate={new Date()}
         />
         <DatePicker
           selected={endDate}
-          onChange={(date) => setEndDate(date)}
+          onChange={(date) => {
+            if (date < startDate) {
+              setEndDate(startDate);
+            } else {
+              setEndDate(date);
+            }
+          }}
           selectsEnd
           startDate={startDate}
           endDate={endDate}
