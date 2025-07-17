@@ -6,6 +6,7 @@ import FacilitiesFilter from "../src/components/FacilitiesFilter";
 import StarRatingFilter from "../src/components/StarRatingFilter";
 import SortByControl from "../src/components/SortControl";
 import SortControl from "../src/components/SortControl";
+import axios from "axios"; 
 
 export default function SearchResults() {
   const location = useLocation();
@@ -24,6 +25,73 @@ export default function SearchResults() {
   const [selectedFacilities, setSelectedFacilities] = useState([]); // State to store selected facilities
   const [selectedStars, setSelectedStars] = useState([]);
   const [sortBy, setSortBy] = useState("rating");
+  const [hotelPrices, setHotelPrices] = useState({});
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const resultsPerPage = 10;
+
+  const filteredHotels = hotels.filter(
+    (hotel) =>
+      selectedStars.length === 0 ||
+      selectedStars.includes(hotel.rating.toString())
+  );
+
+  const indexOfLastResult = currentPage * resultsPerPage;
+  const indexOfFirstResult = indexOfLastResult - resultsPerPage;
+  const currentHotels = filteredHotels.slice(indexOfFirstResult, indexOfLastResult);
+
+  useEffect(() => {
+    async function fetchPricesForCurrentPage() {
+      if (!currentHotels || currentHotels.length === 0) return;
+      if (!destinationId || !checkin || !checkout) return;
+      const checkinStr = new Date(checkin).toISOString().split("T")[0];
+      const checkoutStr = new Date(checkout).toISOString().split("T")[0];
+
+      const hotelsToFetch = currentHotels.filter(hotel => !(hotel.id in hotelPrices));
+      if (hotelsToFetch.length === 0) return;
+      const prices = await Promise.all(
+
+        hotelsToFetch.map(async (hotel) => {
+          try {
+            const res = await axios.get("http://localhost:3001/api/hotelproxy/rooms", {
+              params: {
+                hotel_id: hotel.id,
+                destination_id: destinationId,
+                checkin: checkinStr,
+                checkout: checkoutStr,
+                lang: "en_US",
+                currency: "SGD",
+                country_code: "SG",
+                guests: guests || "2",
+                partner_id: 1,
+              },
+            });
+            const data = res.data;
+            console.log(hotel.id, checkinStr, checkoutStr)
+            console.log(res.data)
+            if (Array.isArray(data.rooms) && data.rooms.length > 0) {
+              const sorted = data.rooms.sort(
+                (a, b) =>
+                  (a.price_total?.amount_unformatted || Infinity) -
+                  (b.price_total?.amount_unformatted || Infinity)
+              );
+              return [hotel.id, sorted[0].price_total?.amount_unformatted || null];
+            }
+          } catch (err) {
+            console.error(`Failed to fetch price for hotel ${hotel.id}:`, err);
+          }
+          return [hotel.id, null];
+        })
+      );
+
+      setHotelPrices(prev => ({
+        ...prev,
+        ...Object.fromEntries(prices),
+      }));
+    }
+
+    fetchPricesForCurrentPage();
+  }, [currentHotels]);
 
   const handleFacilityChange = (event) => {
     const facility = event.target.value;
@@ -56,11 +124,9 @@ export default function SearchResults() {
     );
   };
 
-  const filteredHotels = hotels.filter(
-    (hotel) =>
-      selectedStars.length === 0 ||
-      selectedStars.includes(hotel.rating.toString())
-  );
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedStars, selectedFacilities]);
 
   return (
     <>
@@ -104,13 +170,34 @@ export default function SearchResults() {
                   marginTop: "1rem",
                 }}
               >
-                {filteredHotels.map((hotel, index) => (
-                  <HotelCard key={index} hotel={hotel} /> //changed to component for easier styling
+                {console.log(hotelPrices)}
+                {currentHotels.map((hotel, index) => (
+                  <HotelCard key={index} hotel={hotel} price={hotelPrices[hotel.id]} /> //changed to component for easier styling
                 ))}
               </div>
             ) : (
               <p>No hotels found.</p>
             )}
+
+            <div style={{ marginTop: "2rem", textAlign: "center" }}>
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+                style={{ marginRight: "1rem" }}
+              >
+                Previous
+              </button>
+              <span>
+                Page {currentPage} of {Math.ceil(filteredHotels.length / resultsPerPage)}
+              </span>
+              <button
+                disabled={indexOfLastResult >= filteredHotels.length}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                style={{ marginLeft: "1rem" }}
+              >
+                Next
+              </button>
+            </div>
 
             <button style={{ marginTop: "2rem" }} onClick={() => navigate("/")}>
               Back to search

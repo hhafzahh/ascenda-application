@@ -13,6 +13,7 @@ export default function SearchBar({ queryval, setLoading }) {
   const [destinations, setDestinations] = useState([]);
   const [selectedUID, setSelectedUID] = useState(null);
   const metaRef = useRef({});
+  const [loading, setLoadingInternal] = useState(false);
 
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -95,9 +96,12 @@ export default function SearchBar({ queryval, setLoading }) {
       if (fuseMatch.length > 0) {
         const corrected = fuseMatch[0].item;
         uidToUse = corrected.uid;
-        handleSelectSuggestion(corrected);
+        setQuery(corrected.term); // Update input box text
+        setSelectedUID(corrected.uid);
+        setSuggestions([]);
+        metaRef.current = { uid: corrected.uid };
         console.log(
-          "✅ Using corrected fuzzy match:",
+          "Using corrected fuzzy match:",
           corrected.term,
           "→",
           uidToUse
@@ -110,8 +114,10 @@ export default function SearchBar({ queryval, setLoading }) {
 
     setSuggestions([]); // Hide suggestions after submit
 
-    setLoading?.(true);
+
     try {
+            setLoading?.(true);
+      setLoadingInternal(true);
       const res = await axios.get(
         `http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`
       );
@@ -135,15 +141,29 @@ export default function SearchBar({ queryval, setLoading }) {
           guests: adults + children,
         },
       });
+                setLoading?.(false);
+      setLoadingInternal(false);
     } catch (err) {
       console.error("Failed to fetch hotels:", err);
     } finally {
-      setLoading?.(false);
+  
+            setLoadingInternal(false);
     }
   };
 
   return (
     <div className="search-bar">
+                {loading && (
+        <div className="loading-spinner" style={{
+          marginBottom: "1rem",
+          textAlign: "center",
+          fontWeight: "bold",
+          fontSize: "1.2rem",
+          color: "#3a4ccf"
+        }}>
+          Loading...
+        </div>
+      )}
       <div className="search-row">
         <div className="input-group">
           <input
@@ -163,23 +183,35 @@ export default function SearchBar({ queryval, setLoading }) {
             </ul>
           )}
         </div>
-
         <DatePicker
           selected={startDate}
-          onChange={(date) => setStartDate(date)}
+          onChange={(date) => {
+            setStartDate(date);
+            if (date > endDate) {
+              setEndDate(date); // auto-adjust checkout to match if earlier
+            }
+          }}
           selectsStart
           startDate={startDate}
           endDate={endDate}
           placeholderText="Check-in"
+          minDate={new Date()} // today onwards only
         />
+
         <DatePicker
           selected={endDate}
-          onChange={(date) => setEndDate(date)}
+          onChange={(date) => {
+            if (date < startDate) {
+              setEndDate(startDate); // prevent invalid selection
+            } else {
+              setEndDate(date);
+            }
+          }}
           selectsEnd
           startDate={startDate}
           endDate={endDate}
           placeholderText="Check-out"
-          minDate={startDate}
+          minDate={startDate} // cannot checkout before check-in
         />
 
         <div className="guest-room-row">
