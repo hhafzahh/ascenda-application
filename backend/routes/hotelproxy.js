@@ -25,9 +25,10 @@ router.get('/hotels', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch hotel data', details: err.message });
   }
 });
+
 router.get("/rooms", async (req, res) => {
   try {
-    const { //query parameters to destructure given request
+    const {
       hotel_id,
       destination_id,
       checkin,
@@ -39,14 +40,15 @@ router.get("/rooms", async (req, res) => {
       partner_id,
     } = req.query;
 
-    if (!hotel_id || !destination_id || !checkin || !checkout || !guests) { //input validation
+    if (!hotel_id || !destination_id || !checkin || !checkout || !guests) {
       return res.status(400).json({ error: "Missing required query params" });
     }
 
-    const response = await axios.get( //send request to hotel API, insert hotel_id into URL path, based on previous page
-      `https://hotelapi.loyalty.dev/api/hotels/${hotel_id}/price`, //get room information
+    // Fetch room price data
+    const priceRes = await axios.get(
+      `https://hotelapi.loyalty.dev/api/hotels/${hotel_id}/price`,
       {
-        params: { //forward query parameters
+        params: {
           destination_id,
           checkin,
           checkout,
@@ -59,13 +61,36 @@ router.get("/rooms", async (req, res) => {
       }
     );
 
-    res.json(response.data); //send response back to frontend
+    // Fetch hotel-level info from the /api/hotels endpoint
+    const hotelListRes = await axios.get(
+      `https://hotelapi.loyalty.dev/api/hotels`,
+      {
+        params: { destination_id },
+      }
+    );
+
+    const hotelInfo = hotelListRes.data.find(h => h.id === hotel_id);
+
+    res.json({
+      ...priceRes.data,
+      hotel: hotelInfo || null,  // attach hotel info separately
+    });
   } catch (err) {
     console.error("Error in hotel proxy:", err.response?.data || err.message);
     res.status(err.response?.status || 500).json({
       error: "Failed to fetch room prices",
       details: err.response?.data || err.message,
     });
+  }
+});
+
+
+router.get('/hotels/:id', async (req, res) => {
+  try {
+    const response = await axios.get(`https://hotelapi.loyalty.dev/api/hotels/${req.params.id}`);
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: 'Error retrieving hotel details' });
   }
 });
 
