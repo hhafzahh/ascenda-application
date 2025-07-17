@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import HotelCard from "../src/components/HotelCard";
 import SearchBar from "../usage/searchBar";
@@ -9,7 +9,15 @@ export default function SearchResults() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { hotels = [], searchQuery } = location.state || {};
+  //const { hotels = [], searchQuery } = location.state || {};
+  const {
+    hotels = [],
+    searchQuery,
+    destinationId,
+    checkin,
+    checkout,
+    guests,
+  } = location.state || {};
 
   const [selectedFacilities, setSelectedFacilities] = useState([]); // State to store selected facilities
   const [selectedStars, setSelectedStars] = useState([]);
@@ -25,6 +33,15 @@ export default function SearchResults() {
     );
   };
 
+  //all works, its passed properly
+  /*
+  console.log("Hotels:", hotels);
+  console.log("Search Query:", searchQuery);
+  console.log("Destination ID:", destinationId);
+  console.log("Check-in Date:", checkin.toISOString().split("T", 1)[0]);
+  console.log("Check-out Date:", checkout);
+  console.log("Guests:", guests);*/
+
   const handleStarSelected = (event) => {
     const star = event.target.value;
 
@@ -35,6 +52,12 @@ export default function SearchResults() {
           : prevStars.filter((item) => item !== star) // Remove from selected facilities
     );
   };
+
+  const filteredHotels = hotels.filter(
+    (hotel) =>
+      selectedStars.length === 0 ||
+      selectedStars.includes(hotel.rating.toString())
+  );
 
   return (
     <>
@@ -67,7 +90,7 @@ export default function SearchResults() {
           <div className="search-results-container">
             {/* <h2>Results for: {searchQuery}</h2> //testing */}
 
-            {hotels.length > 0 ? (
+            {filteredHotels.length > 0 ? (
               <div
                 className="hotel-card-container"
                 style={{
@@ -77,7 +100,7 @@ export default function SearchResults() {
                   marginTop: "1rem",
                 }}
               >
-                {hotels.map((hotel, index) => (
+                {filteredHotels.map((hotel, index) => (
                   <HotelCard key={index} hotel={hotel} /> //changed to component for easier styling
                 ))}
               </div>

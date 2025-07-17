@@ -8,7 +8,7 @@ import "./SearchBar.css";
 import { useNavigate } from "react-router-dom";
 
 export default function SearchBar({ queryval, setLoading }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(queryval || ""); // Make sure query is initialized as an empty string
   const [suggestions, setSuggestions] = useState([]);
   const [destinations, setDestinations] = useState([]);
   const [selectedUID, setSelectedUID] = useState(null);
@@ -30,7 +30,7 @@ export default function SearchBar({ queryval, setLoading }) {
   ////added this so that any changes to search bar query in SearchResults page, will change
   useEffect(() => {
     // If `queryval` changes, update the query state
-    setQuery(queryval);
+    setQuery(queryval || ""); //added this so that it never becomes undefined
   }, [queryval]);
 
   const navigate = useNavigate();
@@ -121,11 +121,20 @@ export default function SearchBar({ queryval, setLoading }) {
       //setHotels(hotelsList);
       //onHotelsFetched?.(hotelsList);
 
-      navigate("/results", {
-        state: { hotels: hotelsList, searchQuery: query },
-      });
+      // navigate("/results", {
+      //   state: { hotels: hotelsList, searchQuery: query },
+      // });
 
-      navigate;
+      navigate("/results", {
+        state: {
+          hotels: hotelsList,
+          searchQuery: query,
+          destinationId: uidToUse,
+          checkin: startDate,
+          checkout: endDate,
+          guests: adults + children,
+        },
+      });
     } catch (err) {
       console.error("Failed to fetch hotels:", err);
     } finally {
