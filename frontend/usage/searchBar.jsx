@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import axios from 'axios';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import Fuse from 'fuse.js';
-import { debounce } from 'lodash';
-import './SearchBar.css';
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import axios from "axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import Fuse from "fuse.js";
+import { debounce } from "lodash";
+import "./SearchBar.css";
+import { useNavigate } from "react-router-dom";
 
-export default function SearchBar({ onHotelsFetched, setLoading }) {
-  const [query, setQuery] = useState('');
+export default function SearchBar({ queryval, setLoading }) {
+  const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [destinations, setDestinations] = useState([]);
   const [selectedUID, setSelectedUID] = useState(null);
@@ -21,29 +22,37 @@ export default function SearchBar({ onHotelsFetched, setLoading }) {
   const [hotels, setHotels] = useState([]);
 
   useEffect(() => {
-    fetch('/destinations.json')
+    fetch("/destinations.json")
       .then((res) => res.json())
       .then((data) => setDestinations(data));
   }, []);
 
+  ////added this so that any changes to search bar query in SearchResults page, will change
+  useEffect(() => {
+    // If `queryval` changes, update the query state
+    setQuery(queryval);
+  }, [queryval]);
+
+  const navigate = useNavigate();
+
   const fuseInstance = useMemo(() => {
     return new Fuse(destinations, {
       keys: [
-        { name: 'term', weight: 0.9 },
-        { name: 'city', weight: 0.05 },
-        { name: 'state', weight: 0.05 }
+        { name: "term", weight: 0.9 },
+        { name: "city", weight: 0.05 },
+        { name: "state", weight: 0.05 },
       ],
       threshold: 0.4,
       distance: 100,
       minMatchCharLength: 2,
-      ignoreLocation: true
+      ignoreLocation: true,
     });
   }, [destinations]);
 
   const debouncedSuggest = useRef(
     debounce((input, fuse) => {
       if (input.length > 1 && fuse) {
-        const results = fuse.search(input).map(r => r.item);
+        const results = fuse.search(input).map((r) => r.item);
         setSuggestions(results.slice(0, 5));
       } else {
         setSuggestions([]);
@@ -65,45 +74,64 @@ export default function SearchBar({ onHotelsFetched, setLoading }) {
     setSuggestions([]);
     metaRef.current = { uid: destination.uid };
   };
-const handleSearch = async (meta = {}) => {
-  console.log('handleSearch triggered', { query, metaRef: metaRef.current, selectedUID });
+  const handleSearch = async (meta = {}) => {
+    console.log("handleSearch triggered", {
+      query,
+      metaRef: metaRef.current,
+      selectedUID,
+    });
 
-  if (!query) {
-    alert('Please enter a destination.');
-    return;
-  }
-
-  let uidToUse = meta.uid || metaRef.current.uid || selectedUID;
-
-  if (!uidToUse) {
-    const fuseMatch = fuseInstance.search(query);
-    console.log('Fuse matches:', fuseMatch);
-
-    if (fuseMatch.length > 0) {
-      const corrected = fuseMatch[0].item;
-      uidToUse = corrected.uid;
-      handleSelectSuggestion(corrected);
-      console.log('✅ Using corrected fuzzy match:', corrected.term, '→', uidToUse);
-    } else {
-      alert('Destination not recognized. Please try again.');
+    if (!query) {
+      alert("Please enter a destination.");
       return;
     }
-  }
 
-  setSuggestions([]); // Hide suggestions after submit
+    let uidToUse = meta.uid || metaRef.current.uid || selectedUID;
 
-  setLoading?.(true);
-  try {
-    const res = await axios.get(`http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`);
-    const hotelsList = Array.isArray(res.data) ? res.data : res.data.hotels || [];
-    setHotels(hotelsList);
-    onHotelsFetched?.(hotelsList);
-  } catch (err) {
-    console.error('Failed to fetch hotels:', err);
-  } finally {
-    setLoading?.(false);
-  }
-};
+    if (!uidToUse) {
+      const fuseMatch = fuseInstance.search(query);
+      console.log("Fuse matches:", fuseMatch);
+
+      if (fuseMatch.length > 0) {
+        const corrected = fuseMatch[0].item;
+        uidToUse = corrected.uid;
+        handleSelectSuggestion(corrected);
+        console.log(
+          "✅ Using corrected fuzzy match:",
+          corrected.term,
+          "→",
+          uidToUse
+        );
+      } else {
+        alert("Destination not recognized. Please try again.");
+        return;
+      }
+    }
+
+    setSuggestions([]); // Hide suggestions after submit
+
+    setLoading?.(true);
+    try {
+      const res = await axios.get(
+        `http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`
+      );
+      const hotelsList = Array.isArray(res.data)
+        ? res.data
+        : res.data.hotels || [];
+      //setHotels(hotelsList);
+      //onHotelsFetched?.(hotelsList);
+
+      navigate("/results", {
+        state: { hotels: hotelsList, searchQuery: query },
+      });
+
+      navigate;
+    } catch (err) {
+      console.error("Failed to fetch hotels:", err);
+    } finally {
+      setLoading?.(false);
+    }
+  };
 
   return (
     <div className="search-bar">
@@ -152,21 +180,27 @@ const handleSearch = async (meta = {}) => {
             <div className="dropdown-content">
               <div className="counter">
                 <label>Adults</label>
-                <button onClick={() => setAdults(Math.max(1, adults - 1))}>−</button>
+                <button onClick={() => setAdults(Math.max(1, adults - 1))}>
+                  −
+                </button>
                 <span>{adults}</span>
                 <button onClick={() => setAdults(adults + 1)}>+</button>
               </div>
 
               <div className="counter">
                 <label>Children</label>
-                <button onClick={() => setChildren(Math.max(0, children - 1))}>−</button>
+                <button onClick={() => setChildren(Math.max(0, children - 1))}>
+                  −
+                </button>
                 <span>{children}</span>
                 <button onClick={() => setChildren(children + 1)}>+</button>
               </div>
 
               <div className="counter">
                 <label>Rooms</label>
-                <button onClick={() => setRooms(Math.max(1, rooms - 1))}>−</button>
+                <button onClick={() => setRooms(Math.max(1, rooms - 1))}>
+                  −
+                </button>
                 <span>{rooms}</span>
                 <button onClick={() => setRooms(rooms + 1)}>+</button>
               </div>
