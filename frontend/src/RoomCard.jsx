@@ -201,15 +201,10 @@ export default function RoomCard({ room }) { //Take in room as an object from Ho
 
         <div className="price-section">
           <div className="price-display">
-            {/*{base_rate_in_currency && base_rate_in_currency !== converted_price && (
-              <p className="original-price">
-                {formatPrice(base_rate_in_currency)}
-              </p>
-            )} */}
             <p className="current-price">
               {formatPrice(converted_price)}
             </p>
-            <p className="price-note">per night</p>
+            {/*<p className="price-note">per night</p>*/}
             {points && (
               <p className="points-option">
                 or {points.toLocaleString()} points
