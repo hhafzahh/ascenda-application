@@ -6,7 +6,7 @@ import FacilitiesFilter from "../src/components/FacilitiesFilter";
 import StarRatingFilter from "../src/components/StarRatingFilter";
 import SortByControl from "../src/components/SortControl";
 import SortControl from "../src/components/SortControl";
-import axios from "axios"; 
+import axios from "axios";
 
 export default function SearchResults() {
   const location = useLocation();
@@ -26,6 +26,7 @@ export default function SearchResults() {
   const [selectedStars, setSelectedStars] = useState([]);
   const [sortBy, setSortBy] = useState("rating");
   const [hotelPrices, setHotelPrices] = useState({});
+  const [priceLoading, setPriceLoading] = useState(false); //added loading behavior since its takes some time to load prices
 
   const [currentPage, setCurrentPage] = useState(1);
   const resultsPerPage = 10;
@@ -38,44 +39,65 @@ export default function SearchResults() {
 
   const indexOfLastResult = currentPage * resultsPerPage;
   const indexOfFirstResult = indexOfLastResult - resultsPerPage;
-  const currentHotels = filteredHotels.slice(indexOfFirstResult, indexOfLastResult);
+  const currentHotels = filteredHotels.slice(
+    indexOfFirstResult,
+    indexOfLastResult
+  );
+
+  useEffect(() => {
+    //loads the page but removes caches data //causes previous page cache to be cleared
+    setHotelPrices({});
+  }, [currentPage]);
 
   useEffect(() => {
     async function fetchPricesForCurrentPage() {
       if (!currentHotels || currentHotels.length === 0) return;
+
       if (!destinationId || !checkin || !checkout) return;
+      setPriceLoading(true);
       const checkinStr = new Date(checkin).toISOString().split("T")[0];
       const checkoutStr = new Date(checkout).toISOString().split("T")[0];
 
-      const hotelsToFetch = currentHotels.filter(hotel => !(hotel.id in hotelPrices));
-      if (hotelsToFetch.length === 0) return;
-      const prices = await Promise.all(
+      const hotelsToFetch = currentHotels.filter(
+        (hotel) => !(hotel.id in hotelPrices)
+      );
+      if (hotelsToFetch.length === 0) {
+        setPriceLoading(false);
+        return;
+      }
 
+      const prices = await Promise.all(
         hotelsToFetch.map(async (hotel) => {
           try {
-            const res = await axios.get("http://localhost:3001/api/hotelproxy/rooms", {
-              params: {
-                hotel_id: hotel.id,
-                destination_id: destinationId,
-                checkin: checkinStr,
-                checkout: checkoutStr,
-                lang: "en_US",
-                currency: "SGD",
-                country_code: "SG",
-                guests: guests || "2",
-                partner_id: 1,
-              },
-            });
+            const res = await axios.get(
+              "http://localhost:3001/api/hotelproxy/rooms",
+              {
+                params: {
+                  hotel_id: hotel.id,
+                  destination_id: destinationId,
+                  checkin: checkinStr,
+                  checkout: checkoutStr,
+                  lang: "en_US",
+                  currency: "SGD",
+                  country_code: "SG",
+                  guests: guests || "2",
+                  partner_id: 1,
+                },
+              }
+            );
             const data = res.data;
-            console.log(hotel.id, checkinStr, checkoutStr)
-            console.log(res.data)
+            console.log(hotel.id, checkinStr, checkoutStr);
+            console.log(res.data);
+            //gets the minimum price from the room array
             if (Array.isArray(data.rooms) && data.rooms.length > 0) {
-              const sorted = data.rooms.sort(
-                (a, b) =>
-                  (a.price_total?.amount_unformatted || Infinity) -
-                  (b.price_total?.amount_unformatted || Infinity)
-              );
-              return [hotel.id, sorted[0].price_total?.amount_unformatted || null];
+              const prices = data.rooms
+                .map((room) => room.price)
+                .filter((price) => typeof price === "number");
+
+              const minPrice = prices.length > 0 ? Math.min(...prices) : null;
+
+              console.log(`Min price for hotel ${hotel.id}:`, minPrice);
+              return [hotel.id, minPrice];
             }
           } catch (err) {
             console.error(`Failed to fetch price for hotel ${hotel.id}:`, err);
@@ -84,10 +106,11 @@ export default function SearchResults() {
         })
       );
 
-      setHotelPrices(prev => ({
+      setHotelPrices((prev) => ({
         ...prev,
         ...Object.fromEntries(prices),
       }));
+      //setPriceLoading(false);
     }
 
     fetchPricesForCurrentPage();
@@ -171,9 +194,23 @@ export default function SearchResults() {
                 }}
               >
                 {console.log(hotelPrices)}
-                {currentHotels.map((hotel, index) => (
-                  <HotelCard key={index} hotel={hotel} price={hotelPrices[hotel.id]} /> //changed to component for easier styling
-                ))}
+                {currentHotels.map((hotel, index) => {
+                  const price = hotelPrices[hotel.id];
+
+                  return (
+                    <HotelCard
+                      key={index}
+                      hotel={hotel}
+                      price={
+                        priceLoading
+                          ? "Loading price..."
+                          : price != null
+                          ? `${price}`
+                          : "Price unavailable"
+                      }
+                    />
+                  );
+                })}
               </div>
             ) : (
               <p>No hotels found.</p>
@@ -188,7 +225,8 @@ export default function SearchResults() {
                 Previous
               </button>
               <span>
-                Page {currentPage} of {Math.ceil(filteredHotels.length / resultsPerPage)}
+                Page {currentPage} of{" "}
+                {Math.ceil(filteredHotels.length / resultsPerPage)}
               </span>
               <button
                 disabled={indexOfLastResult >= filteredHotels.length}

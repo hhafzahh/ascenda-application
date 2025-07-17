@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function HotelCard({ hotel }) {
+export default function HotelCard({ hotel, price }) {
   const imageUrl =
     hotel.images?.[0]?.url ||
     (hotel.image_details?.prefix && hotel.image_details?.suffix
@@ -25,7 +25,7 @@ export default function HotelCard({ hotel }) {
 
   const locationText = hotel.address || "Location unavailable";
 
-  const price = hotel.price ? `$${hotel.price}` : "Price unavailable";
+  //const hotelPrice = price ? `${price}` : "Price unavailable";
 
   return (
     <div
