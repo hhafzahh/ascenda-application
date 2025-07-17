@@ -2,14 +2,13 @@ import React from "react";
 
 export default function HotelCard({ hotel }) {
   const imageUrl =
-    hotel.images?.[0]?.url ||
-    (hotel.image_details?.prefix && hotel.image_details?.suffix
+    hotel.image_details?.prefix && hotel.image_details?.suffix
       ? `${hotel.image_details.prefix}0${hotel.image_details.suffix}` // Try 0.jpg first
       : hotel.default_image_index !== undefined &&
         hotel.image_details?.prefix &&
         hotel.image_details?.suffix
       ? `${hotel.image_details.prefix}${hotel.default_image_index}${hotel.image_details.suffix}` // Fallback to default_image_index
-      : "https://placehold.co/600x400?text=No\nImage"); // Fallback to placeholder
+      : "https://placehold.co/600x400?text=No\nImage"; // Fallback to placeholder
 
   const categories =
     hotel.categories && typeof hotel.categories === "object"
@@ -25,7 +24,7 @@ export default function HotelCard({ hotel }) {
 
   const locationText = hotel.address || "Location unavailable";
 
-  const price = hotel.price ? `$${hotel.price}` : "Price unavailable";
+  const hotelPrice = hotel.price ? `${hotel.price}` : "Price unavailable";
 
   return (
     <div
@@ -125,7 +124,9 @@ export default function HotelCard({ hotel }) {
         }}
       >
         <div>
-          <div style={{ fontWeight: "bold", fontSize: "1rem" }}>{price}</div>
+          <div style={{ fontWeight: "bold", fontSize: "1rem" }}>
+            {hotelPrice}
+          </div>
           <div style={{ fontSize: "0.75rem", color: "#777" }}>Incl. taxes</div>
           <div style={{ fontSize: "0.75rem", color: "#777" }}>Earn rewards</div>
         </div>
