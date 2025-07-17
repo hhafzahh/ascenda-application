@@ -34,7 +34,7 @@ app.use('/api/hotelproxy', hotelProxyRouter);
 
 (async () => {
     try {
-        //await connect(); 
+        await connect(); 
         console.log("Connected to MongoDB");
 
         app.listen(PORT, () => {
