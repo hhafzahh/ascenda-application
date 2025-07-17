@@ -4,9 +4,7 @@ import HotelCard from "../src/components/HotelCard";
 import SearchBar from "../usage/searchBar";
 import FacilitiesFilter from "../src/components/FacilitiesFilter";
 import StarRatingFilter from "../src/components/StarRatingFilter";
-import SortByControl from "../src/components/SortControl";
 import SortControl from "../src/components/SortControl";
-import axios from "axios";
 
 export default function SearchResults() {
   const location = useLocation();
@@ -25,8 +23,6 @@ export default function SearchResults() {
   const [selectedFacilities, setSelectedFacilities] = useState([]); // State to store selected facilities
   const [selectedStars, setSelectedStars] = useState([]);
   const [sortBy, setSortBy] = useState("rating");
-  const [hotelPrices, setHotelPrices] = useState({});
-  const [priceLoading, setPriceLoading] = useState(false); //added loading behavior since its takes some time to load prices
 
   const [currentPage, setCurrentPage] = useState(1);
   const resultsPerPage = 10;
@@ -34,7 +30,7 @@ export default function SearchResults() {
   const filteredHotels = hotels.filter(
     (hotel) =>
       selectedStars.length === 0 ||
-      selectedStars.includes(hotel.rating.toString())
+      selectedStars.includes(hotel.rating?.toString())
   );
 
   const indexOfLastResult = currentPage * resultsPerPage;
@@ -43,78 +39,6 @@ export default function SearchResults() {
     indexOfFirstResult,
     indexOfLastResult
   );
-
-  useEffect(() => {
-    //loads the page but removes caches data //causes previous page cache to be cleared
-    setHotelPrices({});
-  }, [currentPage]);
-
-  useEffect(() => {
-    async function fetchPricesForCurrentPage() {
-      if (!currentHotels || currentHotels.length === 0) return;
-
-      if (!destinationId || !checkin || !checkout) return;
-      setPriceLoading(true);
-      const checkinStr = new Date(checkin).toISOString().split("T")[0];
-      const checkoutStr = new Date(checkout).toISOString().split("T")[0];
-
-      const hotelsToFetch = currentHotels.filter(
-        (hotel) => !(hotel.id in hotelPrices)
-      );
-      if (hotelsToFetch.length === 0) {
-        setPriceLoading(false);
-        return;
-      }
-
-      const prices = await Promise.all(
-        hotelsToFetch.map(async (hotel) => {
-          try {
-            const res = await axios.get(
-              "http://localhost:3001/api/hotelproxy/rooms",
-              {
-                params: {
-                  hotel_id: hotel.id,
-                  destination_id: destinationId,
-                  checkin: checkinStr,
-                  checkout: checkoutStr,
-                  lang: "en_US",
-                  currency: "SGD",
-                  country_code: "SG",
-                  guests: guests || "2",
-                  partner_id: 1,
-                },
-              }
-            );
-            const data = res.data;
-            console.log(hotel.id, checkinStr, checkoutStr);
-            console.log(res.data);
-            //gets the minimum price from the room array
-            if (Array.isArray(data.rooms) && data.rooms.length > 0) {
-              const prices = data.rooms
-                .map((room) => room.price)
-                .filter((price) => typeof price === "number");
-
-              const minPrice = prices.length > 0 ? Math.min(...prices) : null;
-
-              console.log(`Min price for hotel ${hotel.id}:`, minPrice);
-              return [hotel.id, minPrice];
-            }
-          } catch (err) {
-            console.error(`Failed to fetch price for hotel ${hotel.id}:`, err);
-          }
-          return [hotel.id, null];
-        })
-      );
-
-      setHotelPrices((prev) => ({
-        ...prev,
-        ...Object.fromEntries(prices),
-      }));
-      //setPriceLoading(false);
-    }
-
-    fetchPricesForCurrentPage();
-  }, [currentHotels]);
 
   const handleFacilityChange = (event) => {
     const facility = event.target.value;
@@ -155,7 +79,11 @@ export default function SearchResults() {
     <>
       <div className="landing-container">
         <div className="search-wrapper">
-          <SearchBar queryval={searchQuery} />
+          <SearchBar
+            queryval={searchQuery}
+            initialCheckin={checkin}
+            initialCheckout={checkout}
+          />
         </div>
       </div>
       <div style={{ display: "flex", gap: "2rem" }}>
@@ -193,24 +121,9 @@ export default function SearchResults() {
                   marginTop: "1rem",
                 }}
               >
-                {console.log(hotelPrices)}
-                {currentHotels.map((hotel, index) => {
-                  const price = hotelPrices[hotel.id];
-
-                  return (
-                    <HotelCard
-                      key={index}
-                      hotel={hotel}
-                      price={
-                        priceLoading
-                          ? "Loading price..."
-                          : price != null
-                          ? `${price}`
-                          : "Price unavailable"
-                      }
-                    />
-                  );
-                })}
+                {currentHotels.map((hotel, index) => (
+                  <HotelCard key={index} hotel={hotel} /> //changed to component for easier styling
+                ))}
               </div>
             ) : (
               <p>No hotels found.</p>

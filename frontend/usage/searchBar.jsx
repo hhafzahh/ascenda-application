@@ -7,7 +7,12 @@ import { debounce } from "lodash";
 import "./SearchBar.css";
 import { useNavigate } from "react-router-dom";
 
-export default function SearchBar({ queryval, setLoading }) {
+export default function SearchBar({
+  queryval,
+  setLoading,
+  initialCheckin,
+  initialCheckout,
+}) {
   const [query, setQuery] = useState(queryval || ""); // Make sure query is initialized as an empty string
   const [suggestions, setSuggestions] = useState([]);
   const [destinations, setDestinations] = useState([]);
@@ -21,6 +26,11 @@ export default function SearchBar({ queryval, setLoading }) {
   const [children, setChildren] = useState(0);
   const [rooms, setRooms] = useState(1);
   const [hotels, setHotels] = useState([]);
+
+  useEffect(() => {
+    if (initialCheckin) setStartDate(new Date(initialCheckin));
+    if (initialCheckout) setEndDate(new Date(initialCheckout));
+  }, [initialCheckin, initialCheckout]);
 
   useEffect(() => {
     fetch("/destinations.json")
@@ -114,13 +124,25 @@ export default function SearchBar({ queryval, setLoading }) {
 
     setSuggestions([]); // Hide suggestions after submit
 
-
     try {
-            setLoading?.(true);
+      setLoading?.(true);
       setLoadingInternal(true);
+      const guestString = Array(rooms)
+        .fill(adults + children)
+        .join("|");
+
       const res = await axios.get(
-        `http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`
+        `http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`,
+        {
+          params: {
+            checkin: startDate.toISOString().split("T")[0],
+            checkout: endDate.toISOString().split("T")[0],
+            guests: guestString,
+          },
+        }
       );
+
+      console.log(res.data);
       const hotelsList = Array.isArray(res.data)
         ? res.data
         : res.data.hotels || [];
@@ -141,26 +163,28 @@ export default function SearchBar({ queryval, setLoading }) {
           guests: adults + children,
         },
       });
-                setLoading?.(false);
+      setLoading?.(false);
       setLoadingInternal(false);
     } catch (err) {
       console.error("Failed to fetch hotels:", err);
     } finally {
-  
-            setLoadingInternal(false);
+      setLoadingInternal(false);
     }
   };
 
   return (
     <div className="search-bar">
-                {loading && (
-        <div className="loading-spinner" style={{
-          marginBottom: "1rem",
-          textAlign: "center",
-          fontWeight: "bold",
-          fontSize: "1.2rem",
-          color: "#3a4ccf"
-        }}>
+      {loading && (
+        <div
+          className="loading-spinner"
+          style={{
+            marginBottom: "1rem",
+            textAlign: "center",
+            fontWeight: "bold",
+            fontSize: "1.2rem",
+            color: "#3a4ccf",
+          }}
+        >
           Loading...
         </div>
       )}
