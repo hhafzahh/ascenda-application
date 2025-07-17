@@ -4,6 +4,8 @@ import HotelCard from "../src/components/HotelCard";
 import SearchBar from "../usage/searchBar";
 import FacilitiesFilter from "../src/components/FacilitiesFilter";
 import StarRatingFilter from "../src/components/StarRatingFilter";
+import SortByControl from "../src/components/SortControl";
+import SortControl from "../src/components/SortControl";
 
 export default function SearchResults() {
   const location = useLocation();
@@ -21,6 +23,7 @@ export default function SearchResults() {
 
   const [selectedFacilities, setSelectedFacilities] = useState([]); // State to store selected facilities
   const [selectedStars, setSelectedStars] = useState([]);
+  const [sortBy, setSortBy] = useState("rating");
 
   const handleFacilityChange = (event) => {
     const facility = event.target.value;
@@ -86,6 +89,7 @@ export default function SearchResults() {
         {/* Main content: Hotel list */}
         <div style={{ flex: 1 }}>
           {/*  hotel list rendering */}
+          <SortControl selected={sortBy} onSelect={setSortBy} />
 
           <div className="search-results-container">
             {/* <h2>Results for: {searchQuery}</h2> //testing */}
