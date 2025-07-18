@@ -1,6 +1,22 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 function NavBar() {
+  const [isLoggedIn, setIsLoggedIn] = useState(!!sessionStorage.getItem("userId"));
+
+  useEffect(() => {
+    const updateLoginStatus = () => {
+      setIsLoggedIn(!!sessionStorage.getItem("userId"));
+    };
+
+    window.addEventListener("storage", updateLoginStatus);
+    window.addEventListener("custom-login-event", updateLoginStatus);
+
+    return () => {
+      window.removeEventListener("storage", updateLoginStatus);
+      window.removeEventListener("custom-login-event", updateLoginStatus);
+    };
+  }, []);
   const styles = {
     navbar: {
       backgroundColor: "#ffffff",
@@ -9,7 +25,7 @@ function NavBar() {
       alignItems: "center",
       justifyContent: "space-between",
       borderBottom: "1px solid #e5e7eb",
-      flexWrap: "wrap", // To help with responsiveness
+      flexWrap: "wrap", 
     },
     logo: {
       fontSize: "1.5rem",
@@ -59,31 +75,45 @@ function NavBar() {
         <Link to="/" style={styles.link}>
           Home
         </Link>
-        <Link
-          to="/login"
-          style={{ ...styles.link, ...styles.loginLink }}
-          onMouseEnter={(e) =>
-            (e.target.style.backgroundColor =
-              styles.loginLinkHover.backgroundColor)
-          }
-          onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
-        >
-          Login
-        </Link>
-        <Link
-          to="/register"
-          style={{ ...styles.link, ...styles.registerLink }} //shared base style + register link style
-          onMouseEnter={(e) =>
-            (e.target.style.backgroundColor =
-              styles.registerLinkHover.backgroundColor)
-          }
-          onMouseLeave={(e) =>
-            (e.target.style.backgroundColor =
-              styles.registerLink.backgroundColor)
-          }
-        >
-          Register
-        </Link>
+        {isLoggedIn ? (
+          <button
+            style={{ ...styles.link, backgroundColor: "#f87171", color: "#fff", border: "none" }}
+            onClick={() => {
+              sessionStorage.clear();
+              window.location.reload();
+            }}
+          >
+            Logout
+          </button>
+        ) : (
+          <>
+            <Link
+              to="/login"
+              style={{ ...styles.link, ...styles.loginLink }}
+              onMouseEnter={(e) =>
+                (e.target.style.backgroundColor =
+                  styles.loginLinkHover.backgroundColor)
+              }
+              onMouseLeave={(e) =>
+                (e.target.style.backgroundColor = "transparent")}
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              style={{ ...styles.link, ...styles.registerLink }}
+              onMouseEnter={(e) =>
+                (e.target.style.backgroundColor =
+                  styles.registerLinkHover.backgroundColor)
+              }
+              onMouseLeave={(e) =>
+                (e.target.style.backgroundColor =
+                  styles.registerLink.backgroundColor)}
+            >
+              Register
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );

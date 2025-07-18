@@ -25,12 +25,14 @@ const PORT = process.env.PORT || 3001;
 const { connect } = require("./Models/db");
 const bookingsRouter = require("./routes/bookings");
 const hotelProxyRouter = require("./routes/hotelproxy");
+const userRouter = require("./routes/user");
 
 app.use(cors());
 app.use(express.json());
 
 app.use("/api/bookings", bookingsRouter);
 app.use("/api/hotelproxy", hotelProxyRouter);
+app.use("/api/user", userRouter);
 
 (async () => {
   try {

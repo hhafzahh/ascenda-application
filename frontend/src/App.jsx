@@ -5,6 +5,8 @@ import "./App.css";
 import HotelRooms from "../pages/HotelRooms";
 import SearchResults from "../pages/SearchResults";
 import NavBar from "./components/NavBar";
+import Register from "../pages/Register"
+import Login from "../pages/Login";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
           <Route path="/results" element={<SearchResults />} />
           <Route path="/bookings" element={<Booking />} />
           <Route path="/rooms" element={<HotelRooms />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </div>
     </>
