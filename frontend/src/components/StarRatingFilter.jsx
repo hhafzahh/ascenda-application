@@ -12,13 +12,22 @@ const StarRatingFilter = ({ selectedStars, onChange }) => {
       }}
     >
       <h4
-        style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "0.5rem" }}
+        style={{
+          fontSize: "0.8rem",
+          fontWeight: "600",
+          marginBottom: "0.5rem",
+        }}
       >
         Property Rating
       </h4>
       {["5", "4", "3", "2", "1"].map((star) => (
         <label
-          style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            fontSize: "0.8rem",
+          }}
           key={star}
         >
           <input

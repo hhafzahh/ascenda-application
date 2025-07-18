@@ -141,4 +141,15 @@ router.get("/rooms", async (req, res) => {
   }
 });
 
+router.get("/hotels/:id", async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://hotelapi.loyalty.dev/api/hotels/${req.params.id}`
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: "Error retrieving hotel details" });
+  }
+});
+
 module.exports = router;

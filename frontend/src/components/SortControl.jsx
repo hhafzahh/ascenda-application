@@ -3,8 +3,8 @@ import React from "react";
 export default function SortControl({ selected, onSelect }) {
   const options = [
     { label: "Top Rating", value: "rating" },
-    { label: "Lowest price first", value: "price" },
-    { label: "Alphabetical", value: "alpha" },
+    { label: "Low to High Price", value: "priceLowToHigh" },
+    { label: "High to Low Price", value: "priceHighToLow" },
   ];
 
   return (
@@ -29,7 +29,7 @@ export default function SortControl({ selected, onSelect }) {
           <button
             key={opt.value}
             style={{
-              backgroundColor: selected === opt.value ? "#2563eb" : "#fff",
+              backgroundColor: selected === opt.value ? "#2563eb" : "#fff", //color changes based on selected
               color: selected === opt.value ? "#fff" : "#2563eb",
               border: "none",
               borderLeft: index === 0 ? "none" : "1px solid #ddd",
