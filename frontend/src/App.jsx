@@ -7,6 +7,7 @@ import SearchResults from "../pages/SearchResults";
 import NavBar from "./components/NavBar";
 import Register from "../pages/Register"
 import Login from "../pages/Login";
+import HotelDetails from '../pages/HotelDetails';
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
           <Route path="/rooms" element={<HotelRooms />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-        </Routes>
+          <Route path="/hotels/:hotelId" element={<HotelDetails />} />
+      </Routes>
       </div>
     </>
   );
