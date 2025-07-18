@@ -24,32 +24,32 @@ export default function PhotoGallery({ hotel }) {
 
     return (
         <div className="hotel-photo-grid">
-        {/* Left: Main Large Image */}
-        <div className="main-image" onClick={() => setShowGallery(true)}>
-            <img src={images[0].original} alt="Main Preview" />
-        </div>
-
-        {/* Right: 2x3 Grid */}
-        <div className="side-grid">
-            {images.slice(1, 7).map((img, i) => (
-            <div className="grid-thumb" key={i} onClick={() => setShowGallery(true)}>
-                <img src={img.original} alt={`Preview ${i + 1}`} />
-                {i === 5 && <div className="overlay">See All Photos</div>}
+            {/* Left: Main Large Image */}
+            <div className="main-image" onClick={() => setShowGallery(true)}>
+                <img src={images[0].original} alt="Main Preview" />
             </div>
-            ))}
-        </div>
 
-        {/* Lightbox */}
-        {showGallery && (
-            <div className="gallery-modal">
-            <ImageGallery
-                items={images}
-                showPlayButton={false}
-                onClick={() => setShowGallery(false)}
-            />
-            <button className="close-btn" onClick={() => setShowGallery(false)}>✕</button>
+            {/* Right: 2x3 Grid */}
+            <div className="side-grid">
+                {images.slice(1, 7).map((img, i) => (
+                <div className="grid-thumb" key={i} onClick={() => setShowGallery(true)}>
+                    <img src={img.original} alt={`Preview ${i + 1}`} />
+                    {i === 5 && <div className="overlay">See All Photos</div>}
+                </div>
+                ))}
             </div>
-        )}
+
+            {/* Lightbox */}
+            {showGallery && (
+                <div className="gallery-modal">
+                <ImageGallery
+                    items={images}
+                    showPlayButton={false}
+                    onClick={() => setShowGallery(false)}
+                />
+                <button className="close-btn" onClick={() => setShowGallery(false)}>✕</button>
+                </div>
+            )}
         </div>
   );
 

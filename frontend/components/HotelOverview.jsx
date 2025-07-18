@@ -142,6 +142,17 @@ export default function HotelOverview({onSelectRoom}) {
 
   const category = findCategory(hotel.description);
 
+  function getAmenities(amenities) {
+    if (!amenities || typeof amenities !== 'object') return [];
+
+    return Object.entries(amenities)
+        .filter(([_, value]) => value) // keep only true values
+        .map(([key]) =>
+        key
+            .replace(/([A-Z])/g, ' $1')        // insert space before capital letters
+            .replace(/^./, s => s.toUpperCase()) // capitalize first letter
+        );
+    }
 
   return (
     
