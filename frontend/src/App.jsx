@@ -3,6 +3,7 @@ import Booking from '../pages/Bookings';
 import Landing from '../pages/Landing'
 import './App.css';
 import HotelRooms from '../pages/HotelRooms';
+import HotelDetails from '../pages/HotelDetails';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/bookings" element={<Booking />} />
         <Route path="/rooms" element={<HotelRooms />} />
+        <Route path="/hotels/:hotelId" element={<HotelDetails />} />
       </Routes>
     </Router>
   );

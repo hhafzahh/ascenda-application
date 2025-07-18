@@ -1,0 +1,91 @@
+.hotel-photo-grid {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start; /* or stretch, doesn't matter if you fix height below */
+}
+
+.side-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 150px); /* or adjust to desired height */
+  gap: 10px;
+}
+
+.main-image {
+  height: calc(150px * 2 + 10px); /* total height of side-grid: 2 rows + 1 gap */
+  overflow: hidden;
+  border-top-left-radius: 10px;
+}
+
+.main-image:hover , .grid-thumb:hover {
+  cursor: pointer;
+  filter: brightness(0.8);
+}
+
+.main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  
+}
+
+/* 2x3 grid */
+.side-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 150px);
+  gap: 10px;
+}
+
+.grid-thumb {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.side-grid .grid-thumb:nth-child(3) img {
+  border-top-right-radius: 10px;
+}
+
+
+.grid-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* See All overlay on last image */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Lightbox styling */
+.gallery-modal {
+  position: fixed;
+  inset: 0;
+  background: white;
+  z-index: 999;
+  padding: 40px;
+}
+
+.close-btn {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  background: white;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 1000;
+}

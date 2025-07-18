@@ -1,10 +1,12 @@
 // /frontend/pages/Landing.jsx
 import React, { useState } from 'react';
 import SearchBar from '../usage/searchBar';
+import { useNavigate } from 'react-router-dom';
 
 export default function Landing() {
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="landing-container">
@@ -23,15 +25,23 @@ export default function Landing() {
           <h3>Search Results:</h3>
           <div className="hotel-card-container" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
             {hotels.map((hotel, index) => (
-              <div key={index} className="hotel-row-card" style={{
-                display: 'flex',
-                width: '100%',
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                backgroundColor: '#fff',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-              }}>
+              <div 
+                key={index} 
+                className="hotel-row-card" 
+                onClick={() => {
+                  console.log('Navigating with hotel:', hotel);
+                  navigate(`/hotels/${hotel.id}`, { state: { hotel } });
+                }}
+                style={{
+                  display: 'flex',
+                  width: '100%',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                }}
+              >
                 <div style={{ width: '300px', height: '200px', flexShrink: 0 }}>
                   <img
                     src={
