@@ -1,4 +1,4 @@
-import { hotelFacilities } from "../config/hotel-config"; //has possible types of facilites
+import { roomAmenities } from "../config/hotel-config"; //has possible types of facilites
 
 const FacilitiesFilter = ({ selectedFacilities, onChange }) => {
   return (
@@ -10,21 +10,23 @@ const FacilitiesFilter = ({ selectedFacilities, onChange }) => {
         paddingLeft: "2rem",
         paddingRight: "2rem",
         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+        marginTop: "3rem",
       }}
     >
       <h4
         style={{
-          fontSize: "1.125rem",
+          fontSize: "0.8rem",
           fontWeight: "600",
           marginBottom: "0.5rem",
         }}
       >
-        Facilities
+        Room amenities
       </h4>
-      {hotelFacilities.map((facility, index) => (
+      {roomAmenities.map((facility, index) => (
         <label
-          key={index}
+          key={facility.key}
           style={{
+            fontSize: "0.8rem",
             display: "flex",
             alignItems: "center",
             gap: "0.5rem",
@@ -35,11 +37,11 @@ const FacilitiesFilter = ({ selectedFacilities, onChange }) => {
             style={{
               borderRadius: "0.25rem", // rounded
             }}
-            value={facility}
-            checked={selectedFacilities.includes(facility)}
+            value={facility.key}
+            checked={selectedFacilities.includes(facility.key)}
             onChange={onChange}
           />
-          <span>{facility}</span>
+          <span>{facility.label}</span>
         </label>
       ))}
     </div>

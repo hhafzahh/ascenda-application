@@ -20,25 +20,46 @@ export default function SearchResults() {
     guests,
   } = location.state || {};
 
-  const [selectedFacilities, setSelectedFacilities] = useState([]); // State to store selected facilities
+  const [selectedFacilities, setSelectedFacilities] = useState([]); // State to store selected amenities
   const [selectedStars, setSelectedStars] = useState([]);
   const [sortBy, setSortBy] = useState("rating");
 
   const [currentPage, setCurrentPage] = useState(1);
   const resultsPerPage = 10;
 
-  const filteredHotels = hotels.filter(
-    (hotel) =>
-      selectedStars.length === 0 ||
-      selectedStars.includes(hotel.rating?.toString())
-  );
-
-  const indexOfLastResult = currentPage * resultsPerPage;
-  const indexOfFirstResult = indexOfLastResult - resultsPerPage;
-  const currentHotels = filteredHotels.slice(
-    indexOfFirstResult,
-    indexOfLastResult
-  );
+  //Sort & Filter Hotels based on rating, price and amenities
+  const filteredHotels = hotels
+    .filter(
+      (hotel) =>
+        selectedStars.length === 0 ||
+        selectedStars.includes(hotel.rating?.toString())
+    )
+    .sort((a, b) => {
+      if (sortBy === "rating") {
+        //console.log(a.rating); //possible that some values are undefined
+        const ratingA = a.rating ?? 0; // fallback to 0 if undefined
+        const ratingB = b.rating ?? 0;
+        return ratingB - ratingA;
+      }
+      if (sortBy === "priceLowToHigh") {
+        const priceA = a.price ?? 0;
+        const priceB = b.price ?? 0;
+        return priceA - priceB;
+      }
+      if (sortBy === "priceHighToLow") {
+        const priceA = a.price ?? 0;
+        const priceB = b.price ?? 0;
+        return priceB - priceA;
+      }
+      return 0;
+    })
+    .filter(
+      (hotel) =>
+        selectedFacilities.length === 0 ||
+        selectedFacilities.every(
+          (facilityKey) => hotel.amenities?.[facilityKey]
+        )
+    );
 
   const handleFacilityChange = (event) => {
     const facility = event.target.value;
@@ -51,6 +72,33 @@ export default function SearchResults() {
     );
   };
 
+  const handleStarSelected = (event) => {
+    const star = event.target.value;
+
+    setSelectedStars(
+      (prevStars) =>
+        event.target.checked
+          ? [...prevStars, star] // Add to selected stars
+          : prevStars.filter((item) => item !== star) // Remove from selected stars
+    );
+  };
+
+  //pagination
+  const indexOfLastResult = currentPage * resultsPerPage;
+  const indexOfFirstResult = indexOfLastResult - resultsPerPage;
+  const currentHotels = filteredHotels.slice(
+    indexOfFirstResult,
+    indexOfLastResult
+  );
+
+  // const test = hotels.filter((hotel) => {
+  //   if (selectedFacilities.length === 0) return true;
+  //   return selectedFacilities.every(
+  //     (facilityKey) => hotel.amenities?.[facilityKey]
+  //   );
+  // });
+  // console.log(test);
+
   //all works, its passed properly
   /*
   console.log("Hotels:", hotels);
@@ -60,17 +108,6 @@ export default function SearchResults() {
   console.log("Check-out Date:", checkout);
   console.log("Guests:", guests);*/
 
-  const handleStarSelected = (event) => {
-    const star = event.target.value;
-
-    setSelectedStars(
-      (prevStars) =>
-        event.target.checked
-          ? [...prevStars, star] // Add to selected facilities
-          : prevStars.filter((item) => item !== star) // Remove from selected facilities
-    );
-  };
-
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedStars, selectedFacilities]);
@@ -79,10 +116,11 @@ export default function SearchResults() {
     <>
       <div className="landing-container">
         <div className="search-wrapper">
-          <SearchBar
+          <SearchBar //add guests later
             queryval={searchQuery}
             initialCheckin={checkin}
             initialCheckout={checkout}
+            guests={guests}
           />
         </div>
       </div>
@@ -151,7 +189,7 @@ export default function SearchResults() {
             </div>
 
             <button style={{ marginTop: "2rem" }} onClick={() => navigate("/")}>
-              Back to search
+              Back to landing page
             </button>
           </div>
         </div>

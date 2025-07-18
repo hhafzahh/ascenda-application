@@ -131,6 +131,18 @@ export default function SearchBar({
         .fill(adults + children)
         .join("|");
 
+      //wake up api call //need to see if there is a better way to do this
+      await axios.get(
+        `http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`,
+        {
+          params: {
+            checkin: startDate.toISOString().split("T")[0],
+            checkout: endDate.toISOString().split("T")[0],
+            guests: guestString,
+          },
+        }
+      );
+      //call again
       const res = await axios.get(
         `http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`,
         {

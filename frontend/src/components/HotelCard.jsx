@@ -18,7 +18,7 @@ export default function HotelCard({ hotel }) {
       : "";
 
   const rating = hotel.rating || "N/A";
-  const reviewCount = hotel.reviewCount || "0";
+  const trustyouScore = hotel.trustyouScore || "0";
   const reviewText =
     rating >= 4.5 ? "Fantastic" : rating >= 4 ? "Great" : "Good";
 
@@ -53,39 +53,7 @@ export default function HotelCard({ hotel }) {
         <h3 style={{ fontSize: "1.1rem", marginBottom: "0.25rem" }}>
           {hotel.name || `Unnamed Hotel (${hotel.id})`}
         </h3>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "0.25rem",
-          }}
-        >
-          <span
-            style={{
-              backgroundColor: "#3a4ccf",
-              color: "#fff",
-              fontSize: "0.75rem",
-              borderRadius: "4px",
-              padding: "0.1rem 0.4rem",
-              marginRight: "2rem",
-              fontWeight: "bold",
-            }}
-          >
-            {rating}/5
-          </span>
-          <span
-            style={{
-              fontSize: "0.85rem",
-              color: "#0071c2",
-              marginRight: "0.5rem",
-            }}
-          >
-            {reviewText}
-          </span>
-          <span style={{ fontSize: "0.8rem", color: "#555" }}>
-            {reviewCount} reviews
-          </span>
-        </div>
+
         <div
           style={{
             fontSize: "0.85rem",
@@ -129,6 +97,40 @@ export default function HotelCard({ hotel }) {
           </div>
           <div style={{ fontSize: "0.75rem", color: "#777" }}>Incl. taxes</div>
           <div style={{ fontSize: "0.75rem", color: "#777" }}>Earn rewards</div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "0.25rem",
+          }}
+        >
+          <span
+            style={{
+              backgroundColor: "#3a4ccf",
+              color: "#fff",
+              fontSize: "0.75rem",
+              borderRadius: "4px",
+              padding: "0.1rem 0.4rem",
+              marginRight: "2rem",
+              fontWeight: "bold",
+            }}
+          >
+            {rating}/5
+          </span>
+          <span
+            style={{
+              fontSize: "0.85rem",
+              color: "#0071c2",
+              marginRight: "0.5rem",
+            }}
+          >
+            {reviewText}
+          </span>
+          <span style={{ fontSize: "0.8rem", color: "#555" }}>
+            {trustyouScore} score
+          </span>
         </div>
         <button
           style={{
