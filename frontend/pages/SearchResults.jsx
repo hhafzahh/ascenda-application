@@ -5,6 +5,7 @@ import SearchBar from "../usage/searchBar";
 import FacilitiesFilter from "../src/components/FacilitiesFilter";
 import StarRatingFilter from "../src/components/StarRatingFilter";
 import SortControl from "../src/components/SortControl";
+import HotelMap from "../components/HotelMap"; // ✅ for displaying hotels on map
 
 export default function SearchResults() {
   const location = useLocation();
@@ -23,8 +24,9 @@ export default function SearchResults() {
   const [selectedFacilities, setSelectedFacilities] = useState([]); // State to store selected amenities
   const [selectedStars, setSelectedStars] = useState([]);
   const [sortBy, setSortBy] = useState("rating");
-
   const [currentPage, setCurrentPage] = useState(1);
+  const [showMap, setShowMap] = useState(false); // ✅ for toggling map
+
   const resultsPerPage = 10;
 
   //Sort & Filter Hotels based on rating, price and amenities
@@ -36,8 +38,7 @@ export default function SearchResults() {
     )
     .sort((a, b) => {
       if (sortBy === "rating") {
-        //console.log(a.rating); //possible that some values are undefined
-        const ratingA = a.rating ?? 0; // fallback to 0 if undefined
+        const ratingA = a.rating ?? 0;
         const ratingB = b.rating ?? 0;
         return ratingB - ratingA;
       }
@@ -61,28 +62,6 @@ export default function SearchResults() {
         )
     );
 
-  const handleFacilityChange = (event) => {
-    const facility = event.target.value;
-
-    setSelectedFacilities(
-      (prevFacilities) =>
-        event.target.checked
-          ? [...prevFacilities, facility] // Add to selected facilities
-          : prevFacilities.filter((item) => item !== facility) // Remove from selected facilities
-    );
-  };
-
-  const handleStarSelected = (event) => {
-    const star = event.target.value;
-
-    setSelectedStars(
-      (prevStars) =>
-        event.target.checked
-          ? [...prevStars, star] // Add to selected stars
-          : prevStars.filter((item) => item !== star) // Remove from selected stars
-    );
-  };
-
   //pagination
   const indexOfLastResult = currentPage * resultsPerPage;
   const indexOfFirstResult = indexOfLastResult - resultsPerPage;
@@ -91,26 +70,31 @@ export default function SearchResults() {
     indexOfLastResult
   );
 
-  // const test = hotels.filter((hotel) => {
-  //   if (selectedFacilities.length === 0) return true;
-  //   return selectedFacilities.every(
-  //     (facilityKey) => hotel.amenities?.[facilityKey]
-  //   );
-  // });
-  // console.log(test);
+  const handleFacilityChange = (event) => {
+    const facility = event.target.value;
+    setSelectedFacilities((prevFacilities) =>
+      event.target.checked
+        ? [...prevFacilities, facility]
+        : prevFacilities.filter((item) => item !== facility)
+    );
+  };
 
-  //all works, its passed properly
-  /*
-  console.log("Hotels:", hotels);
-  console.log("Search Query:", searchQuery);
-  console.log("Destination ID:", destinationId);
-  console.log("Check-in Date:", checkin.toISOString().split("T", 1)[0]);
-  console.log("Check-out Date:", checkout);
-  console.log("Guests:", guests);*/
+  const handleStarSelected = (event) => {
+    const star = event.target.value;
+    setSelectedStars((prevStars) =>
+      event.target.checked
+        ? [...prevStars, star]
+        : prevStars.filter((item) => item !== star)
+    );
+  };
 
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedStars, selectedFacilities]);
+
+  const toggleMap = () => {
+    setShowMap((prev) => !prev);
+  };
 
   return (
     <>
@@ -124,11 +108,10 @@ export default function SearchResults() {
           />
         </div>
       </div>
-      <div style={{ display: "flex", gap: "2rem" }}>
+
+      <div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>
         {/* Sidebar */}
-        <div>
-          {/* Map Button */}
-          <div style={{ marginTop: "1rem", gap: "2rem" }}></div>
+        <div style={{ width: "320px" }}>
           {/*Filter Panel*/}
           <FacilitiesFilter
             selectedFacilities={selectedFacilities}
@@ -139,16 +122,31 @@ export default function SearchResults() {
             selectedStars={selectedStars}
             onChange={handleStarSelected}
           />
+
+          {/* ✅ Toggle Map Button */}
+          <button
+            onClick={toggleMap}
+            style={{
+              backgroundColor: "#ff5722",
+              color: "white",
+              padding: "0.75rem 1.5rem",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontSize: "1rem",
+              marginTop: "1.5rem",
+              width: "100%",
+            }}
+          >
+            📍 {showMap ? "Hide Map" : "See hotels on map"}
+          </button>
         </div>
 
-        {/* Main content: Hotel list */}
+        {/* Main content + map */}
         <div style={{ flex: 1 }}>
-          {/*  hotel list rendering */}
           <SortControl selected={sortBy} onSelect={setSortBy} />
 
           <div className="search-results-container">
-            {/* <h2>Results for: {searchQuery}</h2> //testing */}
-
             {filteredHotels.length > 0 ? (
               <div
                 className="hotel-card-container"
@@ -160,7 +158,7 @@ export default function SearchResults() {
                 }}
               >
                 {currentHotels.map((hotel, index) => (
-                  <HotelCard key={index} hotel={hotel} /> //changed to component for easier styling
+                  <HotelCard key={index} hotel={hotel} />
                 ))}
               </div>
             ) : (
@@ -188,9 +186,25 @@ export default function SearchResults() {
               </button>
             </div>
 
-            <button style={{ marginTop: "2rem" }} onClick={() => navigate("/")}>
+            <button
+              style={{ marginTop: "2rem" }}
+              onClick={() => navigate("/")}
+            >
               Back to landing page
             </button>
+
+            {/* ✅ Map Section - Shown when toggled */}
+            <div
+              style={{
+                marginTop: "2rem",
+                height: showMap ? "500px" : "0px",
+                transition: "height 0.3s ease",
+                overflow: showMap ? "visible" : "hidden",
+                borderRadius: "10px",
+              }}
+            >
+              {showMap && <HotelMap hotels={filteredHotels} />}
+            </div>
           </div>
         </div>
       </div>
