@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function HotelCard({ hotel }) {
+export default function HotelCard({ hotel, id }) {
   const imageUrl =
     hotel.image_details?.prefix && hotel.image_details?.suffix
       ? `${hotel.image_details.prefix}0${hotel.image_details.suffix}` // Try 0.jpg first
@@ -26,11 +26,11 @@ export default function HotelCard({ hotel }) {
     rating >= 4.5 ? "Fantastic" : rating >= 4 ? "Great" : "Good";
 
   const locationText = hotel.address || "Location unavailable";
-
   const hotelPrice = hotel.price ? `${hotel.price}` : "Price unavailable";
 
   return (
     <div
+      id={id} // ✅ So the map can scroll to this card
       className="hotel-card"
       style={{
         display: "flex",
@@ -69,6 +69,7 @@ export default function HotelCard({ hotel }) {
             See map
           </a>
         </div>
+
         {hotel.bookingStats && (
           <div style={{ fontSize: "0.8rem", color: "#777" }}>
             {hotel.bookingStats}
@@ -76,7 +77,11 @@ export default function HotelCard({ hotel }) {
         )}
         {hotel.promoText && (
           <div
-            style={{ fontSize: "0.8rem", color: "#d9534f", fontWeight: "bold" }}
+            style={{
+              fontSize: "0.8rem",
+              color: "#d9534f",
+              fontWeight: "bold",
+            }}
           >
             {hotel.promoText}
           </div>
@@ -135,11 +140,11 @@ export default function HotelCard({ hotel }) {
             {trustyouScore} score
           </span>
         </div>
+
         <button
-          onClick={() => {
-            console.log("Navigating with hotel:", hotel);
-            navigate(`/hotels/${hotel.id}`, { state: { hotel } });
-          }}
+          onClick={() =>
+            navigate(`/hotels/${hotel.id}`, { state: { hotel } })
+          }
           style={{
             backgroundColor: "#ff5a5f",
             color: "#fff",
