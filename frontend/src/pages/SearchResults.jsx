@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import HotelCard from "../src/components/HotelCard";
-import SearchBar from "../usage/searchBar";
-import FacilitiesFilter from "../src/components/FacilitiesFilter";
-import StarRatingFilter from "../src/components/StarRatingFilter";
-import SortControl from "../src/components/SortControl";
-import MapView from "../src/components/MapView";
+import HotelCard from "../components/HotelCard";
+import SearchBar from "../components/SearchBar/searchBar";
+import FacilitiesFilter from "../components/FacilitiesFilter";
+import StarRatingFilter from "../components/StarRatingFilter";
+import SortControl from "../components/SortControl";
+import MapView from "../components/MapView";
 
 export default function SearchResults() {
   const location = useLocation();
@@ -206,33 +206,38 @@ export default function SearchResults() {
             {filteredHotelsForList.length > 0 ? (
               <>
                 {currentHotels.map((hotel) => (
-              <div 
-                key={hotel.id}
-                onClick={() => {
-                  console.log("Passing searchParams:", { destinationId, checkin, checkout, guests });
-                  console.log("Navigating with hotel:", hotel); // Debug
-                  navigate(`/hotels/${hotel.id}`, {
-                    state: { 
-                      hotel: hotel, // Pass the entire hotel object
-                      searchParams: { 
-                        destinationId, 
-                        checkin, 
-                        checkout, 
-                        guests 
-                      }
-                    }
-                  });
-                }}
-                style={{ cursor: "pointer" }}
-              >
-                <HotelCard
-                  id={`hotel-${hotel.id}`}
-                  hotel={hotel}
-                  isSelected={selectedHotelId === hotel.id}
-                  hasLocation={!!(hotel.latitude && hotel.longitude)}
-                />
-              </div>
-            ))}
+                  <div
+                    key={hotel.id}
+                    onClick={() => {
+                      console.log("Passing searchParams:", {
+                        destinationId,
+                        checkin,
+                        checkout,
+                        guests,
+                      });
+                      console.log("Navigating with hotel:", hotel); // Debug
+                      navigate(`/hotels/${hotel.id}`, {
+                        state: {
+                          hotel: hotel, // Pass the entire hotel object
+                          searchParams: {
+                            destinationId,
+                            checkin,
+                            checkout,
+                            guests,
+                          },
+                        },
+                      });
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <HotelCard
+                      id={`hotel-${hotel.id}`}
+                      hotel={hotel}
+                      isSelected={selectedHotelId === hotel.id}
+                      hasLocation={!!(hotel.latitude && hotel.longitude)}
+                    />
+                  </div>
+                ))}
 
                 {filteredHotelsForList.length > resultsPerPage && (
                   <div

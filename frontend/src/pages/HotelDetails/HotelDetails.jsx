@@ -1,10 +1,10 @@
 import React from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
-import HotelOverview from "../components/HotelOverview";
-import HotelRooms from "../pages/HotelRooms";
-import PhotoGallery from "../components/PhotoGallery";
-import "./HotelDetails.css"; // Ensure you have styles for the hotel details page
+import HotelOverview from "../../components/HotelOverview";
+import HotelRooms from "../HotelRooms";
+import PhotoGallery from "../../components/PhotoGallery/PhotoGallery";
+import "../HotelDetails/HotelDetails.css"; // Ensure you have styles for the hotel details page
 
 export default function HotelDetails() {
   const location = useLocation();
@@ -25,10 +25,10 @@ export default function HotelDetails() {
         <HotelOverview hotel={hotel} onSelectRoom={scrollToRooms} />
         <div ref={roomRef}>
           {/* Pass searchParams to HotelRooms */}
-          <HotelRooms 
-            hotelId={hotelId} 
-            searchParams={searchParams} 
-            hotelDetails={hotel} 
+          <HotelRooms
+            hotelId={hotelId}
+            searchParams={searchParams}
+            hotelDetails={hotel}
           />
         </div>
       </div>

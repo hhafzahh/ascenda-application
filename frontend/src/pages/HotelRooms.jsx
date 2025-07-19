@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; 
-import RoomCard from "../src/RoomCard";
-import Ratings from "../src/Ratings";
+import axios from "axios";
+import RoomCard from "../components/RoomCard/RoomCard";
+import Ratings from "../components/Rating/Ratings";
 
 // HotelRooms.jsx
 export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
@@ -12,19 +12,22 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await axios.get("http://localhost:3001/api/hotelproxy/rooms", {
-          params: {
-            hotel_id: hotelId,
-            destination_id: searchParams.destinationId, // From props
-            checkin: searchParams.checkin,             // From props
-            checkout: searchParams.checkout,           // From props
-            guests: searchParams.guests,               // From props
-            lang: "en_US",
-            currency: "SGD",
-            country_code: "SG",
-            partner_id: 1,
-          },
-        });
+        const res = await axios.get(
+          "http://localhost:3001/api/hotelproxy/rooms",
+          {
+            params: {
+              hotel_id: hotelId,
+              destination_id: searchParams.destinationId, // From props
+              checkin: searchParams.checkin, // From props
+              checkout: searchParams.checkout, // From props
+              guests: searchParams.guests, // From props
+              lang: "en_US",
+              currency: "SGD",
+              country_code: "SG",
+              partner_id: 1,
+            },
+          }
+        );
         setRooms(res.data.rooms || []);
       } catch (err) {
         setError("Failed to fetch rooms. Please try again.");

@@ -1,13 +1,13 @@
 import { Routes, Route } from "react-router-dom";
-import Booking from "../pages/Bookings";
-import Landing from "../pages/Landing";
+import Booking from "./pages/Bookings";
+import Landing from "./pages/Landing";
 import "./App.css";
-import HotelRooms from "../pages/HotelRooms";
-import SearchResults from "../pages/SearchResults";
+import HotelRooms from "./pages/HotelRooms";
+import SearchResults from "./pages/SearchResults";
 import NavBar from "./components/NavBar";
-import Register from "../pages/Register"
-import Login from "../pages/Login";
-import HotelDetails from '../pages/HotelDetails';
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import HotelDetails from "./pages/HotelDetails/HotelDetails";
 
 function App() {
   return (
@@ -23,7 +23,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/hotels/:hotelId" element={<HotelDetails />} />
-      </Routes>
+        </Routes>
       </div>
     </>
   );
