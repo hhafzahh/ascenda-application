@@ -65,9 +65,9 @@ export default function HotelCard({ hotel, id }) {
           }}
         >
           📍 {locationText}{" "}
-          <a href="#" style={{ color: "#0071c2" }}>
+          {/* <a href="#" style={{ color: "#0071c2" }}>
             See map
-          </a>
+          </a> */}
         </div>
 
         {hotel.bookingStats && (
@@ -142,9 +142,7 @@ export default function HotelCard({ hotel, id }) {
         </div>
 
         <button
-          onClick={() =>
-            navigate(`/hotels/${hotel.id}`, { state: { hotel } })
-          }
+          onClick={() => navigate(`/hotels/${hotel.id}`, { state: { hotel } })}
           style={{
             backgroundColor: "#ff5a5f",
             color: "#fff",
