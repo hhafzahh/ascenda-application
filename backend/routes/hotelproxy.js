@@ -141,23 +141,44 @@ router.get("/rooms", async (req, res) => {
   }
 });
 
-router.get('/hotels/uid/:hotelId', async (req, res) => {
+router.get("/hotels/uid/:hotelId", async (req, res) => {
   const hotelId = req.params.hotelId;
 
   try {
-    const response = await axios.get(`https://hotelapi.loyalty.dev/api/hotels`, {
-      params: { hotel_id: hotelId, lang: 'en_US', currency: 'SGD', country_code: 'SG' }
-    });
+    const response = await axios.get(
+      `https://hotelapi.loyalty.dev/api/hotels`,
+      {
+        params: {
+          hotel_id: hotelId,
+          lang: "en_US",
+          currency: "SGD",
+          country_code: "SG",
+        },
+      }
+    );
 
     if (response.data && response.data.length > 0) {
       res.status(200).json(response.data[0]); // return first match
     } else {
-      res.status(404).json({ error: 'Hotel not found' });
+      res.status(404).json({ error: "Hotel not found" });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Error retrieving hotel info', details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error retrieving hotel info", details: error.message });
   }
 });
 
+//used by rooms
+router.get("/hotels/:id", async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://hotelapi.loyalty.dev/api/hotels/${req.params.id}`
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: "Error retrieving hotel details" });
+  }
+});
 
 module.exports = router;

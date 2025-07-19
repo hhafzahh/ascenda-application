@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function HotelCard({ hotel }) {
   const imageUrl =
@@ -16,6 +17,8 @@ export default function HotelCard({ hotel }) {
           .map((cat) => cat.name)
           .join(", ")
       : "";
+
+  const navigate = useNavigate();
 
   const rating = hotel.rating || "N/A";
   const trustyouScore = hotel.trustyouScore || "0";
@@ -133,6 +136,10 @@ export default function HotelCard({ hotel }) {
           </span>
         </div>
         <button
+          onClick={() => {
+            console.log("Navigating with hotel:", hotel);
+            navigate(`/hotels/${hotel.id}`, { state: { hotel } });
+          }}
           style={{
             backgroundColor: "#ff5a5f",
             color: "#fff",

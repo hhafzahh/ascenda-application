@@ -34,15 +34,20 @@ app.use("/api/bookings", bookingsRouter);
 app.use("/api/hotelproxy", hotelProxyRouter);
 app.use("/api/user", userRouter);
 
-(async () => {
-  try {
-    await connect();
-    console.log("Connected to MongoDB");
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
 
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-    });
-  } catch (err) {
-    console.error("Failed to connect to MongoDB", err);
-  }
-})();
+//mongo got issue
+// (async () => {
+//   try {
+//     await connect();
+//     console.log("Connected to MongoDB");
+
+//     app.listen(PORT, () => {
+//       console.log(`Server is running on http://localhost:${PORT}`);
+//     });
+//   } catch (err) {
+//     console.error("Failed to connect to MongoDB", err);
+//   }
+// })();
