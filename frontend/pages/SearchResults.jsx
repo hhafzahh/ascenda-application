@@ -206,14 +206,33 @@ export default function SearchResults() {
             {filteredHotelsForList.length > 0 ? (
               <>
                 {currentHotels.map((hotel) => (
-                  <HotelCard
-                    key={hotel.id}
-                    id={`hotel-${hotel.id}`}
-                    hotel={hotel}
-                    isSelected={selectedHotelId === hotel.id}
-                    hasLocation={!!(hotel.latitude && hotel.longitude)}
-                  />
-                ))}
+              <div 
+                key={hotel.id}
+                onClick={() => {
+                  console.log("Passing searchParams:", { destinationId, checkin, checkout, guests });
+                  console.log("Navigating with hotel:", hotel); // Debug
+                  navigate(`/hotels/${hotel.id}`, {
+                    state: { 
+                      hotel: hotel, // Pass the entire hotel object
+                      searchParams: { 
+                        destinationId, 
+                        checkin, 
+                        checkout, 
+                        guests 
+                      }
+                    }
+                  });
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                <HotelCard
+                  id={`hotel-${hotel.id}`}
+                  hotel={hotel}
+                  isSelected={selectedHotelId === hotel.id}
+                  hasLocation={!!(hotel.latitude && hotel.longitude)}
+                />
+              </div>
+            ))}
 
                 {filteredHotelsForList.length > resultsPerPage && (
                   <div

@@ -9,29 +9,14 @@ import "./HotelDetails.css"; // Ensure you have styles for the hotel details pag
 export default function HotelDetails() {
   const location = useLocation();
   const { hotelId } = useParams();
-  const [hotel, setHotel] = useState(location.state?.hotel || null);
-  const roomRef = useRef(null); // 👈 create ref
+  const { hotel, searchParams } = location.state || {}; // Destructure from state
+  const roomRef = useRef(null);
 
   const scrollToRooms = () => {
     roomRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Optional: fallback to fetch if not passed
-  // this is commented as its not working even if api is changed to localhost...
-  // useEffect(() => {
-  // if (!hotel) {
-  //     async function fetchHotel() {
-  //     const response = await fetch(`https://your-api.com/hotels/${hotelId}`);
-  //     const data = await response.json();
-  //     setHotel(data);
-  //     }
-  //     fetchHotel();
-  // }
-  // }, [hotel, hotelId]);
-
-  if (!hotel) {
-    return <p>Loading...</p>;
-  }
+  if (!hotel) return <p>Loading...</p>;
 
   return (
     <div className="hotel-details-page">
@@ -39,7 +24,12 @@ export default function HotelDetails() {
       <div className="hotel-details-content">
         <HotelOverview hotel={hotel} onSelectRoom={scrollToRooms} />
         <div ref={roomRef}>
-          <HotelRooms hotelId={hotelId} />
+          {/* Pass searchParams to HotelRooms */}
+          <HotelRooms 
+            hotelId={hotelId} 
+            searchParams={searchParams} 
+            hotelDetails={hotel} 
+          />
         </div>
       </div>
     </div>
