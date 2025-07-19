@@ -54,6 +54,9 @@ router.get("/hotels/uid/:uid", async (req, res) => {
         lowestPrice: priceHotel.lowest_converted_price,
         roomsAvailable: priceHotel.rooms_available,
         freeCancellation: priceHotel.free_cancellation,
+        latitude: meta?.latitude,
+        longitude: meta?.longitude,
+
       };
     });
 
