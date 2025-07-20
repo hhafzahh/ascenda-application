@@ -1,6 +1,6 @@
 const userService = require("./userService");
 
-//http://localhost:3003/api/user/register
+//http://localhost:3004/api/user/register
 exports.register = async (req, res) => {
   try {
     const result = await userService.register(req.body);

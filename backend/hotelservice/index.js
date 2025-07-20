@@ -1,4 +1,5 @@
 //express app entry for hotel service
+//port is 3001
 console.log("Starting HotelService...");
 const express = require("express");
 const cors = require("cors");

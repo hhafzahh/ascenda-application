@@ -1,4 +1,5 @@
 //express app entry for user service
+//port = 3004
 
 const { connect } = require("../Models/db");
 
