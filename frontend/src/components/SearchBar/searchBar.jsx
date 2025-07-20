@@ -210,9 +210,9 @@ export default function SearchBar({
             autoComplete="off"
           />
           {suggestions.length > 0 && (
-            <ul className="suggestion-list">
+            <ul className="suggestion-list" role="list">
               {suggestions.map((d, idx) => (
-                <li key={idx} onClick={() => handleSelectSuggestion(d)}>
+                <li key={idx} role="listitem" onClick={() => handleSelectSuggestion(d)}>
                   {d.term}
                 </li>
               ))}

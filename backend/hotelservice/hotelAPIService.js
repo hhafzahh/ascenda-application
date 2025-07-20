@@ -4,17 +4,24 @@ exports.getHotelsByUid = async (req, res) => {
   const destinationId = req.params.uid;
   const { checkin, checkout, guests } = req.query;
 
+  let hotelsMetadata = [];
+  let hotelsPrices = [];
+
+  // Fetch metadata
   try {
-    // fetch hotel data
     const metadataResponse = await axios.get(
       "https://hotelapi.loyalty.dev/api/hotels",
       {
         params: { destination_id: destinationId },
       }
     );
-    const hotelsMetadata = metadataResponse.data || [];
+    hotelsMetadata = metadataResponse.data || [];
+  } catch (err) {
+    console.log("Metadata fetch failed:", err.message);
+  }
 
-    // fetch hotel prices/availability
+  // Fetch prices
+  try {
     const pricesResponse = await axios.get(
       "https://hotelapi.loyalty.dev/api/hotels/prices",
       {
@@ -30,41 +37,38 @@ exports.getHotelsByUid = async (req, res) => {
         },
       }
     );
-    const hotelsPrices = pricesResponse.data.hotels || [];
-
-    // 3️⃣ Merge metadata and prices by `id`
-    const mergedHotels = hotelsPrices.map((priceHotel) => {
-      const meta = hotelsMetadata.find((h) => h.id === priceHotel.id);
-      // console.log("hi");
-      // console.log(meta);
-      return {
-        id: priceHotel.id,
-        name: meta?.name,
-        address: meta?.address || meta?.address1,
-        rating: meta?.rating,
-        image_details: meta?.image_details,
-        default_image_index: meta?.default_image_index,
-        // imageDetails: meta?image_details || null
-        trustyouScore: meta?.trustyou?.score?.overall,
-        description: meta?.description,
-        amenities: meta?.amenities,
-        price: priceHotel.converted_price,
-        lowestPrice: priceHotel.lowest_converted_price,
-        roomsAvailable: priceHotel.rooms_available,
-        freeCancellation: priceHotel.free_cancellation,
-        latitude: meta?.latitude,
-        longitude: meta?.longitude,
-      };
-    });
-
-    res.status(200).json(mergedHotels);
-  } catch (error) {
-    console.error("Error merging hotel metadata and prices:", error.message);
-    res.status(500).json({
-      error: "Error retrieving combined hotel data",
-      details: error.message,
-    });
+    hotelsPrices = pricesResponse.data.hotels || [];
+  } catch (err) {
+    console.warn("Prices fetch failed:", err.message);
   }
+
+  // If nothing fetched, return empty array instead of throwing 500
+  if (!hotelsMetadata.length || !hotelsPrices.length) {
+    return res.status(200).json([]);
+  }
+
+  const mergedHotels = hotelsPrices.map((priceHotel) => {
+    const meta = hotelsMetadata.find((h) => h.id === priceHotel.id);
+    return {
+      id: priceHotel.id,
+      name: meta?.name,
+      address: meta?.address || meta?.address1,
+      rating: meta?.rating,
+      image_details: meta?.image_details,
+      default_image_index: meta?.default_image_index,
+      trustyouScore: meta?.trustyou?.score?.overall,
+      description: meta?.description,
+      amenities: meta?.amenities,
+      price: priceHotel.converted_price,
+      lowestPrice: priceHotel.lowest_converted_price,
+      roomsAvailable: priceHotel.rooms_available,
+      freeCancellation: priceHotel.free_cancellation,
+      latitude: meta?.latitude,
+      longitude: meta?.longitude,
+    };
+  });
+
+  res.status(200).json(mergedHotels);
 };
 
 exports.getHotels = async (req, res) => {
