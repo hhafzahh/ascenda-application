@@ -1,6 +1,7 @@
 const request = require("supertest");
 const app = require("../hotelservice/app");
 
+//test for hotel search api
 describe("Hotel API", () => {
     it("should return hotels for valid UID and query params", async () => {
         const res = await request(app)
@@ -16,6 +17,7 @@ describe("Hotel API", () => {
         }
     }, 15000);
 
+    //invalid destination uid search
     it("should return 200 and empty array for invalid UID", async () => {
         const res = await request(app)
             .get("/api/hotelproxy/hotels/uid/invaliduid123")
@@ -26,6 +28,7 @@ describe("Hotel API", () => {
         expect(res.body.length).toBe(0);
     }, 15000);
 
+    //missing params
     it("should return 200 and array (possibly empty) if missing query parameters", async () => {
         const res = await request(app)
             .get("/api/hotelproxy/hotels/uid/RsBU"); // no query params
@@ -33,6 +36,8 @@ describe("Hotel API", () => {
         expect(res.statusCode).toBe(200);
         expect(Array.isArray(res.body)).toBe(true);
     }, 15000);
+
+    //invalid date
     it("should return 200 and empty array for invalid date format", async () => {
         const res = await request(app)
             .get("/api/hotelproxy/hotels/uid/RsBU")
@@ -43,6 +48,7 @@ describe("Hotel API", () => {
         expect(res.body.length).toBe(0);
     }, 15000);
 
+    //check without guest param (should still run bcs default 1 set)
     it("should return hotels even with guests omitted (if frontend auto-fills)", async () => {
         const res = await request(app)
             .get("/api/hotelproxy/hotels/uid/RsBU")
