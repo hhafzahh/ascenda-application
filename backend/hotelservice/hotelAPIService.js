@@ -1,8 +1,6 @@
-const express = require("express");
-const router = express.Router();
 const axios = require("axios");
 
-router.get("/hotels/uid/:uid", async (req, res) => {
+exports.getHotelsByUid = async (req, res) => {
   const destinationId = req.params.uid;
   const { checkin, checkout, guests } = req.query;
 
@@ -56,7 +54,6 @@ router.get("/hotels/uid/:uid", async (req, res) => {
         freeCancellation: priceHotel.free_cancellation,
         latitude: meta?.latitude,
         longitude: meta?.longitude,
-
       };
     });
 
@@ -68,9 +65,9 @@ router.get("/hotels/uid/:uid", async (req, res) => {
       details: error.message,
     });
   }
-});
+};
 
-router.get("/hotels", async (req, res) => {
+exports.getHotels = async (req, res) => {
   try {
     const response = await axios.get(
       "https://hotelapi.loyalty.dev/api/hotels",
@@ -84,9 +81,9 @@ router.get("/hotels", async (req, res) => {
       .status(500)
       .json({ error: "Failed to fetch hotel data", details: err.message });
   }
-});
+};
 
-router.get("/rooms", async (req, res) => {
+exports.getRooms = async (req, res) => {
   try {
     const {
       hotel_id,
@@ -142,9 +139,9 @@ router.get("/rooms", async (req, res) => {
       details: err.response?.data || err.message,
     });
   }
-});
+};
 
-router.get("/hotels/uid/:hotelId", async (req, res) => {
+exports.getHotelByHotelId = async (req, res) => {
   const hotelId = req.params.hotelId;
 
   try {
@@ -170,10 +167,9 @@ router.get("/hotels/uid/:hotelId", async (req, res) => {
       .status(500)
       .json({ error: "Error retrieving hotel info", details: error.message });
   }
-});
+};
 
-//used by rooms
-router.get("/hotels/:id", async (req, res) => {
+exports.getHotelById = async (req, res) => {
   try {
     const response = await axios.get(
       `https://hotelapi.loyalty.dev/api/hotels/${req.params.id}`
@@ -182,6 +178,4 @@ router.get("/hotels/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Error retrieving hotel details" });
   }
-});
-
-module.exports = router;
+};
