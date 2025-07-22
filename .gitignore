@@ -1,11 +1,19 @@
 # Backend
+backend/userservice/node_modules/
+backend/bookingservice/node_modules/
+backend/hotelservice/node_modules/
 backend/node_modules/
+backend/hotelservice/.env
+backend/bookingservice/.env
+backend/userservice/.env
 backend/.env
 
 # Frontend
 frontend/node_modules/
 frontend/dist/
 frontend/.env
+
+.env
 
 # OS + IDE defaults
 .DS_Store

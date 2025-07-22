@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
-import "./SearchBar.css";
+import "./searchBar.css";
 import { useNavigate } from "react-router-dom";
 
 export default function SearchBar({
@@ -212,7 +212,11 @@ export default function SearchBar({
           {suggestions.length > 0 && (
             <ul className="suggestion-list" role="list">
               {suggestions.map((d, idx) => (
-                <li key={idx} role="listitem" onClick={() => handleSelectSuggestion(d)}>
+                <li
+                  key={idx}
+                  role="listitem"
+                  onClick={() => handleSelectSuggestion(d)}
+                >
                   {d.term}
                 </li>
               ))}

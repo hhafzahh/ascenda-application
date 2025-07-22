@@ -1,4 +1,4 @@
-const dbClient = require("../Models/db");
+const dbClient = require("./Models/db");
 
 //No request or response should be in service layer, service layer only deals with logic
 exports.register = async (userData) => {

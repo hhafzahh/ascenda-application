@@ -1,4 +1,4 @@
-const dbClient = require("../Models/db");
+const dbClient = require("./Models/db");
 
 //gets booking from mongodb collection booking
 exports.getAllBookings = async () => {

@@ -1,22 +1,11 @@
 //db.js is shared with userService and bookingService.
 const { MongoClient } = require("mongodb");
-require("dotenv").config({ path: "../.env" }); //need the path cuz both folders use the env var
+require("dotenv").config(); //need the path cuz both folders use the env var
 
 const connection_str = process.env.MONGODB_CONNECTIONSTR;
 const dbName = "hotelbookingdb";
 
-// let db = null;
-
-// async function connect() {
-//     try {
-//         await client.connect();
-//         db = client.db(dbName);
-//         console.log("Connected to MongoDB");
-//     } catch (error) {
-//         console.error("Database connection failed:", error);
-//         throw error;
-//     }
-// }
+const client = new MongoClient(connection_str);
 
 async function connect() {
   try {

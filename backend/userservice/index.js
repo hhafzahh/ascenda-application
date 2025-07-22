@@ -1,7 +1,7 @@
 //express app entry for user service
 //port = 3004
 
-const { connect } = require("../Models/db");
+const { connect } = require("./Models/db");
 
 console.log("Starting UserService...");
 
