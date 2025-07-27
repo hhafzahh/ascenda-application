@@ -99,6 +99,8 @@ exports.getRooms = async (req, res) => {
       country_code,
       guests,
       partner_id,
+      page = 1,
+      limit = 3
     } = req.query;
 
     if (!hotel_id || !destination_id || !checkin || !checkout || !guests) {
@@ -132,9 +134,19 @@ exports.getRooms = async (req, res) => {
 
     const hotelInfo = hotelListRes.data.find((h) => h.id === hotel_id);
 
-    res.json({
-      ...priceRes.data,
-      hotel: hotelInfo || null, // attach hotel info separately
+    const allRooms = priceRes.data.rooms || [];
+    
+    const parsedPage = parseInt(page);
+    const parsedLimit = parseInt(limit);
+    const startIndex = (parsedPage - 1) * parsedLimit;
+    const paginatedRooms = allRooms.slice(startIndex, startIndex + parsedLimit);
+
+    res.status(200).json({
+      rooms: paginatedRooms,
+      total: allRooms.length,
+      page: parsedPage,
+      limit: parsedLimit,
+      hotel: hotelInfo || null,
     });
   } catch (err) {
     console.error("Error in hotel proxy:", err.response?.data || err.message);
