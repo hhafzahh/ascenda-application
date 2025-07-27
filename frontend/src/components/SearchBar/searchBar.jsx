@@ -186,7 +186,7 @@ export default function SearchBar({
 
   return (
     <div className="search-bar">
-      {loading && (
+      {/* {loading && (
         <div
           className="loading-spinner"
           style={{
@@ -199,7 +199,7 @@ export default function SearchBar({
         >
           Loading...
         </div>
-      )}
+      )} */}
       <div className="search-row">
         <div className="input-group">
           <input
@@ -212,7 +212,11 @@ export default function SearchBar({
           {suggestions.length > 0 && (
             <ul className="suggestion-list" role="list">
               {suggestions.map((d, idx) => (
-                <li key={idx} role="listitem" onClick={() => handleSelectSuggestion(d)}>
+                <li
+                  key={idx}
+                  role="listitem"
+                  onClick={() => handleSelectSuggestion(d)}
+                >
                   {d.term}
                 </li>
               ))}
@@ -283,7 +287,9 @@ export default function SearchBar({
               </div>
             </div>
           </div>
-          <button onClick={() => handleSearch()}>Search Hotels</button>
+          <button onClick={() => handleSearch()} disabled={loading}>
+            {loading ? "Loading..." : "Search Hotels"}
+          </button>
         </div>
       </div>
     </div>
