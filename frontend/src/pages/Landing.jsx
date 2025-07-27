@@ -1,6 +1,7 @@
-// /frontend/pages/Landing.jsx
-import React, { useState } from "react";
+import React from "react";
 import SearchBar from "../components/SearchBar/searchBar";
+import SuggestedHotels from "../components/SuggestedHotels";
+import "../components/SuggestedHotels.css";
 import BackgroundHeader from "../components/BackgroundHeader/BackgroundHeader";
 import "../App.css";
 
@@ -12,6 +13,11 @@ export default function Landing() {
           <SearchBar />
         </BackgroundHeader>
       </div>
+
+      <h2 style={{ textAlign: "center", margin: "2rem 0" }}>
+        Suggested Hotels for You
+      </h2>
+      <SuggestedHotels />
     </div>
   );
 }

@@ -170,8 +170,8 @@ export default function SearchBar({
           hotels: hotelsList,
           searchQuery: query,
           destinationId: uidToUse,
-          checkin: startDate,
-          checkout: endDate,
+          checkin: startDate.toISOString().split("T")[0],   // ✅ correct
+          checkout: endDate.toISOString().split("T")[0],    // ✅ correct
           guests: adults + children,
         },
       });

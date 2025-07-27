@@ -1,36 +1,26 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function HotelCard({ hotel, id }) {
+export default function HotelCard({ hotel, id, isCompact = false }) {
   const imageUrl =
     hotel.image_details?.prefix && hotel.image_details?.suffix
-      ? `${hotel.image_details.prefix}0${hotel.image_details.suffix}` // Try 0.jpg first
+      ? `${hotel.image_details.prefix}0${hotel.image_details.suffix}`
       : hotel.default_image_index !== undefined &&
         hotel.image_details?.prefix &&
         hotel.image_details?.suffix
-      ? `${hotel.image_details.prefix}${hotel.default_image_index}${hotel.image_details.suffix}` // Fallback to default_image_index
-      : "https://placehold.co/600x400?text=No\nImage"; // Fallback to placeholder
-
-  const categories =
-    hotel.categories && typeof hotel.categories === "object"
-      ? Object.values(hotel.categories)
-          .map((cat) => cat.name)
-          .join(", ")
-      : "";
+      ? `${hotel.image_details.prefix}${hotel.default_image_index}${hotel.image_details.suffix}`
+      : "https://placehold.co/600x400?text=No\nImage";
 
   const navigate = useNavigate();
-
   const rating = hotel.rating || "N/A";
   const trustyouScore = hotel.trustyouScore || "0";
-  const reviewText =
-    rating >= 4.5 ? "Fantastic" : rating >= 4 ? "Great" : "Good";
-
+  const reviewText = rating >= 4.5 ? "Fantastic" : rating >= 4 ? "Great" : "Good";
   const locationText = hotel.address || "Location unavailable";
   const hotelPrice = hotel.price ? `${hotel.price}` : "Price unavailable";
 
   return (
     <div
-      id={id} // ✅ So the map can scroll to this card
+      id={id}
       className="hotel-card"
       style={{
         display: "flex",
@@ -40,10 +30,12 @@ export default function HotelCard({ hotel, id }) {
         overflow: "hidden",
         backgroundColor: "#fff",
         boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        minHeight: isCompact ? "110px" : "140px",
+        padding: isCompact ? "6px" : "0",
       }}
     >
-      {/* Left: Image */}
-      <div style={{ width: "160px", height: "160px", flexShrink: 0 }}>
+      {/* Image */}
+      <div style={{ width: isCompact ? "120px" : "180px", height: isCompact ? "110px" : "140px", flexShrink: 0 }}>
         <img
           src={imageUrl}
           alt={hotel.name}
@@ -51,48 +43,29 @@ export default function HotelCard({ hotel, id }) {
         />
       </div>
 
-      {/* Center: Details */}
-      <div style={{ flex: 1, padding: "1rem" }}>
-        <h3 style={{ fontSize: "1.1rem", marginBottom: "0.25rem" }}>
+      {/* Details */}
+      <div style={{ flex: 1, padding: isCompact ? "0.5rem" : "1rem" }}>
+        <h3 style={{ fontSize: isCompact ? "1rem" : "1.1rem", marginBottom: "0.25rem" }}>
           {hotel.name || `Unnamed Hotel (${hotel.id})`}
         </h3>
-
-        <div
-          style={{
-            fontSize: "0.85rem",
-            color: "#555",
-            marginBottom: "0.25rem",
-          }}
-        >
-          📍 {locationText}{" "}
-          {/* <a href="#" style={{ color: "#0071c2" }}>
-            See map
-          </a> */}
+        <div style={{ fontSize: "0.8rem", color: "#555", marginBottom: "0.25rem" }}>
+          📍 {locationText}
         </div>
-
         {hotel.bookingStats && (
-          <div style={{ fontSize: "0.8rem", color: "#777" }}>
-            {hotel.bookingStats}
-          </div>
+          <div style={{ fontSize: "0.75rem", color: "#777" }}>{hotel.bookingStats}</div>
         )}
         {hotel.promoText && (
-          <div
-            style={{
-              fontSize: "0.8rem",
-              color: "#d9534f",
-              fontWeight: "bold",
-            }}
-          >
+          <div style={{ fontSize: "0.75rem", color: "#d9534f", fontWeight: "bold" }}>
             {hotel.promoText}
           </div>
         )}
       </div>
 
-      {/* Right: Price & Action */}
+      {/* Price + Button */}
       <div
         style={{
-          padding: "1rem",
-          minWidth: "120px",
+          padding: isCompact ? "0.5rem" : "1rem",
+          minWidth: isCompact ? "90px" : "120px",
           textAlign: "right",
           display: "flex",
           flexDirection: "column",
@@ -100,56 +73,41 @@ export default function HotelCard({ hotel, id }) {
         }}
       >
         <div>
-          <div style={{ fontWeight: "bold", fontSize: "1rem" }}>
-            {hotelPrice}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "#777" }}>Incl. taxes</div>
-          <div style={{ fontSize: "0.75rem", color: "#777" }}>Earn rewards</div>
+          <div style={{ fontWeight: "bold", fontSize: isCompact ? "0.95rem" : "1rem" }}>{hotelPrice}</div>
+          <div style={{ fontSize: "0.7rem", color: "#777" }}>Incl. taxes</div>
+          <div style={{ fontSize: "0.7rem", color: "#777" }}>Earn rewards</div>
         </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "0.25rem",
-          }}
-        >
+        <div style={{ marginTop: "0.3rem" }}>
           <span
             style={{
               backgroundColor: "#3a4ccf",
               color: "#fff",
-              fontSize: "0.75rem",
+              fontSize: "0.7rem",
               borderRadius: "4px",
-              padding: "0.1rem 0.4rem",
-              marginRight: "2rem",
+              padding: "2px 5px",
+              marginRight: "0.4rem",
               fontWeight: "bold",
             }}
           >
             {rating}/5
           </span>
-          <span
-            style={{
-              fontSize: "0.85rem",
-              color: "#0071c2",
-              marginRight: "0.5rem",
-            }}
-          >
-            {reviewText}
-          </span>
-          <span style={{ fontSize: "0.8rem", color: "#555" }}>
-            {trustyouScore} score
-          </span>
+          <span style={{ fontSize: "0.75rem", color: "#0071c2", marginRight: "0.25rem" }}>{reviewText}</span>
         </div>
-
         <button
-          onClick={() => navigate(`/hotels/${hotel.id}`, { state: { hotel } })}
+          onClick={() => {
+            const viewed = JSON.parse(localStorage.getItem("viewedHotels") || "[]");
+            const already = viewed.some((h) => h.id === hotel.id);
+            const updated = already ? viewed : [hotel, ...viewed].slice(0, 4);
+            localStorage.setItem("viewedHotels", JSON.stringify(updated));
+            navigate(`/hotels/${hotel.id}`, { state: { hotel } });
+          }}
           style={{
             backgroundColor: "#ff5a5f",
             color: "#fff",
             border: "none",
             borderRadius: "4px",
-            padding: "0.5rem",
-            fontSize: "0.9rem",
+            padding: "0.4rem",
+            fontSize: "0.8rem",
             cursor: "pointer",
             marginTop: "0.5rem",
           }}
