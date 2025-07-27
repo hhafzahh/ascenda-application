@@ -5,7 +5,8 @@ import SearchBar from "../components/SearchBar/searchBar";
 import FacilitiesFilter from "../components/FacilitiesFilter";
 import StarRatingFilter from "../components/StarRatingFilter";
 import SortControl from "../components/SortControl";
-import MapView from "../components/MapView";
+import MapPreview from "../components/MapPreview";
+import FullMapModal from "../components/FullMapModal";
 
 export default function SearchResults() {
   const location = useLocation();
@@ -25,7 +26,7 @@ export default function SearchResults() {
   const [sortBy, setSortBy] = useState("rating");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedHotelId, setSelectedHotelId] = useState(null);
-  const [showMap, setShowMap] = useState(false);
+  const [showFullMap, setShowFullMap] = useState(false);
   const resultsPerPage = 10;
 
   // Separate hotels with and without coordinates
@@ -141,59 +142,11 @@ export default function SearchResults() {
             onChange={handleStarSelected}
           />
 
-          <button
-            onClick={() => setShowMap(!showMap)}
-            style={{
-              width: "100%",
-              padding: "10px",
-              background: showMap ? "#f0f0f0" : "#0071c2",
-              color: showMap ? "#333" : "white",
-              border: "none",
-              borderRadius: "4px",
-              marginTop: "20px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            {showMap ? "▲ Hide Map" : "▼ Show Map"}
-          </button>
-
-          {showMap && (
-            <div style={{ height: "400px", marginTop: "20px" }}>
-              {filteredHotelsForMap.length > 0 ? (
-                <MapView
-                  hotels={filteredHotelsForMap}
-                  onMarkerClick={(hotelId) => {
-                    setSelectedHotelId(hotelId);
-                    const element = document.getElementById(`hotel-${hotelId}`);
-                    if (element)
-                      element.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center",
-                      });
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "#f0f0f0",
-                    borderRadius: "8px",
-                    padding: "20px",
-                    textAlign: "center",
-                  }}
-                >
-                  <p>
-                    Map unavailable - no hotels with location data match your
-                    filters
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+          {/* Use MapPreview component */}
+          <MapPreview
+            hotels={currentHotels}
+            onClickExpand={() => setShowFullMap(true)}
+          />
         </div>
 
         {/* Right Content - Hotel List */}
@@ -327,6 +280,24 @@ export default function SearchResults() {
           </div>
         </div>
       </div>
+
+      {/* Full Screen Map Modal  */}
+      {showFullMap && (
+        <FullMapModal
+          hotels={filteredHotelsForMap}
+          onClose={() => setShowFullMap(false)}
+          onMarkerClick={(hotelId) => {
+            setSelectedHotelId(hotelId);
+            const element = document.getElementById(`hotel-${hotelId}`);
+            if (element)
+              element.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            setShowFullMap(false);
+          }}
+        />
+      )}
     </div>
   );
 }
