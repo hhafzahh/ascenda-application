@@ -170,8 +170,8 @@ export default function SearchBar({
           hotels: hotelsList,
           searchQuery: query,
           destinationId: uidToUse,
-          checkin: startDate.toISOString().split("T")[0],   // ✅ correct
-          checkout: endDate.toISOString().split("T")[0],    // ✅ correct
+          checkin: startDate.toISOString().split("T")[0],
+          checkout: endDate.toISOString().split("T")[0],
           guests: adults + children,
         },
       });
@@ -202,6 +202,7 @@ export default function SearchBar({
       )} */}
       <div className="search-row">
         <div className="input-group">
+          <label htmlFor="destination-input">Destination</label>
           <input
             type="text"
             placeholder="Select location"
@@ -223,67 +224,77 @@ export default function SearchBar({
             </ul>
           )}
         </div>
-        <DatePicker
-          selected={startDate}
-          onChange={(date) => {
-            setStartDate(date);
-            if (date > endDate) {
-              setEndDate(date); // auto-adjust checkout to match if earlier
-            }
-          }}
-          selectsStart
-          startDate={startDate}
-          endDate={endDate}
-          placeholderText="Check-in"
-          minDate={new Date()} // today onwards only
-        />
-
-        <DatePicker
-          selected={endDate}
-          onChange={(date) => {
-            if (date < startDate) {
-              setEndDate(startDate); // prevent invalid selection
-            } else {
-              setEndDate(date);
-            }
-          }}
-          selectsEnd
-          startDate={startDate}
-          endDate={endDate}
-          placeholderText="Check-out"
-          minDate={startDate} // cannot checkout before check-in
-        />
+        <div className="date-picker-group">
+          <label htmlFor="checkout-date">Check-in</label>
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => {
+              setStartDate(date);
+              if (date > endDate) {
+                setEndDate(date); // auto-adjust checkout to match if earlier
+              }
+            }}
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
+            placeholderText="Check-in"
+            minDate={new Date()} // today onwards only
+          />
+        </div>
+        <div className="date-picker-group">
+          <label htmlFor="checkout-date">Check-out</label>
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => {
+              if (date < startDate) {
+                setEndDate(startDate); // prevent invalid selection
+              } else {
+                setEndDate(date);
+              }
+            }}
+            selectsEnd
+            startDate={startDate}
+            endDate={endDate}
+            placeholderText="Check-out"
+            minDate={startDate} // cannot checkout before check-in
+          />
+        </div>
 
         <div className="guest-room-row">
-          <div className="dropdown-toggle">
-            {`${adults} adult(s) · ${children} child(ren) · ${rooms} room(s)`}
+          <div className="guest-group">
+            <label htmlFor="guest-summary">Guests</label>
+            <div className="dropdown-toggle">
+              {`${adults} adult(s) · ${children} child(ren) · ${rooms} room(s)`}
 
-            <div className="dropdown-content">
-              <div className="counter">
-                <label>Adults</label>
-                <button onClick={() => setAdults(Math.max(1, adults - 1))}>
-                  −
-                </button>
-                <span>{adults}</span>
-                <button onClick={() => setAdults(adults + 1)}>+</button>
-              </div>
+              <div className="dropdown-content">
+                <div className="counter">
+                  <label>Adults</label>
+                  <button onClick={() => setAdults(Math.max(1, adults - 1))}>
+                    −
+                  </button>
+                  <span>{adults}</span>
+                  <button onClick={() => setAdults(adults + 1)}>+</button>
+                </div>
 
-              <div className="counter">
-                <label>Children</label>
-                <button onClick={() => setChildren(Math.max(0, children - 1))}>
-                  −
-                </button>
-                <span>{children}</span>
-                <button onClick={() => setChildren(children + 1)}>+</button>
-              </div>
+                <div className="counter">
+                  <label>Children</label>
+                  <button
+                    onClick={() => setChildren(Math.max(0, children - 1))}
+                  >
+                    −
+                  </button>
+                  <span>{children}</span>
+                  <button onClick={() => setChildren(children + 1)}>+</button>
+                </div>
 
-              <div className="counter">
-                <label>Rooms</label>
-                <button onClick={() => setRooms(Math.max(1, rooms - 1))}>
-                  −
-                </button>
-                <span>{rooms}</span>
-                <button onClick={() => setRooms(rooms + 1)}>+</button>
+                <div className="counter">
+                  <label>Rooms</label>
+                  <button onClick={() => setRooms(Math.max(1, rooms - 1))}>
+                    −
+                  </button>
+                  <span>{rooms}</span>
+                  <button onClick={() => setRooms(rooms + 1)}>+</button>
+                </div>
               </div>
             </div>
           </div>
