@@ -9,6 +9,8 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log("searchParams going into RoomCard:", searchParams);
+
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -48,7 +50,14 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
       {hotelDetails && <Ratings hotel={hotelDetails} />}
       <h1 className="text-2xl font-bold mb-4">Available Rooms</h1>
       {rooms.length > 0 ? (
-        rooms.map((room) => <RoomCard key={room.id} room={room} />)
+        rooms.map((room) => (
+          <RoomCard
+            key={room.id}
+            room={room}
+            searchParams={searchParams}
+            hotelId={hotelId}
+          />
+        ))
       ) : (
         <p>No rooms available for the selected dates.</p>
       )}

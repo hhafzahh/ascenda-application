@@ -4,6 +4,7 @@ import Progress from "./Progress";
 import { Confirmation, PaymentDetails, PersonalDetails } from "./Form";
 export default function BookingForm() {
   //const message = ["Input Personal Details", "Input Payment Details", "Confirmation Details"];
+  const [isStepValid, setIsStepValid] = useState(false);
 
   const [step, setSteps] = useState(1);
   const totalSteps = 3; //use as props for Progress
@@ -18,7 +19,8 @@ export default function BookingForm() {
   const renderSteps = () => {
     switch (step) {
       case 1:
-        return <PersonalDetails />;
+        return <PersonalDetails setIsStepValid={setIsStepValid} />;
+
       case 2:
         return <PaymentDetails />;
       case 3:
@@ -50,8 +52,13 @@ export default function BookingForm() {
           Prev
         </button>
         <button
-          className={`${step >= totalSteps ? "disabled" : "btn"}`}
+          className={`${
+            step >= totalSteps || (step === 1 && !isStepValid)
+              ? "disabled"
+              : "btn"
+          }`}
           onClick={handleNext}
+          disabled={step === 1 && !isStepValid}
         >
           Next
         </button>
