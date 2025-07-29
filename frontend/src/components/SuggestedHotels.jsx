@@ -4,9 +4,14 @@ import SuggestedHotelCard from "./SuggestedHotelCard";
 import "./SuggestedHotels.css";
 
 // Fallback defaults:
-const DEFAULT_DEST = "WD0M";
-const TODAY = new Date().toISOString().slice(0, 10);
-const TOMORROW = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+// const DEFAULT_DEST = "WD0M";
+// const TODAY = new Date().toISOString().slice(0, 10);
+// const TOMORROW = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+// const DEFAULT_GUESTS = "1";
+
+const DEFAULT_DEST = "RsBU";
+const TODAY = "2025-10-10";
+const TOMORROW = "2025-10-31";
 const DEFAULT_GUESTS = "1";
 
 export default function SuggestedHotels() {
@@ -39,7 +44,9 @@ export default function SuggestedHotels() {
         let list;
         if (viewed.length) {
           const seen = new Set(viewed.map((h) => h.id));
-          const fallback = all.filter((h) => !seen.has(h.id)).slice(0, 4 - viewed.length);
+          const fallback = all
+            .filter((h) => !seen.has(h.id))
+            .slice(0, 4 - viewed.length);
           list = [...viewed, ...fallback];
         } else {
           list = all.slice(0, 4);

@@ -14,6 +14,18 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
+        console.log("Final params sent to API:", {
+          hotel_id: hotelId,
+          destination_id: searchParams.destinationId,
+          checkin: searchParams.checkin,
+          checkout: searchParams.checkout,
+          guests: searchParams.guests,
+          lang: "en_US",
+          currency: "SGD",
+          country_code: "SG",
+          partner_id: 1,
+        });
+
         const res = await axios.get(
           "http://localhost:3001/api/hotelproxy/rooms",
           {

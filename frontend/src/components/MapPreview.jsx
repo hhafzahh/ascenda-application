@@ -12,6 +12,7 @@ export default function MapPreview({ hotels, onClickExpand }) {
         overflow: "hidden",
         marginTop: 16,
         boxShadow: "0 1px 6px rgba(0,0,0,0.1)",
+        width: "260px",
       }}
     >
       <MapView hotels={hotels} height={220} />

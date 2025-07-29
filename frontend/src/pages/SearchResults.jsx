@@ -7,6 +7,8 @@ import StarRatingFilter from "../components/StarRatingFilter";
 import SortControl from "../components/SortControl";
 import MapPreview from "../components/MapPreview";
 import FullMapModal from "../components/FullMapModal";
+import RatingSlider from "../components/RatingSlider";
+import PriceRangeFilter from "../components/PriceRangeFilter";
 
 export default function SearchResults() {
   const location = useLocation();
@@ -22,12 +24,14 @@ export default function SearchResults() {
   } = location.state || {};
 
   const [selectedFacilities, setSelectedFacilities] = useState([]);
+  const [minGuestRating, setMinGuestRating] = useState(0);
   const [selectedStars, setSelectedStars] = useState([]);
   const [sortBy, setSortBy] = useState("rating");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedHotelId, setSelectedHotelId] = useState(null);
   const [showFullMap, setShowFullMap] = useState(false);
   const resultsPerPage = 10;
+  const [priceRange, setPriceRange] = useState([0, 1500]);
 
   // Separate hotels with and without coordinates
   const [hotelsWithCoords, hotelsWithoutCoords] = hotels.reduce(
@@ -74,6 +78,9 @@ export default function SearchResults() {
         selectedFacilities.every(
           (facilityKey) => hotel.amenities?.[facilityKey]
         )
+    )
+    .filter(
+      (hotel) => hotel.price >= priceRange[0] && hotel.price <= priceRange[1]
     );
 
   //pagination
@@ -117,6 +124,16 @@ export default function SearchResults() {
     );
   };
 
+  const currentHotelsWithCoords = currentHotels.filter(
+    (hotel) =>
+      typeof hotel.latitude === "number" && typeof hotel.longitude === "number"
+  );
+
+  const handlePriceChange = (range) => {
+    setPriceRange(range);
+    // Apply filter logic here, or update search params/state
+    console.log("New price range:", range);
+  };
   return (
     <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "20px" }}>
       {/* Search Bar */}
@@ -142,11 +159,14 @@ export default function SearchResults() {
             onChange={handleStarSelected}
           />
 
+          <RatingSlider value={minGuestRating} onChange={setMinGuestRating} />
+
           {/* Use MapPreview component */}
           <MapPreview
-            hotels={currentHotels}
+            hotels={currentHotelsWithCoords}
             onClickExpand={() => setShowFullMap(true)}
           />
+          <PriceRangeFilter />
         </div>
 
         {/* Right Content - Hotel List */}

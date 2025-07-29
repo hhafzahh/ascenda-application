@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function HotelCard({ hotel, id, isCompact = false }) {
@@ -11,10 +11,12 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
       ? `${hotel.image_details.prefix}${hotel.default_image_index}${hotel.image_details.suffix}`
       : "https://placehold.co/600x400?text=No\nImage";
 
+  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   const rating = hotel.rating || "N/A";
   const trustyouScore = hotel.trustyouScore || "0";
-  const reviewText = rating >= 4.5 ? "Fantastic" : rating >= 4 ? "Great" : "Good";
+  const reviewText =
+    rating >= 4.5 ? "Fantastic" : rating >= 4 ? "Great" : "Good";
   const locationText = hotel.address || "Location unavailable";
   const hotelPrice = hotel.price ? `${hotel.price}` : "Price unavailable";
 
@@ -22,80 +24,193 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
     <div
       id={id}
       className="hotel-card"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         display: "flex",
-        alignItems: "stretch",
         border: "1px solid #ddd",
-        borderRadius: "8px",
+        borderRadius: "10px",
         overflow: "hidden",
         backgroundColor: "#fff",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-        minHeight: isCompact ? "110px" : "140px",
-        padding: isCompact ? "6px" : "0",
+        padding: "12px",
+        boxShadow: isHovered
+          ? "0 4px 12px rgba(58, 76, 207, 0.4)"
+          : "0 2px 6px rgba(0,0,0,0.1)",
       }}
     >
-      {/* Image */}
-      <div style={{ width: isCompact ? "120px" : "180px", height: isCompact ? "110px" : "140px", flexShrink: 0 }}>
+      {/* Left: Image */}
+      <div
+        style={{
+          width: isCompact ? "150px" : "220px",
+          height: isCompact ? "140px" : "160px",
+          flexShrink: 0,
+          borderRadius: "8px",
+          overflow: "hidden",
+        }}
+      >
         <img
           src={imageUrl}
           alt={hotel.name}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: "8px",
+          }}
         />
       </div>
 
-      {/* Details */}
-      <div style={{ flex: 1, padding: isCompact ? "0.5rem" : "1rem" }}>
-        <h3 style={{ fontSize: isCompact ? "1rem" : "1.1rem", marginBottom: "0.25rem" }}>
-          {hotel.name || `Unnamed Hotel (${hotel.id})`}
-        </h3>
-        <div style={{ fontSize: "0.8rem", color: "#555", marginBottom: "0.25rem" }}>
-          📍 {locationText}
-        </div>
-        {hotel.bookingStats && (
-          <div style={{ fontSize: "0.75rem", color: "#777" }}>{hotel.bookingStats}</div>
-        )}
-        {hotel.promoText && (
-          <div style={{ fontSize: "0.75rem", color: "#d9534f", fontWeight: "bold" }}>
-            {hotel.promoText}
-          </div>
-        )}
-      </div>
-
-      {/* Price + Button */}
+      {/* Middle: Content */}
       <div
         style={{
-          padding: isCompact ? "0.5rem" : "1rem",
-          minWidth: isCompact ? "90px" : "120px",
-          textAlign: "right",
+          flex: 1,
+          padding: "0 16px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          textAlign: "left",
         }}
       >
         <div>
-          <div style={{ fontWeight: "bold", fontSize: isCompact ? "0.95rem" : "1rem" }}>{hotelPrice}</div>
-          <div style={{ fontSize: "0.7rem", color: "#777" }}>Incl. taxes</div>
-          <div style={{ fontSize: "0.7rem", color: "#777" }}>Earn rewards</div>
-        </div>
-        <div style={{ marginTop: "0.3rem" }}>
-          <span
+          <h3
             style={{
-              backgroundColor: "#3a4ccf",
+              fontSize: isCompact ? "1.1rem" : "1.2rem",
+              marginBottom: "0.4rem",
+              color: "#111",
+            }}
+          >
+            {hotel.name || `Unnamed Hotel (${hotel.id})`}
+          </h3>
+
+          <div
+            style={{
+              fontSize: "0.85rem",
+              color: "#555",
+              marginBottom: "0.4rem",
+            }}
+          >
+            📍 {locationText}
+          </div>
+
+          <div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "3px",
+                marginBottom: "0.3rem",
+              }}
+            >
+              {Array.from({ length: 5 }, (_, i) => {
+                const full = Math.floor(rating);
+                const half = rating - full >= 0.5;
+                if (i < full) {
+                  return (
+                    <span
+                      key={i}
+                      style={{ color: "#febb02", fontSize: "1rem" }}
+                    >
+                      ★
+                    </span>
+                  );
+                } else if (i === full && half) {
+                  return (
+                    <span
+                      key={i}
+                      style={{ color: "#febb02", fontSize: "1rem" }}
+                    >
+                      &#xf123;
+                    </span>
+                  );
+                } else {
+                  return (
+                    <span key={i} style={{ color: "#ccc", fontSize: "1rem" }}>
+                      ☆
+                    </span>
+                  );
+                }
+              })}
+            </div>
+
+            {/* <div
+              style={{
+                fontSize: "0.75rem",
+                color: "#0071c2",
+                marginBottom: "0.2rem",
+              }}
+            >
+              {reviewText}
+            </div>
+            <div style={{ fontSize: "0.7rem", color: "green" }}>
+              Guests Rating: {trustyouScore}/5
+            </div> */}
+          </div>
+        </div>
+      </div>
+
+      {/* Right: Price + Button */}
+      <div
+        style={{
+          minWidth: "140px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          textAlign: "right",
+        }}
+      >
+        {/* ✅ Guest Rating Side-by-Side */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            gap: "8px",
+            marginBottom: "1rem",
+          }}
+        >
+          <div
+            style={{ fontWeight: "bold", fontSize: "0.95rem", color: "#111" }}
+          >
+            {reviewText}
+          </div>
+          <div
+            style={{
+              backgroundColor: "#003580",
               color: "#fff",
-              fontSize: "0.7rem",
+              fontSize: "0.8rem",
               borderRadius: "4px",
-              padding: "2px 5px",
-              marginRight: "0.4rem",
+              padding: "4px 8px",
               fontWeight: "bold",
             }}
           >
-            {rating}/5
-          </span>
-          <span style={{ fontSize: "0.75rem", color: "#0071c2", marginRight: "0.25rem" }}>{reviewText}</span>
+            {trustyouScore}/5
+          </div>
         </div>
+
+        {/* 💰 Price */}
+        <div>
+          <div
+            style={{
+              fontWeight: "bold",
+              fontSize: "1.1rem",
+              color: "#000",
+              marginBottom: "0.2rem",
+            }}
+          >
+            SGD {hotelPrice}
+          </div>
+          <div style={{ fontSize: "0.7rem", color: "#777" }}>
+            Exclude taxes & fees
+          </div>
+        </div>
+
+        {/* 🔘 Button */}
         <button
           onClick={() => {
-            const viewed = JSON.parse(localStorage.getItem("viewedHotels") || "[]");
+            const viewed = JSON.parse(
+              localStorage.getItem("viewedHotels") || "[]"
+            );
             const already = viewed.some((h) => h.id === hotel.id);
             const updated = already ? viewed : [hotel, ...viewed].slice(0, 4);
             localStorage.setItem("viewedHotels", JSON.stringify(updated));
@@ -109,7 +224,6 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
             padding: "0.4rem",
             fontSize: "0.8rem",
             cursor: "pointer",
-            marginTop: "0.5rem",
           }}
         >
           See details

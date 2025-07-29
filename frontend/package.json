@@ -21,6 +21,7 @@
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "primereact": "^10.9.6",
+    "rc-slider": "^11.1.8",
     "react": "^19.1.0",
     "react-datepicker": "^8.4.0",
     "react-dom": "^19.1.0",

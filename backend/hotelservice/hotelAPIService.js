@@ -58,7 +58,7 @@ exports.getHotelsByUid = async (req, res) => {
       rating: meta?.rating,
       image_details: meta?.image_details,
       default_image_index: meta?.default_image_index,
-      trustyouScore: meta?.trustyou?.score?.overall,
+      trustyouScore: meta?.trustyou?.score?.kaligo_overall,
       description: meta?.description,
       amenities: meta?.amenities,
       price: priceHotel.converted_price,
