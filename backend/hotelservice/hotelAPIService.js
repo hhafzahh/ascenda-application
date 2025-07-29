@@ -36,6 +36,8 @@ exports.getHotelsByUid = async (req, res) => {
           lang: "en_US",
           currency: "USD",
           country_code: "US",
+          landing_page: "wl-acme-earn",
+          product_type: "earn"
         },
       }
     );
@@ -120,6 +122,8 @@ exports.getRooms = async (req, res) => {
           country_code: country_code || "SG",
           guests,
           partner_id: partner_id || 1,
+          landing_page: "wl-acme-earn",
+          product_type: "earn"
         },
       }
     );

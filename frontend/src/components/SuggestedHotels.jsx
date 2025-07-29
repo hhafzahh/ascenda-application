@@ -29,7 +29,18 @@ export default function SuggestedHotels() {
     // fetch price+metadata
     axios
       .get(`http://localhost:3001/api/hotelproxy/hotels/uid/${destinationId}`, {
-        params: { destination_id: destinationId, checkin, checkout, guests },
+        params: { 
+          destination_id: destinationId, 
+          checkin, 
+          checkout, 
+          guests,
+          lang: "en_US",
+          currency: "SGD",
+          country_code: "SG",
+          partner_id: 1,
+          landing_page: "wl-acme-earn",
+          product_type: "earn"
+         },
       })
       .then((res) => {
         const all = Array.isArray(res.data) ? res.data : [];
