@@ -43,19 +43,23 @@ export default function PhotoGallery({ hotel }) {
         ))}
       </div>
 
-      {/* Lightbox */}
       {showGallery && (
-        <div className="gallery-modal">
-          <ImageGallery
-            items={images}
-            showPlayButton={false}
-            onClick={() => setShowGallery(false)}
-          />
-          <button className="close-btn" onClick={() => setShowGallery(false)}>
-            ✕
-          </button>
-        </div>
-      )}
+      <div className="gallery-modal">
+        <button className="close-btn" onClick={() => setShowGallery(false)}>
+          ✕
+        </button>
+        <ImageGallery
+          items={images}
+          showPlayButton={false}
+          showFullscreenButton={false}
+          showThumbnails={true}
+          showIndex={false}
+          showBullets={false}
+          onClick={() => setShowGallery(false)} // optional: if you want click-to-close
+        />
+      </div>
+    )}
+
     </div>
   );
 }
