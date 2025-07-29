@@ -158,7 +158,7 @@ export default function HotelOverview({onSelectRoom}) {
     
     <div className="hotel-overview">
         <div className="hotel-header" style={{display: 'flex', flexDirection:'row', justifyContent: 'space-between', alignItems: 'center', gap: '1rem'}}>
-            <div>
+            <div style={{display: 'flex', flexDirection: 'column', flexGrow: 1, textAlign: 'left'}}>
                 <h2 className="text-2xl font-bold" style={{textAlign: 'left', margin: '0'}}>{hotel.name}</h2>
                 <div className="hotel-rating" style={{display: 'flex', alignItems: 'center'}}>
                     <Tag  value={category} rounded style={{ padding: '0.2rem 0.8rem 0.2rem 0.8rem', marginRight: '0.5rem' }}></Tag>
