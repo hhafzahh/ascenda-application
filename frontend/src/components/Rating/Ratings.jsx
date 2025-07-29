@@ -24,23 +24,30 @@ export default function Ratings({ hotel }) {
     for (let i = 0; i < emptyStars; i++) {
       stars.push(<span key={`empty-${i}`} className="star empty">★</span>);
     }
-
     return stars;
   };
+
+  const getRatingLabel = (score) => {
+      if (score >= 5.0) return "Excellent";
+      if (score >= 4.0) return "Very Good";
+      if (score >= 3.0) return "Average";
+      if (score >= 2.0) return "Poor";
+      return "Very Poor";
+    };
 
   return (
     <div className="ratings-container">
       <div className="ratings-header">
-        <h2 className="rating-value">{rating.toFixed(1)}</h2>
+        <h2 className="rating-value">{rating.toFixed(1)}/5.0</h2>
         <div className="star-rating">
           {renderStars()}
-          <span className="rating-text">{rating.toFixed(1)}-star hotel</span>
+          <span className="rating-text">{getRatingLabel(rating)}</span>
         </div>
       </div>
 
       {amenitiesRatings.length > 0 && (
         <div className="amenities-ratings-section">
-          <h3>Guest Ratings</h3>
+          <h3>Amenities Score</h3>
           <div className="amenities-ratings-grid">
             {amenitiesRatings.map((item, index) => {
               const score = Math.min(100, Math.max(0, item.score));
