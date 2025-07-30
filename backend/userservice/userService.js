@@ -39,6 +39,7 @@ exports.register = async (userData) => {
   //   });
 };
 
+
 exports.login = async (userData) => {
   console.log("/login called");
   const { email, password } = userData;
@@ -58,14 +59,14 @@ exports.login = async (userData) => {
     throw error;
   }
 
-  // compare hashing
+  // compare hashed password
   const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) {
     const error = new Error("Invalid email or password");
     error.status = 401;
     throw error;
-    //return res.status(401).json({ error: "Invalid email or password" });
+     //return res.status(401).json({ error: "Invalid email or password" });
   }
 
-  return { userId: user._id };
+  return { userId: user._id, email: user.email };
 };
