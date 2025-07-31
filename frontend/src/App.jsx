@@ -8,6 +8,8 @@ import NavBar from "./components/NavBar";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import HotelDetails from "./pages/HotelDetails/HotelDetails";
+import ConfirmPage from "./pages/Confirm";
+import PaymentPage from "./pages/Payment";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/hotels/:hotelId" element={<HotelDetails />} />
+          <Route path="/confirmation" element={<ConfirmPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
           {/* <Route path="/payment" element={<Payment />} />
           <Route path="/booking-details" element={<Particulars />} />
           <Route path="/confirm-booking" element={<ParticularsCheck />} /> */}
