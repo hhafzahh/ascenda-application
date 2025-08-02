@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { storeRecentlyViewed } from "../helper/storeRecentlyViewed";
 
 export default function HotelCard({ hotel, id, isCompact = false }) {
   const imageUrl =
@@ -20,12 +21,18 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
   const locationText = hotel.address || "Location unavailable";
   const hotelPrice = hotel.price ? `${hotel.price}` : "Price unavailable";
 
+  const handleClick = () => {
+    storeRecentlyViewed(hotel);
+    navigate(`/hotels/${hotel.id}`, { state: { hotel } });
+  };
+
   return (
     <div
       id={id}
       className="hotel-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleClick}
       style={{
         display: "flex",
         border: "1px solid #ddd",
@@ -36,6 +43,7 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
         boxShadow: isHovered
           ? "0 4px 12px rgba(58, 76, 207, 0.4)"
           : "0 2px 6px rgba(0,0,0,0.1)",
+        cursor: "pointer",
       }}
     >
       {/* Left: Image */}
@@ -131,19 +139,6 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
                 }
               })}
             </div>
-
-            {/* <div
-              style={{
-                fontSize: "0.75rem",
-                color: "#0071c2",
-                marginBottom: "0.2rem",
-              }}
-            >
-              {reviewText}
-            </div>
-            <div style={{ fontSize: "0.7rem", color: "green" }}>
-              Guests Rating: {trustyouScore}/5
-            </div> */}
           </div>
         </div>
       </div>
@@ -159,7 +154,6 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
           textAlign: "right",
         }}
       >
-        {/* ✅ Guest Rating Side-by-Side */}
         <div
           style={{
             display: "flex",
@@ -188,7 +182,6 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
           </div>
         </div>
 
-        {/* 💰 Price */}
         <div>
           <div
             style={{
@@ -205,17 +198,7 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
           </div>
         </div>
 
-        {/* 🔘 Button */}
         <button
-          onClick={() => {
-            const viewed = JSON.parse(
-              localStorage.getItem("viewedHotels") || "[]"
-            );
-            const already = viewed.some((h) => h.id === hotel.id);
-            const updated = already ? viewed : [hotel, ...viewed].slice(0, 4);
-            localStorage.setItem("viewedHotels", JSON.stringify(updated));
-            navigate(`/hotels/${hotel.id}`, { state: { hotel } });
-          }}
           style={{
             backgroundColor: "#ff5a5f",
             color: "#fff",
