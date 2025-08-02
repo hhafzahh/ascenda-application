@@ -1,19 +1,47 @@
 .ratings-container {
   background: white;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: 400px;
+  padding: 15px;
+  padding-top: 0;
+  border: 0.8px solid rgb(215, 215, 215);
   margin-bottom: 20px;
+  overflow-y: scroll;
+}
+
+.ratings-container::-webkit-scrollbar {
+  width: 0;
 }
 
 .ratings-header {
   display: flex;
+  height: 65px;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 10px 0px;
   border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  background-color: white;
 }
 
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.header-text .header-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #353535;
+}
+
+.header-text .rating-label {
+  font-size: 0.8rem;
+  color: #202020;
+  text-align: left;
+}
 .rating-value {
   font-size: 2.5rem;
   font-weight: bold;
@@ -52,17 +80,19 @@
   color: #555;
 }
 
-.amenities-ratings-section {
-  margin-top: 20px;
-}
+/* .amenities-ratings-section {
+  margin-top: 10px;
+} */
 
 .amenities-ratings-section h3 {
+  margin-top: 10px;
   font-size: 1.2rem;
   margin-bottom: 15px;
   color: #333;
 }
 
 .amenities-ratings-grid {
+  margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(1fr);
   gap: 15px;
@@ -71,7 +101,7 @@
 .amenity-rating-item {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 1px;
 }
 
 .amenity-name {
