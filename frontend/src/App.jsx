@@ -4,7 +4,7 @@ import Landing from "./pages/Landing";
 import "./App.css";
 import HotelRooms from "./pages/HotelRooms";
 import SearchResults from "./pages/SearchResults";
-import NavBar from "./components/NavBar";
+import NavBar from "./components/NavBar/Navbar";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import HotelDetails from "./pages/HotelDetails/HotelDetails";

@@ -19,7 +19,7 @@ export default function HotelDetails() {
   if (!hotel) return <p>Loading...</p>;
 
   return (
-    <div className="hotel-details-page">
+    <div className="hotel-details-page" style ={{ width:'100%', margin: 'auto'}} >
       <PhotoGallery hotel={hotel} />
       <div className="hotel-details-content">
         <HotelOverview hotel={hotel} onSelectRoom={scrollToRooms} />
