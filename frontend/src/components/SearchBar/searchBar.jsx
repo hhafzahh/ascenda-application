@@ -220,25 +220,6 @@ export default function SearchBar({
       const hotelsList = Array.isArray(res.data)
         ? res.data
         : res.data.hotels || [];
-      //setHotels(hotelsList);
-      //onHotelsFetched?.(hotelsList);
-
-      // navigate("/results", {
-      //   state: { hotels: hotelsList, searchQuery: query },
-      // });
-
-      navigate("/results", {
-        state: {
-          hotels: hotelsList,
-          searchQuery: query,
-          destinationId: uidToUse,
-          checkin: startDate.toISOString().split("T")[0],
-          checkout: endDate.toISOString().split("T")[0],
-          guests: adults + children,
-        },
-      });
-      setLoading?.(false);
-      setLoadingInternal(false);
 
       // Update navigation data with successful results
       navigationData.hotels = hotelsList;
@@ -287,80 +268,110 @@ export default function SearchBar({
           {suggestions.length > 0 && (
             <ul className="suggestion-list">
               {suggestions.map((d, idx) => (
-                <li key={idx} role="listitem" onClick={() => handleSelectSuggestion(d)}>
+                <li key={idx} onClick={() => handleSelectSuggestion(d)}>
                   {d.term}
                 </li>
               ))}
             </ul>
           )}
-        </div>
-        <DatePicker
-          selected={startDate}
-          onChange={(date) => {
-            setStartDate(date);
-            if (date > endDate) {
-              setEndDate(date); // auto-adjust checkout to match if earlier
-            }
-          }}
-          selectsStart
-          startDate={startDate}
-          endDate={endDate}
-          placeholderText="Check-in"
-          minDate={new Date()} // today onwards only
-        />
+        </Box>
 
-        <DatePicker
-          selected={endDate}
-          onChange={(date) => {
-            if (date < startDate) {
-              setEndDate(startDate); // prevent invalid selection
-            } else {
-              setEndDate(date);
-            }
-          }}
-          selectsEnd
-          startDate={startDate}
-          endDate={endDate}
-          placeholderText="Check-out"
-          minDate={startDate} // cannot checkout before check-in
-        />
+        {/* Date Pickers */}
+        <Stack direction="row" spacing={2}>
+          <TextField
+            type="date"
+            label="Check-in Date"
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+            value={startDate.toISOString().split("T")[0]}
+            onChange={(e) => {
+              const date = new Date(e.target.value);
+              setStartDate(date);
+              if (date > endDate) setEndDate(date);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CalendarTodayIcon color="primary" />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            type="date"
+            label="Check-out Date"
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+            value={endDate.toISOString().split("T")[0]}
+            onChange={(e) => {
+              const date = new Date(e.target.value);
+              if (date >= startDate) setEndDate(date);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CalendarTodayIcon color="primary" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Stack>
 
-        <div className="guest-room-row">
-          <div className="dropdown-toggle">
-            {`${adults} adult(s) · ${children} child(ren) · ${rooms} room(s)`}
-
-            <div className="dropdown-content">
-              <div className="counter">
-                <label>Adults</label>
-                <button onClick={() => setAdults(Math.max(1, adults - 1))}>
-                  −
-                </button>
-                <span>{adults}</span>
-                <button onClick={() => setAdults(adults + 1)}>+</button>
-              </div>
-
-              <div className="counter">
-                <label>Children</label>
-                <button onClick={() => setChildren(Math.max(0, children - 1))}>
-                  −
-                </button>
-                <span>{children}</span>
-                <button onClick={() => setChildren(children + 1)}>+</button>
-              </div>
-
-              <div className="counter">
-                <label>Rooms</label>
-                <button onClick={() => setRooms(Math.max(1, rooms - 1))}>
-                  −
-                </button>
-                <span>{rooms}</span>
-                <button onClick={() => setRooms(rooms + 1)}>+</button>
-              </div>
-            </div>
-          </div>
-          <button onClick={() => handleSearch()}>Search Hotels</button>
-        </div>
-      </div>
-    </div>
+        {/* Guests + Room + Search */}
+        <Stack direction="row" spacing={2} alignItems="center">
+          <TextField
+            type="number"
+            fullWidth
+            value={adults}
+            onChange={(e) => setAdults(Math.max(1, parseInt(e.target.value) || 1))}
+            placeholder="Adult(s)"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccountCircleIcon color="primary" />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            type="number"
+            fullWidth
+            value={children}
+            onChange={(e) => setChildren(Math.max(0, parseInt(e.target.value) || 0))}
+            placeholder="Child(ren)"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <ChildCareIcon color="primary" />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            type="number"
+            fullWidth
+            value={rooms}
+            onChange={(e) => setRooms(Math.max(1, parseInt(e.target.value) || 1))}
+            placeholder="Room(s)"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <HotelIcon color="primary" />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={loading || loadingInternal}
+            sx={{ px: 4, height: "56px", whiteSpace: "nowrap" }}
+            onClick={handleSearch}
+          >
+            {loading || loadingInternal ? "Searching..." : "Search"}
+          </Button>
+        </Stack>
+      </Stack>
+    </Paper>
   );
 }

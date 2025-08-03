@@ -66,7 +66,7 @@ export default function BookingForm() {
           onChange={(e) => setCountryCode(e.target.value)}
         >
           Prev
-        </button>
+        </select>
         <button
           className={`${
             step >= totalSteps || (step === 1 && !isStepValid)
