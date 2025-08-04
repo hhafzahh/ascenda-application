@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
-function PriceRangeFilter() {
+function PriceRangeFilter({ value, onChange }) {
   const MIN = 100;
-  const MAX = 12000;
-  const [values, setValues] = useState([MIN, MAX]);
+  const MAX = 12000; //hardcoded
 
   const boxStyle = {
     marginTop: "20px",
@@ -33,7 +32,7 @@ function PriceRangeFilter() {
 
   const sliderWrapperStyle = {
     marginTop: "20px",
-    touchAction: "none", // <- ADD THIS LINE
+    touchAction: "none",
   };
 
   return (
@@ -46,15 +45,15 @@ function PriceRangeFilter() {
           ${MIN} - ${MAX}
         </div>
         <small style={smallStyle}>
-          Current Range: ${values[0]} - ${values[1]}
+          Current Range: ${value[0]} - ${value[1]}
         </small>
         <div style={sliderWrapperStyle}>
           <Slider
             range
             min={MIN}
             max={MAX}
-            value={values}
-            onChange={setValues}
+            value={value}
+            onChange={onChange}
             trackStyle={[{ backgroundColor: "#275efe", height: 4 }]}
             handleStyle={[
               {
