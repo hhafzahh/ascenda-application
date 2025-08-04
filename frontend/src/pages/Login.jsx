@@ -31,7 +31,9 @@ export default function Login() {
 
         if (data && data.userId) {
           sessionStorage.setItem("userId", data.userId);
+          sessionStorage.setItem("token", data.token);
           console.log("User ID set in sessionStorage:", data.userId);
+          console.log("Token set in sessionStorage:", data.token);
         } else {
           console.warn("User ID not found in response:", data);
         }

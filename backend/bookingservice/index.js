@@ -1,4 +1,4 @@
-const { connect } = require("../Models/db");
+const { connect } = require("../database/db");
 //port = 3002
 const express = require("express");
 const cors = require("cors");

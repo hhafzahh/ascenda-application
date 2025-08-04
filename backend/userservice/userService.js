@@ -1,4 +1,4 @@
-const dbClient = require("../Models/db");
+const dbClient = require("../database/db");
 const bcrypt = require("bcrypt");
 
 const SALT_ROUNDS = 10;

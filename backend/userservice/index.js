@@ -1,22 +1,11 @@
 //express app entry for user service
 //port = 3004
+const app = require("./app");
+const PORT = process.env.PORT || 3004;
 
-const { connect } = require("../Models/db");
+const { connect } = require("../database/db");
 
 console.log("Starting UserService...");
-
-const express = require("express");
-const cors = require("cors");
-const app = express();
-
-const userRouter = require("./userRoute");
-
-app.use(cors());
-app.use(express.json());
-
-app.use("/api/user", userRouter);
-
-const PORT = process.env.PORT || 3004;
 
 (async () => {
   try {
