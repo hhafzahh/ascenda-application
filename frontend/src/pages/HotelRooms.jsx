@@ -86,7 +86,15 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails}) {
     {rooms === null ? null : (
       fetched ? (
         rooms.length > 0 ? (
-          currentRooms.map((room) => <RoomCard key={room.id} room={room} searchParams={searchParams} hotelId={hotelId}/>)
+          currentRooms.map((room) => 
+            <RoomCard 
+              key={room.id} 
+              room={room} 
+              searchParams={searchParams} 
+              hotelId={hotelId}
+              hotelDetails={hotelDetails} // Pass hotel details to RoomCard
+            />
+          )
         ) : (
           <p>No rooms available for the selected dates.</p>
         )
@@ -125,4 +133,3 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails}) {
   </div>
 );
 }
-
