@@ -1,8 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./RecentlyViewedHotelCard.css";
-import { storeRecentlyViewed } from "../helper/storeRecentlyViewed"; 
-
+import { storeRecentlyViewed } from "../helper/storeRecentlyViewed";
 
 const DEFAULT_DEST = "WD0M";
 const TODAY = new Date().toISOString().slice(0, 10);
@@ -10,6 +9,7 @@ const TOMORROW = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
 const DEFAULT_GUESTS = "1";
 
 export default function RecentlyViewedHotelCard({ hotel }) {
+  //console.log("hotel received", hotel);
   const navigate = useNavigate();
 
   const pre = hotel.image_details?.prefix;
@@ -26,21 +26,32 @@ export default function RecentlyViewedHotelCard({ hotel }) {
     rating >= 4.5 ? "Fantastic" : rating >= 4 ? "Great" : "Good";
 
   const handleClick = () => {
-    storeRecentlyViewed(hotel); 
+    console.log("Hotel clicked:", hotel);
 
-    const raw = localStorage.getItem("lastSearchParams");
-    const last = raw ? JSON.parse(raw) : {};
-    const {
-      destinationId = DEFAULT_DEST,
-      checkin = TODAY,
-      checkout = TOMORROW,
-      guests = DEFAULT_GUESTS,
-    } = last;
+    storeRecentlyViewed(hotel);
+
+    // const raw = localStorage.getItem("lastSearchParams");
+    // const last = raw ? JSON.parse(raw) : {};
+    // const {
+    //   destinationId = DEFAULT_DEST,
+    //   checkin = TODAY,
+    //   checkout = TOMORROW,
+    //   guests = DEFAULT_GUESTS,
+    // } = last;
+
+    const searchParams = {
+      destinationId: hotel.searchParams.destinationId,
+      checkin: hotel.searchParams.checkin,
+      checkout: hotel.searchParams.checkout,
+      guests: hotel.searchParams.guests,
+    };
+
+    //console.log(searchParams); //for testing
 
     navigate(`/hotels/${hotel.id}`, {
       state: {
         hotel,
-        searchParams: { destinationId, checkin, checkout, guests },
+        searchParams: searchParams,
       },
     });
   };

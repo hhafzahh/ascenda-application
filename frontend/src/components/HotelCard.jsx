@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { storeRecentlyViewed } from "../helper/storeRecentlyViewed";
 
-export default function HotelCard({ hotel, id, isCompact = false }) {
+export default function HotelCard({
+  hotel,
+  id,
+  isCompact = false,
+  searchParams,
+}) {
   const imageUrl =
     hotel.image_details?.prefix && hotel.image_details?.suffix
       ? `${hotel.image_details.prefix}0${hotel.image_details.suffix}`
@@ -11,6 +16,8 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
         hotel.image_details?.suffix
       ? `${hotel.image_details.prefix}${hotel.default_image_index}${hotel.image_details.suffix}`
       : "https://placehold.co/600x400?text=No\nImage";
+
+  console.log(searchParams);
 
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
@@ -22,7 +29,7 @@ export default function HotelCard({ hotel, id, isCompact = false }) {
   const hotelPrice = hotel.price ? `${hotel.price}` : "Price unavailable";
 
   const handleClick = () => {
-    storeRecentlyViewed(hotel);
+    storeRecentlyViewed(hotel, searchParams);
     navigate(`/hotels/${hotel.id}`, { state: { hotel } });
   };
 

@@ -208,6 +208,12 @@ export default function SearchResults() {
                       hotel={hotel}
                       isSelected={selectedHotelId === hotel.id}
                       hasLocation={!!(hotel.latitude && hotel.longitude)}
+                      searchParams={{
+                        destinationId,
+                        checkin,
+                        checkout,
+                        guests,
+                      }}
                     />
                   </div>
                 ))}

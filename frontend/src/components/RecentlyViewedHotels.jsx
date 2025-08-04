@@ -20,10 +20,12 @@ export default function RecentlyViewedHotels() {
 
   useEffect(() => {
     const viewed = JSON.parse(localStorage.getItem("viewedHotels") || "[]");
+    console.log(viewed);
     if (!viewed.length) return;
 
-    const raw = localStorage.getItem("lastSearchParams");
-    const last = raw ? JSON.parse(raw) : {};
+    // const raw = localStorage.getItem("lastSearchParams");
+    // const last = raw ? JSON.parse(raw) : {};
+
     const { TODAY, TOMORROW } = getTodayAndTomorrow();
 
     const {
@@ -31,7 +33,7 @@ export default function RecentlyViewedHotels() {
       checkin = TODAY,
       checkout = TOMORROW,
       guests = DEFAULT_GUESTS,
-    } = last;
+    } = viewed.find((h) => h.searchParams)?.searchParams || {};
 
     axios
       .get(`http://localhost:3001/api/hotelproxy/hotels/uid/${destinationId}`, {
@@ -40,7 +42,11 @@ export default function RecentlyViewedHotels() {
       .then((res) => {
         const all = Array.isArray(res.data) ? res.data : [];
         const seen = new Set(viewed.map((h) => h.id));
-        const enriched = viewed.map((h) => all.find((x) => x.id === h.id) || h);
+        const enriched = viewed.map((h) => {
+          const updated = all.find((x) => x.id === h.id);
+          return updated ? { ...updated, searchParams: h.searchParams } : h;
+        }); //include search params with the data fetched from api
+
         setHotels(enriched);
       })
       .catch((err) => console.error("Error fetching hotel data:", err));
