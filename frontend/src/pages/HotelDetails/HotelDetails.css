@@ -1,14 +1,25 @@
-body {
-  background-color: #f9f9f9; /* light grey */
-  min-height: 100vh;
+.hotel-details-overview-map {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 85vw;
+  margin: 0 auto;
+  padding: 1rem;
+  background-color: #ffffff;
+}
+
+.overview-column {
+  flex: 3;
+}
+
+.map-column {
+  flex: 2;
+  height: 300px;
 }
 
 .hotel-details-content {
-    max-width: 1200px;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    background-color: #ffffff;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
+  max-width: 85vw;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: #ffffff;
 }

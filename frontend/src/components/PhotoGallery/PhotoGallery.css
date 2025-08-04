@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 2fr 3fr;
   gap: 10px;
-  max-width: 1200px;
+  max-width: 85vw;
   margin: 0 auto;
   align-items: start; /* or stretch, doesn't matter if you fix height below */
 }
@@ -83,9 +83,15 @@
   position: fixed;
   top: 20px;
   right: 30px;
-  background: white;
+  color: gray;
   border: none;
+  background-color: transparent;
   font-size: 2rem;
   cursor: pointer;
   z-index: 1000;
 }
+.close-btn:hover {
+  color: black;
+  background-color: transparent;
+}
+

@@ -1,12 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export function PersonalDetails() {
+export function PersonalDetails({ setIsStepValid }) {
   const [isBookingForSomeone, setIsBookingForSomeone] = useState(false);
 
   const [guestInfo, setGuestInfo] = useState({
     guestName: "",
     guestPhone: "",
   });
+
+  const [personalInfo, setPersonalInfo] = useState({
+    title: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    mobile: "",
+    countryCode: "+65",
+  });
+
+  useEffect(() => {
+    const valid = isPersonalValid();
+    setIsStepValid(valid);
+  }, [personalInfo, guestInfo, isBookingForSomeone]);
+
+  const handlePersonalChange = (e) => {
+    const { name, value } = e.target;
+    setPersonalInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+  const isPersonalValid = () => {
+    const { title, firstName, lastName, email, mobile } = personalInfo;
+    if (!title || !firstName || !lastName || !email || !mobile) return false;
+
+    if (isBookingForSomeone) {
+      return guestInfo.guestName && guestInfo.guestPhone;
+    }
+
+    return true;
+  };
 
   const handleCheckboxChange = () => {
     setIsBookingForSomeone(!isBookingForSomeone);
@@ -23,24 +55,56 @@ export function PersonalDetails() {
     <div className="form-container">
       <h3>Enter your details</h3>
       <div className="form-grid">
-        <select>
-          <option>Mr</option>
-          <option>Ms</option>
-          <option>Mrs</option>
+        <select
+          name="title"
+          value={personalInfo.title}
+          onChange={handlePersonalChange}
+        >
+          <option value="">Title</option>
+          <option value="Mr">Mr</option>
+          <option value="Ms">Ms</option>
+          <option value="Mrs">Mrs</option>
         </select>
-        <input placeholder="First Name" />
-        <input placeholder="Last Name" />
+
+        <input
+          name="firstName"
+          value={personalInfo.firstName}
+          onChange={handlePersonalChange}
+          placeholder="First Name"
+        />
+
+        <input
+          name="lastName"
+          value={personalInfo.lastName}
+          onChange={handlePersonalChange}
+          placeholder="Last Name"
+        />
       </div>
 
-      <input placeholder="Email" className="full-width" />
+      <input
+        name="email"
+        value={personalInfo.email}
+        onChange={handlePersonalChange}
+        placeholder="Email"
+        className="full-width"
+      />
 
       <div className="form-grid">
-        <select>
+        <select
+          name="countryCode"
+          value={personalInfo.countryCode}
+          onChange={handlePersonalChange}
+        >
           <option>+65 (Singapore)</option>
           <option>+60 (Malaysia)</option>
           <option>+62 (Indonesia)</option>
         </select>
-        <input placeholder="Mobile" />
+        <input
+          name="mobile"
+          value={personalInfo.mobile}
+          onChange={handlePersonalChange}
+          placeholder="Mobile"
+        />
       </div>
 
       <div className="guest-section">

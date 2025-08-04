@@ -49,11 +49,13 @@
     color: #dc2626;
     font-weight: 600;
     font-size: 0.85rem;
+
   }
   
   .price {
     font-size: 1.2rem;
     font-weight: 700;
+    margin-left: auto;
   }
   
   .pay-now {

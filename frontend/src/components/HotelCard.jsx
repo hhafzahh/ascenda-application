@@ -1,157 +1,212 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { storeRecentlyViewed } from "../helper/storeRecentlyViewed";
 
-export default function HotelCard({ hotel, id }) {
+export default function HotelCard({ hotel, id, isCompact = false }) {
   const imageUrl =
     hotel.image_details?.prefix && hotel.image_details?.suffix
-      ? `${hotel.image_details.prefix}0${hotel.image_details.suffix}` // Try 0.jpg first
+      ? `${hotel.image_details.prefix}0${hotel.image_details.suffix}`
       : hotel.default_image_index !== undefined &&
         hotel.image_details?.prefix &&
         hotel.image_details?.suffix
-      ? `${hotel.image_details.prefix}${hotel.default_image_index}${hotel.image_details.suffix}` // Fallback to default_image_index
-      : "https://placehold.co/600x400?text=No\nImage"; // Fallback to placeholder
+      ? `${hotel.image_details.prefix}${hotel.default_image_index}${hotel.image_details.suffix}`
+      : "https://placehold.co/600x400?text=No\nImage";
 
-  const categories =
-    hotel.categories && typeof hotel.categories === "object"
-      ? Object.values(hotel.categories)
-          .map((cat) => cat.name)
-          .join(", ")
-      : "";
-
+  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
-
   const rating = hotel.rating || "N/A";
   const trustyouScore = hotel.trustyouScore || "0";
   const reviewText =
     rating >= 4.5 ? "Fantastic" : rating >= 4 ? "Great" : "Good";
-
   const locationText = hotel.address || "Location unavailable";
   const hotelPrice = hotel.price ? `${hotel.price}` : "Price unavailable";
 
+  const handleClick = () => {
+    storeRecentlyViewed(hotel);
+    navigate(`/hotels/${hotel.id}`, { state: { hotel } });
+  };
+
   return (
     <div
-      id={id} // ✅ So the map can scroll to this card
+      id={id}
       className="hotel-card"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={handleClick}
       style={{
         display: "flex",
-        alignItems: "stretch",
         border: "1px solid #ddd",
-        borderRadius: "8px",
+        borderRadius: "10px",
         overflow: "hidden",
         backgroundColor: "#fff",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        padding: "12px",
+        boxShadow: isHovered
+          ? "0 4px 12px rgba(58, 76, 207, 0.4)"
+          : "0 2px 6px rgba(0,0,0,0.1)",
+        cursor: "pointer",
       }}
     >
       {/* Left: Image */}
-      <div style={{ width: "160px", height: "160px", flexShrink: 0 }}>
+      <div
+        style={{
+          width: isCompact ? "150px" : "220px",
+          height: isCompact ? "140px" : "160px",
+          flexShrink: 0,
+          borderRadius: "8px",
+          overflow: "hidden",
+        }}
+      >
         <img
           src={imageUrl}
           alt={hotel.name}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: "8px",
+          }}
         />
       </div>
 
-      {/* Center: Details */}
-      <div style={{ flex: 1, padding: "1rem" }}>
-        <h3 style={{ fontSize: "1.1rem", marginBottom: "0.25rem" }}>
-          {hotel.name || `Unnamed Hotel (${hotel.id})`}
-        </h3>
-
-        <div
-          style={{
-            fontSize: "0.85rem",
-            color: "#555",
-            marginBottom: "0.25rem",
-          }}
-        >
-          📍 {locationText}{" "}
-          {/* <a href="#" style={{ color: "#0071c2" }}>
-            See map
-          </a> */}
-        </div>
-
-        {hotel.bookingStats && (
-          <div style={{ fontSize: "0.8rem", color: "#777" }}>
-            {hotel.bookingStats}
-          </div>
-        )}
-        {hotel.promoText && (
-          <div
-            style={{
-              fontSize: "0.8rem",
-              color: "#d9534f",
-              fontWeight: "bold",
-            }}
-          >
-            {hotel.promoText}
-          </div>
-        )}
-      </div>
-
-      {/* Right: Price & Action */}
+      {/* Middle: Content */}
       <div
         style={{
-          padding: "1rem",
-          minWidth: "120px",
-          textAlign: "right",
+          flex: 1,
+          padding: "0 16px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          textAlign: "left",
         }}
       >
         <div>
-          <div style={{ fontWeight: "bold", fontSize: "1rem" }}>
-            {hotelPrice}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "#777" }}>Incl. taxes</div>
-          <div style={{ fontSize: "0.75rem", color: "#777" }}>Earn rewards</div>
-        </div>
+          <h3
+            style={{
+              fontSize: isCompact ? "1.1rem" : "1.2rem",
+              marginBottom: "0.4rem",
+              color: "#111",
+            }}
+          >
+            {hotel.name || `Unnamed Hotel (${hotel.id})`}
+          </h3>
 
+          <div
+            style={{
+              fontSize: "0.85rem",
+              color: "#555",
+              marginBottom: "0.4rem",
+            }}
+          >
+            📍 {locationText}
+          </div>
+
+          <div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "3px",
+                marginBottom: "0.3rem",
+              }}
+            >
+              {Array.from({ length: 5 }, (_, i) => {
+                const full = Math.floor(rating);
+                const half = rating - full >= 0.5;
+                if (i < full) {
+                  return (
+                    <span
+                      key={i}
+                      style={{ color: "#febb02", fontSize: "1rem" }}
+                    >
+                      ★
+                    </span>
+                  );
+                } else if (i === full && half) {
+                  return (
+                    <span
+                      key={i}
+                      style={{ color: "#febb02", fontSize: "1rem" }}
+                    >
+                      &#xf123;
+                    </span>
+                  );
+                } else {
+                  return (
+                    <span key={i} style={{ color: "#ccc", fontSize: "1rem" }}>
+                      ☆
+                    </span>
+                  );
+                }
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right: Price + Button */}
+      <div
+        style={{
+          minWidth: "140px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          textAlign: "right",
+        }}
+      >
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            marginBottom: "0.25rem",
+            justifyContent: "flex-end",
+            gap: "8px",
+            marginBottom: "1rem",
           }}
         >
-          <span
+          <div
+            style={{ fontWeight: "bold", fontSize: "0.95rem", color: "#111" }}
+          >
+            {reviewText}
+          </div>
+          <div
             style={{
-              backgroundColor: "#3a4ccf",
+              backgroundColor: "#003580",
               color: "#fff",
-              fontSize: "0.75rem",
+              fontSize: "0.8rem",
               borderRadius: "4px",
-              padding: "0.1rem 0.4rem",
-              marginRight: "2rem",
+              padding: "4px 8px",
               fontWeight: "bold",
             }}
           >
-            {rating}/5
-          </span>
-          <span
+            {trustyouScore}/5
+          </div>
+        </div>
+
+        <div>
+          <div
             style={{
-              fontSize: "0.85rem",
-              color: "#0071c2",
-              marginRight: "0.5rem",
+              fontWeight: "bold",
+              fontSize: "1.1rem",
+              color: "#000",
+              marginBottom: "0.2rem",
             }}
           >
-            {reviewText}
-          </span>
-          <span style={{ fontSize: "0.8rem", color: "#555" }}>
-            {trustyouScore} score
-          </span>
+            SGD {hotelPrice}
+          </div>
+          <div style={{ fontSize: "0.7rem", color: "#777" }}>
+            Exclude taxes & fees
+          </div>
         </div>
 
         <button
-          onClick={() => navigate(`/hotels/${hotel.id}`, { state: { hotel } })}
           style={{
             backgroundColor: "#ff5a5f",
             color: "#fff",
             border: "none",
             borderRadius: "4px",
-            padding: "0.5rem",
-            fontSize: "0.9rem",
+            padding: "0.4rem",
+            fontSize: "0.8rem",
             cursor: "pointer",
-            marginTop: "0.5rem",
           }}
         >
           See details
