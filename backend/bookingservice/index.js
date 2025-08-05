@@ -1,26 +1,25 @@
-const { connect } = require("../database/db");
 //port = 3002
 const express = require("express");
-const cors = require("cors");
 const app = express();
+const cors = require("cors");
+const { connect } = require("../database/db");
 
-const bookingsRouter = require("./bookingRoute");
+const bookingRouter = require("./bookingRoute");
+const paymentRouter = require("./paymentRoute");
 
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/bookings", bookingsRouter);
-const PORT = process.env.PORT || 3002;
+app.use("/api/bookings", bookingRouter);
+app.use("/api/payments", paymentRouter);
 
-(async () => {
-  try {
-    await connect();
-    console.log("Connected to MongoDB");
-
-    app.listen(PORT, () => {
-      console.log(`Booking Service is running on http://localhost:${PORT}`);
+// Connect to DB using shared db.js
+connect()
+  .then(() => {
+    app.listen(3002, () => {
+      console.log("Server running on http://localhost:3002");
     });
-  } catch (err) {
-    console.error("Failed to connect to MongoDB", err);
-  }
-})();
+  })
+  .catch((err) => {
+    console.error("Failed to start server due to DB error", err);
+  });

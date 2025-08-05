@@ -1,0 +1,52 @@
+/* BookingLayout.css */
+.booking-layout-container {
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.booking-layout {
+    display: flex;
+    gap: 30px;
+    max-width: 1200px;
+    width: 100%;
+    align-items: flex-start;
+}
+
+.booking-left {
+    flex: 2;
+    min-width: 0; /* Prevents flex item from overflowing */
+}
+
+.booking-right {
+    flex: 0 0 350px; /* Fixed width for hotel details */
+    position: sticky;
+    top: 20px; /* Stays in view when scrolling */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 968px) {
+.booking-layout {
+    flex-direction: column;
+    gap: 20px;
+    }
+    .booking-right {
+    flex: none;
+    position: static;
+    width: 100%;
+    }
+    .booking-layout-container {
+    padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .booking-layout-container {
+    padding: 10px;
+    }
+    .booking-layout {
+    gap: 15px;
+    }
+}

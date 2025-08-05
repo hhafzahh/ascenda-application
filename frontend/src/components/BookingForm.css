@@ -1,0 +1,403 @@
+/* BookingForm.css */
+
+.booking-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 0%);
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.booking-form-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.form-header {
+  background: linear-gradient(135deg, #3d76a5 0%, #102962 100%);
+  color: white;
+  padding: 5px;
+  text-align: center;
+}
+
+.form-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.form-header p {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.booking-form {
+  padding: 20px;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 30px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #f9f9f9;
+  transition: all 0.2s ease;
+}
+
+.form-section:hover {
+  border-color: #cbd5e0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.section-icon {
+  margin-right: 12px;
+  font-size: 20px;
+}
+
+/* Form Grid Layouts */
+.form-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.form-grid.two-column {
+  grid-template-columns: 1fr 1fr;
+}
+
+.form-grid.three-column {
+  grid-template-columns: 0.6fr 2fr 1fr;
+  gap: 15px;
+  align-items: center;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Labels */
+label {
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 6px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+/* Input Styles */
+input, select, textarea {
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  background: white;
+  font-family: inherit;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+input:invalid {
+  border-color: #e53e3e;
+}
+
+input:valid {
+  border-color: #48bb78;
+}
+
+/* Phone Number Group */
+.phone-group {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.country-code {
+  flex: 0 0 110px; 
+  min-width: 90px;
+}
+
+.phone-group input {
+  flex: 1;
+  min-width: 0; /* Prevents flex item from overflowing */
+}
+
+/* Checkbox Styling */
+.checkbox {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  accent-color: #4299e1;
+}
+
+/* Textarea */
+textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: space-between;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Buttons */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  max-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #4299e1;
+  color: white;
+  max-width: none; /* Removes width restriction */
+  flex: 0.4;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #3182ce;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #cbd5e0;
+  transform: translateY(-1px);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Card Element Styling */
+.card-element-container {
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.card-element-container:focus-within {
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+/* Payment Summary Styles */
+.payment-summary {
+  background: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 15px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-row.total {
+  margin-top: 10px;
+  padding-top: 15px;
+  border-top: 2px solid #4299e1;
+  font-size: 1.1rem;
+}
+
+.summary-row.total span {
+  color: #2d3748;
+}
+
+/* Add these styles to your existing BookingForm.css */
+
+/* Half-width form groups for expiry and CVV */
+.form-group.half-width {
+  width: calc(50% - 10px);
+  display: inline-block;
+  vertical-align: top;
+}
+
+.form-group.half-width:first-of-type {
+  margin-right: 20px;
+}
+
+/* Form input styling for cardholder name */
+.form-input {
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  background: white;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.form-input:invalid {
+  border-color: #e53e3e;
+}
+
+.form-input:valid {
+  border-color: #48bb78;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .booking-container {
+    padding: 10px;
+  }
+  
+  .booking-form-card {
+    border-radius: 12px;
+  }
+  
+  .form-header {
+    padding: 20px;
+  }
+  
+  .form-header h1 {
+    font-size: 24px;
+  }
+  
+  .booking-form {
+    padding: 20px;
+  }
+  
+  .form-section {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .form-grid.two-column,
+  .form-grid.three-column {
+    grid-template-columns: 1fr;
+  }
+  
+  .phone-group {
+    flex-direction: column;
+  }
+  
+  .country-code {
+    flex: none;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    max-width: none;
+  }
+  
+  .section-title {
+    font-size: 16px;
+  }
+
+  .form-group.half-width {
+    width: 100%;
+    display: block;
+    margin-right: 0;
+  }
+  
+  .form-group.half-width:first-of-type {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .form-header {
+    padding: 15px;
+  }
+  
+  .booking-form {
+    padding: 15px;
+  }
+  
+  .form-section {
+    padding: 15px;
+  }
+  
+  .form-grid {
+    gap: 15px;
+  }
+}

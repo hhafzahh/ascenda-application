@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./RoomCard.css";
 import { useNavigate } from "react-router-dom";
 
-export default function RoomCard({ room, searchParams, hotelId }) {
+export default function RoomCard({ room, searchParams, hotelId, hotelDetails }) {
   //Take in room as an object from Hotel API
   const {
     roomDescription,
@@ -21,16 +21,23 @@ export default function RoomCard({ room, searchParams, hotelId }) {
   const navigate = useNavigate();
 
   const handleSelectRoom = () => {
-    //console.log("Navigating with room:", room);
-    //console.log("Navigating with searchParams:", searchParams);
+    console.log("RoomCard - hotelDetails:", hotelDetails);
+    console.log("RoomCard - hotelDetails.name:", hotelDetails?.name);
+    console.log("RoomCard - hotelDetails.address:", hotelDetails?.address);
+    
     navigate("/booking", {
       state: {
         room,
-        searchParams, // make sure this exists at this point
-        hotelId,
+        searchParams,
+        hotel: {
+          id: hotelId,
+          name: hotelDetails?.name,
+          address: hotelDetails?.address || hotelDetails?.address1
+        }
       },
     });
   };
+  
   // Extract bed information from the long description
   const extractBedInfo = () => {
     if (!long_description) return "—";

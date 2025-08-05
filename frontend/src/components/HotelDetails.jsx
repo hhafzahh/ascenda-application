@@ -1,49 +1,38 @@
+// In your components/HotelDetails.jsx
 import { useEffect, useState } from "react";
 import "../css/HotelSelected.css";
-//this is for hotelSelected for booking
-function HotelDetails({ room, searchParams, hotelId }) {
+
+function HotelDetails({ room, searchParams, hotel }) { // Add hotel prop here
   if (!room) return null;
   if (!searchParams) return null;
-  const [hotel, setHotel] = useState(null);
 
-  useEffect(() => {
-    if (!hotelId) return;
-
-    console.log(hotelId);
-    console.log(searchParams.destinationId);
-
-    fetch(`http://localhost:3001/api/hotelproxy/hotels/details/${hotelId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setHotel(data);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch hotel details:", err);
-      });
-  }, [hotelId]);
-
-  console.log(hotel);
+  // Debug logs to see what we're receiving
+  console.log("HotelDetails component - room:", room);
+  console.log("HotelDetails component - hotel:", hotel);
+  console.log("Hotel name:", hotel?.name);
+  console.log("Hotel address:", hotel?.address);
 
   const {
     images = [],
     roomDescription,
     converted_price,
-    long_description,
     base_rate_in_currency,
   } = room;
-  //hardcoded for now for UI purposes
 
-  const { destinationId, checkin, checkout, guests } = searchParams;
-  const imageUrl =
-    images[0]?.url || "https://via.placeholder.com/400x300?text=Hotel+Image";
+  const { checkin, checkout } = searchParams;
+  const imageUrl = images[0]?.url || "https://via.placeholder.com/400x300?text=Hotel+Image";
 
   return (
     <div className="summary-card">
       <img src={imageUrl} alt="Hotel" className="summary-image" />
-      <h4>New Majestic Hotel</h4>
-      <p>{roomDescription}</p>
-      <br></br>
-      <p>31-37 Bukit Pasoh Road</p>
+      
+      {/* Use hotel data from props */}
+      <h4>{hotel?.name || "Hotel Name Not Available"}</h4>
+      <div>
+        <p>{hotel?.address || "Address Not Available"}</p>
+        <br></br>
+        <p className="description">{roomDescription}</p>
+      </div>
 
       <div className="summary-info">
         <div>
