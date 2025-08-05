@@ -1,5 +1,28 @@
 const axios = require("axios");
 
+const pollUntilCompleted = async (url, params, retries = 10, delay = 5000) => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await axios.get(url, { params });
+
+      // Check if 'completed' is true
+      if (response.data.completed) {
+        return response.data;
+      }
+      console.log(`Attempt ${attempt}: Waiting for completion...`);
+    } catch (err) {
+      console.error(
+        `Attempt ${attempt}: Failed to fetch data - ${err.message}`
+      );
+    }
+
+    // Wait before polling again
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  throw new Error("Polling exceeded maximum retries");
+};
+
 exports.getHotelsByUid = async (req, res) => {
   const destinationId = req.params.uid;
   const { checkin, checkout, guests } = req.query;
@@ -20,26 +43,26 @@ exports.getHotelsByUid = async (req, res) => {
     console.log("Metadata fetch failed:", err.message);
   }
 
-  // Fetch prices
+  // Polling to get prices until completed = true
   try {
-    const pricesResponse = await axios.get(
+    const pricesResponse = await pollUntilCompleted(
       "https://hotelapi.loyalty.dev/api/hotels/prices",
       {
-        params: {
-          destination_id: destinationId,
-          checkin,
-          checkout,
-          guests,
-          partner_id: 1,
-          lang: "en_US",
-          currency: "USD",
-          country_code: "US",
-        },
+        destination_id: destinationId,
+        checkin,
+        checkout,
+        guests,
+        partner_id: 1089,
+        landing_page: "wl-acme-earn",
+        product_type: "earn",
+        lang: "en_US",
+        currency: "USD",
+        country_code: "US",
       }
     );
-    hotelsPrices = pricesResponse.data.hotels || [];
+    hotelsPrices = pricesResponse.hotels || [];
   } catch (err) {
-    console.warn("Prices fetch failed:", err.message);
+    console.warn("Prices fetch failed after polling:", err.message);
   }
 
   // If nothing fetched, return empty array instead of throwing 500
@@ -47,6 +70,7 @@ exports.getHotelsByUid = async (req, res) => {
     return res.status(200).json([]);
   }
 
+  // Merge the data from metadata and prices
   const mergedHotels = hotelsPrices.map((priceHotel) => {
     const meta = hotelsMetadata.find((h) => h.id === priceHotel.id);
     return {
@@ -56,7 +80,7 @@ exports.getHotelsByUid = async (req, res) => {
       rating: meta?.rating,
       image_details: meta?.image_details,
       default_image_index: meta?.default_image_index,
-      trustyouScore: meta?.trustyou?.score?.overall,
+      trustyouScore: meta?.trustyou?.score?.kaligo_overall,
       description: meta?.description,
       amenities: meta?.amenities,
       price: priceHotel.converted_price,
@@ -70,6 +94,79 @@ exports.getHotelsByUid = async (req, res) => {
 
   res.status(200).json(mergedHotels);
 };
+
+// exports.getHotelsByUid = async (req, res) => {
+//   const destinationId = req.params.uid;
+//   const { checkin, checkout, guests } = req.query;
+
+//   let hotelsMetadata = [];
+//   let hotelsPrices = [];
+
+//   // Fetch metadata
+//   try {
+//     const metadataResponse = await axios.get(
+//       "https://hotelapi.loyalty.dev/api/hotels",
+//       {
+//         params: { destination_id: destinationId },
+//       }
+//     );
+//     hotelsMetadata = metadataResponse.data || [];
+//   } catch (err) {
+//     console.log("Metadata fetch failed:", err.message);
+//   }
+
+//   // Fetch prices
+//   try {
+//     const pricesResponse = await axios.get(
+//       "https://hotelapi.loyalty.dev/api/hotels/prices",
+//       {
+//         params: {
+//           destination_id: destinationId,
+//           checkin,
+//           checkout,
+//           guests,
+//           partner_id: 1089,
+//           landing_page: "wl-acme-earn",
+//           product_type: "earn",
+//           lang: "en_US",
+//           currency: "USD",
+//           country_code: "US",
+//         },
+//       }
+//     );
+//     hotelsPrices = pricesResponse.data.hotels || [];
+//   } catch (err) {
+//     console.warn("Prices fetch failed:", err.message);
+//   }
+
+//   // If nothing fetched, return empty array instead of throwing 500
+//   if (!hotelsMetadata.length || !hotelsPrices.length) {
+//     return res.status(200).json([]);
+//   }
+
+//   const mergedHotels = hotelsPrices.map((priceHotel) => {
+//     const meta = hotelsMetadata.find((h) => h.id === priceHotel.id);
+//     return {
+//       id: priceHotel.id,
+//       name: meta?.name,
+//       address: meta?.address || meta?.address1,
+//       rating: meta?.rating,
+//       image_details: meta?.image_details,
+//       default_image_index: meta?.default_image_index,
+//       trustyouScore: meta?.trustyou?.score?.kaligo_overall,
+//       description: meta?.description,
+//       amenities: meta?.amenities,
+//       price: priceHotel.converted_price,
+//       lowestPrice: priceHotel.lowest_converted_price,
+//       roomsAvailable: priceHotel.rooms_available,
+//       freeCancellation: priceHotel.free_cancellation,
+//       latitude: meta?.latitude,
+//       longitude: meta?.longitude,
+//     };
+//   });
+
+//   res.status(200).json(mergedHotels);
+// };
 
 exports.getHotels = async (req, res) => {
   try {

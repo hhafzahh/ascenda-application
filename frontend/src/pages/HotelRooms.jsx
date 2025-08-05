@@ -3,24 +3,45 @@ import axios from "axios";
 import RoomCard from "../components/RoomCard/RoomCard";
 import Ratings from "../components/Rating/Ratings";
 
-// HotelRooms.jsx
 export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
   const [rooms, setRooms] = useState([]);
+  const [hotelMetadata, setHotelMetadata] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fetched, setFetched] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const roomsPerPage = 4; // Number of rooms per page
+
+  // Fetch hotel metadata and rooms based on hotelId and searchParams
   useEffect(() => {
+    const fetchHotelMetadata = async () => {
+      setLoading(true);
+      try {
+        const metaRes = await axios.get(
+          "http://localhost:3001/api/hotelproxy/hotels",
+          {
+            params: { destination_id: searchParams.destinationId },
+          }
+        );
+        const hotel = metaRes.data.find((h) => h.id === hotelId);
+        setHotelMetadata(hotel || null);
+      } catch (err) {
+        console.error("Failed to fetch hotel metadata:", err);
+      }
+    };
+
     const fetchRooms = async () => {
       try {
-        const res = await axios.get(
+        const roomsRes = await axios.get(
           "http://localhost:3001/api/hotelproxy/rooms",
           {
             params: {
               hotel_id: hotelId,
-              destination_id: searchParams.destinationId, // From props
-              checkin: searchParams.checkin, // From props
-              checkout: searchParams.checkout, // From props
-              guests: searchParams.guests, // From props
+              destination_id: searchParams.destinationId,
+              checkin: searchParams.checkin,
+              checkout: searchParams.checkout,
+              guests: searchParams.guests,
               lang: "en_US",
               currency: "SGD",
               country_code: "SG",
@@ -28,29 +49,95 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
             },
           }
         );
-        setRooms(res.data.rooms || []);
+        setRooms(roomsRes.data.rooms || []);
+        setCurrentPage(1); // Reset to first page on new fetch
       } catch (err) {
         setError("Failed to fetch rooms. Please try again.");
         console.error("API Error:", err);
       } finally {
-        setLoading(false);
+        setFetched(true);
       }
     };
 
-    fetchRooms();
-  }, [hotelId, searchParams]); // Re-fetch if these change
+    setLoading(true);
+    Promise.all([fetchHotelMetadata(), fetchRooms()]).finally(() =>
+      setLoading(false)
+    );
+  }, [hotelId, searchParams]);
+
+  // Pagination logic
+  const indexOfLastRoom = currentPage * roomsPerPage;
+  const indexOfFirstRoom = indexOfLastRoom - roomsPerPage;
+  const currentRooms = rooms.slice(indexOfFirstRoom, indexOfLastRoom);
+  const totalPages = Math.ceil(rooms.length / roomsPerPage);
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return; // Prevent out-of-bounds
+    setCurrentPage(page);
+  };
 
   if (loading) return <p>Loading rooms...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <div className="p-6">
-      {hotelDetails && <Ratings hotel={hotelDetails} />}
-      <h1 className="text-2xl font-bold mb-4">Available Rooms</h1>
-      {rooms.length > 0 ? (
-        rooms.map((room) => <RoomCard key={room.id} room={room} />)
-      ) : (
-        <p>No rooms available for the selected dates.</p>
+      {/* Guest ratings and amenities score */}
+      {/* {hotelMetadata && (
+        <Ratings
+          hotel={{
+            ...hotelMetadata,
+            rating:
+              hotelMetadata.trustyou?.score?.kaligo_overall ??
+              hotelMetadata.rating,
+          }}
+        />
+      )} */}
+      <h1 className="p-6 space-y-6">Available Rooms</h1>
+      {rooms === null ? null : fetched ? (
+        rooms.length > 0 ? (
+          currentRooms.map((room) => (
+            <RoomCard
+              key={room.id}
+              room={room}
+              searchParams={searchParams}
+              hotelId={hotelId}
+              hotelDetails={hotelDetails} // Pass hotel details to RoomCard
+            />
+          ))
+        ) : (
+          <p>No rooms available for the selected dates.</p>
+        )
+      ) : null}
+
+      {/* Pagination controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-4 space-x-2">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            style={{
+              backgroundColor: "#007BFF",
+            }}
+          >
+            Previous
+          </button>
+          <span
+            style={{
+              padding: "0.5rem 1rem",
+            }}
+          >
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            style={{
+              backgroundColor: "#007BFF",
+            }}
+          >
+            Next
+          </button>
+        </div>
       )}
     </div>
   );

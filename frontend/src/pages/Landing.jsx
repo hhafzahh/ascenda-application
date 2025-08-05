@@ -1,13 +1,24 @@
-// /frontend/pages/Landing.jsx
-import React, { useState } from "react";
+import React from "react";
 import SearchBar from "../components/SearchBar/searchBar";
+import RecentlyViewedHotels from "../components/RecentlyViewedHotels";
+import "../components/RecentlyViewedHotels.css";
+import BackgroundHeader from "../components/BackgroundHeader/BackgroundHeader";
+import "../App.css";
 
 export default function Landing() {
   return (
     <div className="landing-container">
       <div className="search-wrapper">
-        <SearchBar />
+        <BackgroundHeader>
+          <SearchBar />
+        </BackgroundHeader>
       </div>
+
+      <h2 style={{ textAlign: "center", margin: "2rem 0" }}>
+        Recently Viewed Hotels for You
+      </h2>
+
+      <RecentlyViewedHotels />
     </div>
   );
 }

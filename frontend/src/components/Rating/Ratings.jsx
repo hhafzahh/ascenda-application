@@ -24,34 +24,50 @@ export default function Ratings({ hotel }) {
     for (let i = 0; i < emptyStars; i++) {
       stars.push(<span key={`empty-${i}`} className="star empty">★</span>);
     }
-
     return stars;
   };
 
+  const overallAmenitiesScore = (ratings) => {
+    if (!Array.isArray(ratings) || ratings.length === 0) return null;
+    return +(ratings.reduce((sum, r) => sum + r.score, 0) / ratings.length / 10).toFixed(1);
+  };
+  
+
+
+  const getRatingLabel = (score) => {
+      if (score >= 9.0) return "Excellent";
+      if (score >= 8.0) return "Very Good";
+      if (score >= 7.0) return "Good";
+      if (score >= 5.0) return "Fair";
+      if (score >= 2.0) return "Poor";
+      return "Very Poor";
+    };
+
   return (
     <div className="ratings-container">
-      <div className="ratings-header">
-        <h2 className="rating-value">{rating.toFixed(1)}</h2>
-        <div className="star-rating">
-          {renderStars()}
-          <span className="rating-text">{rating.toFixed(1)}-star hotel</span>
-        </div>
+      <div className="ratings-header" >
+          <p className="rating-value" style={{ color: '#0268bbff', fontSize:'32px' }}>{overallAmenitiesScore(amenitiesRatings)} 
+            <span style={{color: '#54b2ffff', fontSize:'18px'}}>/10</span></p>
+          <div className='header-text'>
+            <p className="rating-label" >{getRatingLabel(overallAmenitiesScore(amenitiesRatings))}</p>
+            <p className='header-title'>How guests rated us</p>
+          </div>
+          
       </div>
 
       {amenitiesRatings.length > 0 && (
-        <div className="amenities-ratings-section">
-          <h3>Guest Ratings</h3>
+        // <div className="amenities-ratings-section">
           <div className="amenities-ratings-grid">
             {amenitiesRatings.map((item, index) => {
-              const score = Math.min(100, Math.max(0, item.score));
+              const score = Math.min(10, Math.max(0, item.score/10));
               return (
                 <div key={index} className="amenity-rating-item">
-                  <div className="amenity-name">{item.name}</div>
+                  <p className="amenity-name" style={{textAlign: 'left'}}>{item.name}</p>
                   <div className="rating-bar-container">
                     <div className="rating-bar-background">
                       <div
                         className="rating-bar-fill"
-                        style={{ width: `${score}%` }}
+                        style={{ width: `${score*10}%` }}
                       />
                     </div>
                     <span className="rating-score">{score}</span>
@@ -60,7 +76,7 @@ export default function Ratings({ hotel }) {
               );
             })}
           </div>
-        </div>
+        // </div>
       )}
     </div>
   );

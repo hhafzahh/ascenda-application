@@ -1,0 +1,6 @@
+.recently-viewed-hotels-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* always 4 columns */
+  gap: 16px;
+  padding: 1rem;
+}

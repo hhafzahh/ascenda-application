@@ -1,0 +1,105 @@
+.register-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  font-family: "Inter", sans-serif;
+}
+
+.register-container {
+  background: white;
+  padding: 35px 25px;
+  border-radius: 10px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.register-title {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.register-subtitle {
+  font-size: 1rem;
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.register-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.register-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.register-input:focus {
+  border-color: #1976d2;
+}
+
+.register-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #1976d2;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.register-btn:disabled {
+  background-color: #90caf9;
+  cursor: not-allowed;
+}
+
+.register-btn:hover:not(:disabled) {
+  background-color: #1565c0;
+}
+
+.error-message {
+  color: #d32f2f;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.success-message {
+  color: #2e7d32;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.register-remember {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.register-footer {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.register-link {
+  color: #1976d2;
+  cursor: pointer;
+  font-weight: bold;
+}

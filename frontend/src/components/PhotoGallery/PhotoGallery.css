@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 2fr 3fr;
   gap: 10px;
-  max-width: 1200px;
+  max-width: 85vw;
   margin: 0 auto;
   align-items: start; /* or stretch, doesn't matter if you fix height below */
 }
@@ -77,15 +77,53 @@
   background: white;
   z-index: 999;
   padding: 40px;
+  height: fit-content;
 }
 
 .close-btn {
   position: fixed;
-  top: 20px;
-  right: 30px;
-  background: white;
+  top: 5px;
+  right: 5px;
+  color: gray;
   border: none;
+  background-color: transparent;
   font-size: 2rem;
   cursor: pointer;
   z-index: 1000;
+}
+.close-btn:hover {
+  color: black;
+  background-color: transparent;
+}
+.image-gallery-fullscreen-button {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  top: 5px;
+  left: 5px;
+  color: darkgray;
+}
+.image-gallery-fullscreen-button:hover {
+  cursor: pointer;
+  filter: brightness(0.8);
+  background-color: transparent;
+  color: black;
+}
+
+.image-gallery-right-nav, .image-gallery-left-nav {
+  background-color: transparent;
+  color: darkgray;
+}
+
+.image-gallery-right-nav:hover, .image-gallery-left-nav:hover {
+  cursor: pointer;
+  filter: brightness(0.8);
+  background-color: transparent;
+  color: black;
+}
+
+.image-gallery-slide img {
+  object-fit: cover;            
+  width: 100%;
+  max-height: 80vh;       
 }
