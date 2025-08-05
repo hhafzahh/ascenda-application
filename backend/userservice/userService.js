@@ -1,5 +1,8 @@
-const dbClient = require("../Models/db");
 const { ObjectId } = require("mongodb");
+const dbClient = require("../database/db");
+const bcrypt = require("bcrypt");
+
+const SALT_ROUNDS = 10;
 
 // Register a new user
 exports.register = async (userData) => {
@@ -21,18 +24,24 @@ exports.register = async (userData) => {
     throw error;
   }
 
-  const result = await db.collection("users").insertOne({
-    username,
-    email,
-    password,
-    gender: "",
-    dob: ""
-  });
+  // hash password before storing
+  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+  const result = await db
+    .collection("users")
+    .insertOne({
+      username,
+      email,
+      password: hashedPassword,
+      gender: "",
+      dob: "",
+    });
 
   return { userId: result.insertedId };
 };
 
 // Login user
+
 exports.login = async (userData) => {
   console.log("/login called");
   const { email, password } = userData;
@@ -48,11 +57,20 @@ exports.login = async (userData) => {
 
   if (!user || user.password !== password) {
     const error = new Error("Invalid email or password");
-    error.status = 409;
+    error.status = 401;
     throw error;
   }
 
-  return { userId: user._id };
+  // compare hashed password
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    const error = new Error("Invalid email or password");
+    error.status = 401;
+    throw error;
+    //return res.status(401).json({ error: "Invalid email or password" });
+  }
+
+  return { userId: user._id, email: user.email };
 };
 
 // Get user profile by ID
@@ -70,17 +88,21 @@ exports.updateUserById = async (id, updates) => {
   const db = dbClient.getDb();
 
   const { username, gender, dob } = updates;
-  const result = await db.collection("users").findOneAndUpdate(
-    { _id: new ObjectId(id) },
-    { $set: { username, gender, dob } },
-    { returnDocument: "after" }
-  );
+  const result = await db
+    .collection("users")
+    .findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: { username, gender, dob } },
+      { returnDocument: "after" }
+    );
   return result.value;
 };
 
 exports.updatePassword = async (userId, currentPassword, newPassword) => {
   const db = dbClient.getDb();
-  const user = await db.collection("users").findOne({ _id: new ObjectId(userId) });
+  const user = await db
+    .collection("users")
+    .findOne({ _id: new ObjectId(userId) });
 
   if (!user) {
     const error = new Error("User not found");
@@ -94,15 +116,19 @@ exports.updatePassword = async (userId, currentPassword, newPassword) => {
     throw error;
   }
 
-  await db.collection("users").updateOne(
-    { _id: new ObjectId(userId) },
-    { $set: { password: newPassword } }
-  );
+  await db
+    .collection("users")
+    .updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { password: newPassword } }
+    );
 };
 
 exports.deleteUserById = async (id) => {
   const db = dbClient.getDb();
-  const result = await db.collection("users").deleteOne({ _id: new ObjectId(id) });
+  const result = await db
+    .collection("users")
+    .deleteOne({ _id: new ObjectId(id) });
 
   if (result.deletedCount === 0) {
     return null;
@@ -110,4 +136,3 @@ exports.deleteUserById = async (id) => {
 
   return true;
 };
-

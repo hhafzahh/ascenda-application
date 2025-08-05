@@ -31,7 +31,7 @@ export default function SearchResults() {
   const [selectedHotelId, setSelectedHotelId] = useState(null);
   const [showFullMap, setShowFullMap] = useState(false);
   const resultsPerPage = 10;
-  const [priceRange, setPriceRange] = useState([0, 1500]);
+  const [priceRange, setPriceRange] = useState([0, 12000]);
 
   // Separate hotels with and without coordinates
   const [hotelsWithCoords, hotelsWithoutCoords] = hotels.reduce(
@@ -166,7 +166,7 @@ export default function SearchResults() {
             hotels={currentHotelsWithCoords}
             onClickExpand={() => setShowFullMap(true)}
           />
-          <PriceRangeFilter />
+          <PriceRangeFilter value={priceRange} onChange={handlePriceChange} />
         </div>
 
         {/* Right Content - Hotel List */}
@@ -208,6 +208,12 @@ export default function SearchResults() {
                       hotel={hotel}
                       isSelected={selectedHotelId === hotel.id}
                       hasLocation={!!(hotel.latitude && hotel.longitude)}
+                      searchParams={{
+                        destinationId,
+                        checkin,
+                        checkout,
+                        guests,
+                      }}
                     />
                   </div>
                 ))}

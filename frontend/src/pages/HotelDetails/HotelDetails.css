@@ -1,7 +1,8 @@
-body {
-  background-color: #f9f9f9; /* light grey */
-  min-height: 100vh;
-  width: 100%;
+.hotel-details-overview-map {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 85vw;
   margin: 0 auto;
   overflow-x: scroll;
 }

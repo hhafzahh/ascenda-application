@@ -29,19 +29,23 @@ export default function HotelDetails() {
       setLoading(true);
       try {
         if (!hotel) {
-          const hotelRes = await axios.get(`http://localhost:3001/api/hotelproxy/hotels/uid/${hotelId}`);
+          const hotelRes = await axios.get(
+            `http://localhost:3001/api/hotelproxy/hotels/uid/${hotelId}`
+          );
           setHotel(hotelRes.data);
         }
 
         if (searchParams?.destinationId) {
-          const metaRes = await axios.get(`http://localhost:3001/api/hotelproxy/hotels`, {
-            params: { destination_id: searchParams.destinationId },
-          });
+          const metaRes = await axios.get(
+            `http://localhost:3001/api/hotelproxy/hotels`,
+            {
+              params: { destination_id: searchParams.destinationId },
+            }
+          );
 
-          const metadata = metaRes.data.find(h => h.id === hotelId);
+          const metadata = metaRes.data.find((h) => h.id === hotelId);
           setHotelMetadata(metadata || null);
         }
-
       } catch (err) {
         setError("Failed to load hotel information.");
         console.error(err);
@@ -58,13 +62,16 @@ export default function HotelDetails() {
   if (!hotel) return <p>No hotel data found.</p>;
 
   return (
-    <div className="hotel-details-page" style={{ width: '100%', margin: 'auto', paddingTop: '15px' }}>
+    <div
+      className="hotel-details-page"
+      style={{ width: "100%", margin: "auto", paddingTop: "15px" }}
+    >
       <PhotoGallery hotel={hotel} />
       <div className="hotel-details-content">
-        <HotelOverview 
-          hotel={hotel} 
-          hotelMetadata={hotelMetadata} 
-          onSelectRoom={scrollToRooms} 
+        <HotelOverview
+          hotel={hotel}
+          hotelMetadata={hotelMetadata}
+          onSelectRoom={scrollToRooms}
         />
         <div ref={roomRef}>
           <HotelRooms
