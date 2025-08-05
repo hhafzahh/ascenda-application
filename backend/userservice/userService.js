@@ -14,6 +14,10 @@ exports.register = async (userData) => {
     throw error;
   }
 
+  if (email.length > 100 || password.length > 1000) {
+    throw { status: 400, message: "Input too long" };
+  }
+
   const db = dbClient.getDb();
   const existingUser = await db.collection("users").findOne({ email });
 
@@ -65,7 +69,7 @@ exports.login = async (userData) => {
     const error = new Error("Invalid email or password");
     error.status = 401;
     throw error;
-     //return res.status(401).json({ error: "Invalid email or password" });
+    //return res.status(401).json({ error: "Invalid email or password" });
   }
 
   return { userId: user._id, email: user.email };

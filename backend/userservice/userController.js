@@ -10,13 +10,14 @@ exports.register = async (req, res) => {
       .json({ message: "User registered successfully", userId: result.userId });
   } catch (err) {
     console.error("Error IN controller - post req for user:", err);
-    res.status(500).json({ error: "Failed to register user" });
+    const status = err.status || 500;
+    const message = err.message || "Failed to register user";
+    res.status(status).json({ error: message });
   }
 };
-
 exports.login = async (req, res) => {
   try {
-    const result = await userService.login(req.body); 
+    const result = await userService.login(req.body);
     const { userId, email } = result;
 
     //generate jwt token
@@ -34,3 +35,4 @@ exports.login = async (req, res) => {
     res.status(status).json({ error: message });
   }
 };
+
