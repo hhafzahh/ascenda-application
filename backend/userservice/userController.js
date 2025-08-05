@@ -34,6 +34,7 @@ exports.login = async (req, res) => {
   }
 };
 
+
 // Get user by ID
 exports.getUserById = async (req, res) => {
   try {

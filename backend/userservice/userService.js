@@ -55,8 +55,8 @@ exports.login = async (userData) => {
   const db = dbClient.getDb();
   const user = await db.collection("users").findOne({ email });
 
-  if (!user || user.password !== password) {
-    const error = new Error("Invalid email or password");
+  if (!user) {
+    const error = new Error("No user found");
     error.status = 401;
     throw error;
   }
@@ -64,10 +64,10 @@ exports.login = async (userData) => {
   // compare hashed password
   const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) {
-    const error = new Error("Invalid email or password");
+    const error = new Error("Invalid password");
     error.status = 401;
     throw error;
-    //return res.status(401).json({ error: "Invalid email or password" });
+     //return res.status(401).json({ error: "Invalid email or password" });
   }
 
   return { userId: user._id, email: user.email };
