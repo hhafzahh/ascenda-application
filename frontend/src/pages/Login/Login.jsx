@@ -43,31 +43,40 @@ const LoginPage = () => {
 
     if (!validateForm()) return;
 
+    if (!formData.email || !formData.password) {
+      setError("Email and password are required");
+      return;
+    }
+
     setLoading(true);
+
     try {
-      const res = await axios.post("http://localhost:3004/api/user/login", formData);
+      const res = await axios.post(
+        "http://localhost:3004/api/user/login",
+        formData
+      );
       const data = res.data;
-      if (res.status === 200) {
-        setSuccess("Login successful! Redirecting...");
+      console.log("Login response:", res.data);
+      if (res.status !== 200) {
+        setError(data.error || "Login failed");
+      } else {
+        setSuccess("Login successful");
+
         if (data && data.userId) {
           sessionStorage.setItem("userId", data.userId);
+          sessionStorage.setItem("token", data.token);
+          console.log("User ID set in sessionStorage:", data.userId);
+          console.log("Token set in sessionStorage:", data.token);
+        } else {
+          console.warn("User ID not found in response:", data);
         }
         window.dispatchEvent(new Event("custom-login-event"));
+
         setTimeout(() => navigate("/"), 2000);
       }
     } catch (err) {
       console.error("Login error:", err);
-      if (err.response) {
-        const errorMessage =
-          err.response.data?.error ||
-          err.response.data?.message ||
-          `Login failed: ${err.response.status}`;
-        setError(errorMessage);
-      } else if (err.request) {
-        setError("No response from server. Is your backend running?");
-      } else {
-        setError(`Login error: ${err.message}`);
-      }
+      setError("Login failed. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -121,7 +130,7 @@ const LoginPage = () => {
 
           <div className="login-footer">
             <p>
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <span onClick={handleRegisterClick} className="login-link">
                 Sign up
               </span>

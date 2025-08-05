@@ -13,11 +13,11 @@ const customBlueIcon = new L.Icon({
   shadowAnchor: [12, 41],
 });
 
-export default function Minimap({ lat, lng, hotelName, price }) {
+export default function MiniMap({ lat, lng, hotelName, price }) {
   if (!lat || !lng) return null;
 
   return (
-    <div style={{ height: "305px", width: "100%", borderRadius: "5px", overflow: "hidden" }}>
+    <div style={{ height: "200px", width: "100%", borderRadius: "10px", overflow: "hidden" }}>
       <MapContainer
         center={[lat, lng]}
         zoom={16}
