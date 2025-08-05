@@ -19,7 +19,6 @@ export default function Map({ lat, lng, hotelName, price }) {
                     lng={lng}
                     hotelName={hotelName}
                     price={price} 
-                    style={{ width: '100%', height: '200px' }}
                 />
             </div>
         </div>

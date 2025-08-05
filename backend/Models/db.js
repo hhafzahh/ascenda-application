@@ -19,6 +19,8 @@ const client = new MongoClient(connection_str);
 //     }
 // }
 
+let db = null;
+
 async function connect() {
   try {
     await client.connect();

@@ -33,13 +33,19 @@
   background-color: white;
 }
 
-.header-text {
+.map-header .header-text {
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
 
-.subtitle {
+.header-text .header-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #353535;
+  text-align: left;
+}
+.map-heade .subtitle {
   font-size: 0.8rem;
   color: #202020;
   text-align: left;
