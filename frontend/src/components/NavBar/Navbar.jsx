@@ -2,7 +2,7 @@
 
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "./NavBar.css";
+import "./Navbar.css";
 
 function NavBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(

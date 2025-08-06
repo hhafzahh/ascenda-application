@@ -5,7 +5,7 @@ import { Button } from "@mui/material";
 import { ScrollPanel } from "primereact/scrollpanel";
 import { Card } from "primereact/card";
 import Ratings from "./Rating/Ratings";
-import Amenities from "./AmenitiesCard/amenities";
+import Amenities from "./AmenitiesCard/Amenities";
 import Map from "./MapCard/Map";
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";

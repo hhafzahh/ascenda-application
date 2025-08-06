@@ -1,9 +1,10 @@
 # node 20
 FROM node:20
 
-# Set environment variables
-#ENV MONGODB_CONNECTIONSTR=include-here or comment it (add as params in command)
+# Set environment variables //for development purposes
+# ENV MONGODB_CONNECTIONSTR=
 ENV PORT=3002
+
 
 # Set the working directory in the container
 WORKDIR /app

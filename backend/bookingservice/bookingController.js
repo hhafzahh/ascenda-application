@@ -1,5 +1,5 @@
 const { ObjectId } = require("mongodb");
-const { getDb } = require("../database/db");
+const { getDb } = require("./database/db");
 
 exports.createBooking = async (req, res) => {
   console.log("Received booking request:", req.body);

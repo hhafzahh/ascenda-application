@@ -1,13 +1,10 @@
-//db.js is shared with userService and bookingService. //cant do this based on prof comments
-//so there is db.js per each service..
+//db.js is shared with userService and bookingService.
 const { MongoClient } = require("mongodb");
 require("dotenv").config(); //need the path cuz both folders use the env var
 
 const connection_str = process.env.MONGODB_CONNECTIONSTR;
 const client = new MongoClient(connection_str);
 const dbName = "hotelbookingdb";
-
-//const client = new MongoClient(connection_str);
 // let db = null;
 
 // async function connect() {

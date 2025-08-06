@@ -1,5 +1,5 @@
 const { ObjectId } = require("mongodb");
-const dbClient = require("../database/db");
+const dbClient = require("./database/db");
 const bcrypt = require("bcrypt");
 
 const SALT_ROUNDS = 10;
