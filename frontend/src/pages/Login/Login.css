@@ -1,0 +1,108 @@
+/* Login.css */
+
+.login-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  font-family: "Inter", sans-serif;
+}
+
+.login-container {
+  background-color: white;
+  padding: 40px 30px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.login-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.login-subtitle {
+  font-size: 16px;
+  margin-bottom: 25px;
+  color: #555;
+}
+
+.login-label {
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 16px;
+}
+
+.login-input {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.login-btn {
+  margin-top: 24px;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #0b72e7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.login-btn:hover:not(:disabled) {
+  background-color: #095bb5;
+}
+
+.login-btn:disabled {
+  background-color: #a2c6f4;
+  cursor: not-allowed;
+}
+
+.error-message,
+.success-message {
+  font-size: 14px;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.error-message {
+  background-color: #ff4d4f;
+}
+
+.success-message {
+  background-color: #4caf50;
+}
+
+.login-footer {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #333;
+}
+
+.login-link {
+  color: #0b72e7;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.google-icon {
+  width: 36px;
+  margin-top: 10px;
+  cursor: pointer;
+}

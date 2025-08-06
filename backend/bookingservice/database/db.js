@@ -1,14 +1,11 @@
-//db.js is shared with userService and bookingService. //cant do this based on prof comments
-//so there is db.js per each service..
+//db.js is shared with userService and bookingService.
 const { MongoClient } = require("mongodb");
 require("dotenv").config(); //need the path cuz both folders use the env var
 
-let client;
-let db;
-
+const connection_str = process.env.MONGODB_CONNECTIONSTR;
+const client = new MongoClient(connection_str);
 const dbName = "hotelbookingdb";
-
-//const client = new MongoClient(connection_str);
+nt = new MongoClient(connection_str);
 // let db = null;
 
 // async function connect() {
@@ -22,17 +19,17 @@ const dbName = "hotelbookingdb";
 //     }
 // }
 
+let db = null;
 
 async function connect() {
-  const connection_str = process.env.MONGODB_CONNECTIONSTR;
-  if (!connection_str) {
-    throw new Error("MONGODB_CONNECTIONSTR is not defined");
+  try {
+    await client.connect();
+    db = client.db(dbName);
+    console.log("Connected to MongoDB");
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    throw error;
   }
-
-  client = new MongoClient(connection_str);
-  await client.connect();
-  db = client.db(dbName);
-  console.log("Connected to MongoDB");
 }
 
 function getDb() {
@@ -43,7 +40,7 @@ function getDb() {
 }
 
 async function cleanup() {
-  if (client) await client.close();
+  await client.close();
 }
 
 module.exports = { connect, getDb, cleanup };

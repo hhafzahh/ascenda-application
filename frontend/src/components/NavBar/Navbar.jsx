@@ -2,7 +2,7 @@
 
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "./NavBar.css";
+import "./Navbar.css";
 
 function NavBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -35,15 +35,21 @@ function NavBar() {
           Home
         </Link>
         {isLoggedIn ? (
-          <button
-            className="logout-btn"
-            onClick={() => {
-              sessionStorage.clear();
-              window.location.reload();
-            }}
-          >
-            Logout
-          </button>
+          <>
+            <Link to="/profile" className="link profile">
+              Profile
+            </Link>
+
+            <button
+              className="logout-btn"
+              onClick={() => {
+                sessionStorage.clear();
+                window.location.reload();
+              }}
+            >
+              Logout
+            </button>
+          </>
         ) : (
           <>
             <Link to="/login" className="link login">

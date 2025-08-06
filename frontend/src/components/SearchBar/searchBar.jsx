@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
-import "./SearchBar.css";
+import "./searchBar.css";
 import { useNavigate } from "react-router-dom";
 
 export default function SearchBar({

@@ -1,0 +1,36 @@
+services:
+  userservice:
+    build:
+      context: ./backend/userservice
+    ports:
+      - "3004:3004"
+    environment:
+      - MONGODB_CONNECTIONSTR=${MONGODB_CONNECTIONSTR}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRY=${JWT_EXPIRY}
+
+  bookingservice:
+    build:
+      context: ./backend/bookingservice
+    ports:
+      - "3002:3002"
+    environment:
+      - MONGODB_CONNECTIONSTR=${MONGODB_CONNECTIONSTR}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+
+
+  hotelservice:
+    build:
+      context: ./backend/hotelservice
+    ports:
+      - "3001:3001"
+  
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - userservice
+      - bookingservice
+      - hotelservice

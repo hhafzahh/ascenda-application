@@ -5,15 +5,18 @@ import "./App.css";
 import HotelRooms from "./pages/HotelRooms";
 import SearchResults from "./pages/SearchResults";
 import NavBar from "./components/NavBar/Navbar";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
+import Register from "./pages/Register/Register";
+import Login from "./pages/Login/Login";
 import HotelDetails from "./pages/HotelDetails/HotelDetails";
+import Profile from "./pages/Profile";
+import { useState } from "react";
 import Home from "./pages/Home";
 import ProtectedRoute from "./ProtectedRoute";
 import ConfirmPage from "./pages/Confirm";
 import PaymentPage from "./pages/Payment";
 
 function App() {
+  const [showLoginModal, setShowLoginModal] = useState(false);
   return (
     <>
       <div>
@@ -27,6 +30,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/hotels/:hotelId" element={<HotelDetails />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/confirmation" element={<ConfirmPage />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route
@@ -38,9 +42,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* <Route path="/payment" element={<Payment />} />
-          <Route path="/booking-details" element={<Particulars />} />
-          <Route path="/confirm-booking" element={<ParticularsCheck />} /> */}
         </Routes>
       </div>
     </>
