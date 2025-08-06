@@ -6,6 +6,8 @@ services:
       - "3004:3004"
     environment:
       - MONGODB_CONNECTIONSTR=${MONGODB_CONNECTIONSTR}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRY=${JWT_EXPIRY}
 
   bookingservice:
     build:
@@ -14,6 +16,7 @@ services:
       - "3002:3002"
     environment:
       - MONGODB_CONNECTIONSTR=${MONGODB_CONNECTIONSTR}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
 
 
   hotelservice:
