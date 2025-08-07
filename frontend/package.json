@@ -20,6 +20,7 @@
     "@stripe/stripe-js": "^7.7.0",
     "axios": "^1.10.0",
     "fuse.js": "^7.1.0",
+    "i": "^0.3.7",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "primereact": "^10.9.6",

@@ -12,7 +12,7 @@ export default function MapView({ hotels, onMarkerClick, style, height }) {
 
   const makeIcon = (price) =>
   L.divIcon({
-    html: `<div class="custom-price-pin">US$ ${price}</div>`,
+    html: `<div class="custom-price-pin">$${price}</div>`,
     className: "", 
     iconAnchor: [20, 40], 
   });
@@ -48,7 +48,7 @@ export default function MapView({ hotels, onMarkerClick, style, height }) {
           <Popup>
             <strong>{h.name}</strong>
             <br />
-            S${h.price}
+            ${h.price}
           </Popup>
         </Marker>
       ))}

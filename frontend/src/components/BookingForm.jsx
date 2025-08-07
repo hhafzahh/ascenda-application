@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./BookingForm.css"; // create this CSS file
+import "./BookingForm.css"; 
 
 export default function BookingForm({ room, searchParams, hotel }) { // Added hotel prop
   const navigate = useNavigate();
@@ -14,12 +14,20 @@ export default function BookingForm({ room, searchParams, hotel }) { // Added ho
   const [bookingForSomeone, setBookingForSomeone] = useState(false);
   const [specialRequests, setSpecialRequests] = useState("");
   
-  // Loading state for better UX
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    const userId = sessionStorage.getItem("userId");
+    
+    if (!userId) {
+      alert("Please log in first");
+      navigate("/login");
+      return;
+    }
     
     const bookingData = {
       title,
@@ -32,46 +40,32 @@ export default function BookingForm({ room, searchParams, hotel }) { // Added ho
       room,
       searchParams,
       specialRequests,
-      // Add hotel data to the booking
       hotel: hotel,
       hotelName: hotel?.name,
       hotelAddress: hotel?.address,
+      hotelId: hotel?.id || hotel?._id, 
+      userId: userId,
+      totalPrice: room?.converted_price || room?.price || 0,
+      createdAt: new Date().toISOString(),
+      status: "confirmed"
     };
     
-    console.log('Submitting booking with room data:', room);
-    console.log('Submitting booking with hotel data:', hotel);
-    console.log('Full booking data:', bookingData);
+    console.log('Preparing booking data for payment:', bookingData);
+    console.log('Hotel ID being saved:', bookingData.hotelId);
+    console.log('Hotel object:', hotel);
     
     try {
-      const res = await fetch("http://localhost:3002/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookingData),
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Server error response:', errorText);
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
-      const data = await res.json();
-      console.log('Booking created successfully:', data);
       
-      if (!data._id) {
-        throw new Error('No booking ID returned from server');
-      }
-      
-      // Pass hotel data through navigation state as backup
-      navigate("/confirmation", { 
+      navigate("/payment", { 
         state: { 
-          bookingId: data._id,
+          booking: bookingData,
           hotel: hotel // Pass hotel as backup
         } 
       });
+      
     } catch (error) {
-      console.error('Error creating booking:', error);
-      alert('Failed to create booking. Please try again.');
+      console.error('Error preparing booking:', error);
+      alert('Failed to proceed to payment. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -227,7 +221,7 @@ export default function BookingForm({ room, searchParams, hotel }) { // Added ho
                   Processing...
                 </>
               ) : (
-                'Continue to Confirmation →'
+                'Continue to Payment →'
               )}
             </button>
           </div>

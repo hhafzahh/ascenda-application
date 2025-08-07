@@ -34,6 +34,11 @@ function NavBar() {
         <Link to="/" className="link">
           Home
         </Link>
+        {isLoggedIn && (
+          <Link to="/my-bookings" className="link">
+            My Bookings
+          </Link>
+        )}
         {isLoggedIn ? (
           <button
             className="logout-btn"

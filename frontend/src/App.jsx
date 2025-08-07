@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import HotelDetails from "./pages/HotelDetails/HotelDetails";
 import ConfirmPage from "./pages/Confirm";
 import PaymentPage from "./pages/Payment";
+import MyBookings from "./pages/MyBookings";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/hotels/:hotelId" element={<HotelDetails />} />
           <Route path="/confirmation" element={<ConfirmPage />} />
           <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
           {/* <Route path="/payment" element={<Payment />} />
           <Route path="/booking-details" element={<Particulars />} />
           <Route path="/confirm-booking" element={<ParticularsCheck />} /> */}

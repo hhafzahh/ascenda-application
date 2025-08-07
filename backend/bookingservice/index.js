@@ -6,6 +6,8 @@ const { connect } = require("../Models/db");
 const bookingRouter = require("./bookingRoute");
 const paymentRouter = require("./paymentRoute");
 
+require('dotenv').config();
+
 app.use(cors());
 app.use(express.json());
 

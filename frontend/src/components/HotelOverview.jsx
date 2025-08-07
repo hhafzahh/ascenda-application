@@ -9,18 +9,85 @@ import { Button } from '@mui/material';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { Card } from 'primereact/card';
 import MiniMap from "./MiniMap";
+import PhotoGallery from './PhotoGallery/PhotoGallery';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-blue/theme.css';
 
-export default function HotelOverview({ onSelectRoom }) {
+export default function HotelOverview({ hotel: propHotel, onSelectRoom }) {
   const { hotelId } = useParams();
   const location = useLocation();
-  const passedHotel = location.state?.hotel; // <- from Landing page
+  const passedHotel = propHotel || location.state?.hotel;
+  const searchParams = location.state?.searchParams;
+  const fromBooking = location.state?.fromBooking;
 
   const [hotel, setHotel] = useState(passedHotel || null);
-  const [loading, setLoading] = useState(!passedHotel); // only load if we didn't receive hotel
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  console.log('HotelOverview - Hotel ID:', hotelId);
+  console.log('HotelOverview - From booking:', fromBooking);
+  console.log('HotelOverview - Search params:', searchParams);
+
+  
+  useEffect(() => {
+    if ((fromBooking || !hotel) && hotelId && searchParams?.destinationId) {
+      console.log('Fetching FULL hotel data for booking hotel ID:', hotelId);
+      setLoading(true);
+      
+      
+      const guestString = Array(searchParams.rooms || 1)
+        .fill((searchParams.guests || 2))
+        .join("|");
+      
+      
+      axios.get(`http://localhost:3001/api/hotelproxy/hotels/uid/${searchParams.destinationId}`, {
+        params: {
+          checkin: searchParams.checkIn || searchParams.checkin,
+          checkout: searchParams.checkOut || searchParams.checkout,
+          guests: guestString,
+        },
+      })
+        .then(response => {
+          console.log('Fetched full hotels data:', response.data);
+          const hotelsList = Array.isArray(response.data) ? response.data : response.data.hotels || [];
+          const foundHotel = hotelsList.find(h => h.id === hotelId);
+          if (foundHotel) {
+            console.log('Found rich hotel data:', foundHotel);
+            setHotel(foundHotel);
+          } else {
+            setError('Hotel not found in search results');
+          }
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error('Error fetching full hotel data:', err);
+          
+          tryDirectHotelAPI();
+        });
+    } else if (!hotel && hotelId) {
+      
+      tryDirectHotelAPI();
+    }
+  }, [hotelId, fromBooking, searchParams]);
+
+  const tryDirectHotelAPI = () => {
+    console.log('Trying direct hotel API for ID:', hotelId);
+    setLoading(true);
+    
+    axios.get(`http://localhost:3001/api/hotelproxy/hotels/uid/${hotelId}`)
+      .then(response => {
+        console.log('Fetched hotel from direct API:', response.data);
+        const hotelData = Array.isArray(response.data) ? response.data[0] : response.data;
+        setHotel(hotelData);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Direct API failed:', err);
+        setError('Failed to load hotel details');
+        setLoading(false);
+      });
+  };
 
   if (loading) return <p>Loading hotel details...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -66,7 +133,7 @@ export default function HotelOverview({ onSelectRoom }) {
     };
   }
 
-  const { main, nearby, airports } = splitDescription(hotel.description);
+  const { main, nearby, airports } = splitDescription(hotel.description || "No description available");
 
   function hotelRating(rating) {
     const stars = [];
@@ -108,7 +175,7 @@ export default function HotelOverview({ onSelectRoom }) {
     return "Property";
   }
 
-  const category = findCategory(hotel.description);
+  const category = findCategory(hotel.description || "");
 
   function getAmenities(amenities) {
     if (!amenities || typeof amenities !== 'object') return [];
@@ -124,21 +191,28 @@ export default function HotelOverview({ onSelectRoom }) {
     <div className="hotel-overview">
       <div className="hotel-header" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, textAlign: 'left' }}>
-          <h2 className="text-2xl font-bold" style={{ textAlign: 'left', margin: '0' }}>{hotel.name}</h2>
+          <h2 className="text-2xl font-bold" style={{ textAlign: 'left', margin: '0' }}>{hotel.name || 'Hotel Name'}</h2>
           <div className="hotel-rating" style={{ display: 'flex', alignItems: 'center' }}>
             <Tag value={category} rounded style={{ padding: '0.2rem 0.8rem', marginRight: '0.5rem' }}></Tag>
             {hotelRating(hotel.rating || 0)}
           </div>
         </div>
         <div>
-          <Button
-            variant="contained"
-            sx={{ backgroundColor: '#FF6D3A', '&:hover': { backgroundColor: '#e6551f' }, textTransform: 'none', fontWeight: '600' }}
-            onClick={onSelectRoom}
-          >
-            Select Room
-          </Button>
+          {onSelectRoom && (
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: '#FF6D3A', '&:hover': { backgroundColor: '#e6551f' }, textTransform: 'none', fontWeight: '600' }}
+              onClick={onSelectRoom}
+            >
+              Select Room
+            </Button>
+          )}
         </div>
+      </div>
+
+      {/* Photo Gallery */}
+      <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+        <PhotoGallery hotel={hotel} />
       </div>
 
       <p style={{ textAlign: 'justify', marginTop: '0.5rem' }} dangerouslySetInnerHTML={{ __html: main }} />
@@ -149,7 +223,7 @@ export default function HotelOverview({ onSelectRoom }) {
           <Card style={{ flex: 1 }}>
             <h3 style={{ textAlign: 'left' }}>In the area 📍</h3>
             <ScrollPanel style={{ width: '100%', height: '200px' }}>
-              <p style={{ textAlign: 'left' }}>{hotel.address}</p>
+              <p style={{ textAlign: 'left' }}>{hotel.address || 'Address not available'}</p>
               <div style={{ textAlign: 'left' }} dangerouslySetInnerHTML={{ __html: nearby }} />
             </ScrollPanel>
           </Card>
