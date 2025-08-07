@@ -10,6 +10,11 @@ router.post("/register", userController.register);
 // Log in user
 router.post("/login", userController.login);
 
+//TESTT
+router.get("/profile", authMiddleware, (req, res) => {
+  res.json({ message: "Secure profile", user: req.user });
+});
+
 // Get user profile
 router.get("/:id", userController.getUserById);
 
@@ -22,10 +27,7 @@ router.put("/:id/password", userController.updatePassword);
 // Delete user account
 router.delete("/:id", userController.deleteUserById);
 
-//TESTT
-router.get("/profile", authMiddleware, (req, res) => {
-  res.json({ message: "Secure profile", user: req.user });
-});
+
 
 // const token = localStorage.getItem("token");
 

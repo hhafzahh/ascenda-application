@@ -1,7 +1,7 @@
 const userService = require("./userService");
 const jwt = require("jsonwebtoken");
 
-// Register a new user
+//http://localhost:3004/api/user/register
 exports.register = async (req, res) => {
   try {
     const result = await userService.register(req.body);
@@ -15,17 +15,17 @@ exports.register = async (req, res) => {
     res.status(status).json({ error: message });
   }
 };
-
-// Login existing user
 exports.login = async (req, res) => {
   try {
     const result = await userService.login(req.body);
     const { userId, email } = result;
 
     //generate jwt token
-    const token = jwt.sign({ userId, email }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRY || "1d",
-    });
+    const token = jwt.sign(
+      { userId, email },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRY || "1d" }
+    );
 
     res.json({ message: "Login successful", token, userId });
   } catch (err) {
@@ -35,6 +35,7 @@ exports.login = async (req, res) => {
     res.status(status).json({ error: message });
   }
 };
+
 
 
 // Get user by ID

@@ -2,7 +2,7 @@
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
-const app = require("../userservice/app");
+const app = require("../app");
 const request = require("supertest");
 
 //for db connections

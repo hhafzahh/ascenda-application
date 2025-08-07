@@ -30,9 +30,18 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/hotels/:hotelId" element={<HotelDetails />} />
-          <Route path="/profile" element={<Profile />} />
+          {/* <Route path="/profile" element={<Profile />} /> */}
           <Route path="/confirmation" element={<ConfirmPage />} />
           <Route path="/payment" element={<PaymentPage />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                {" "}
+                <Profile />{" "}
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/test"
             element={

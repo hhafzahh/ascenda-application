@@ -1,5 +1,5 @@
 //UNIT TESTING
-const userService = require("../userservice/userService");
+const userService = require("../userService");
 const dbClient = require("../database/db");
 
 const bcrypt = require("bcrypt");
