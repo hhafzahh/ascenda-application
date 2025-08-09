@@ -29,6 +29,7 @@ export default function HotelDetails() {
 
   return (
     <div className="hotel-details-page" style={{ width: "100%", margin: "auto" }}>
+      
       {/* <PhotoGallery hotel={fullHotel} /> */}
       <div className="hotel-details-content">
         <HotelOverview hotel={fullHotel} onSelectRoom={scrollToRooms} />
