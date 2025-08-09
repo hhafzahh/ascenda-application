@@ -55,9 +55,34 @@ export default function CheckoutForm({ booking }) {
       if (result.error) {
         alert("Payment failed: " + result.error.message);
       } else if (result.paymentIntent.status === "succeeded") {
-        alert("Payment successful!");
-        // Navigate to success page or home
-        navigate("/");
+        // Payment succeeded, now create the booking
+        try {
+          console.log("Payment successful, creating booking...");
+          
+          const bookingRes = await fetch("http://localhost:3002/api/bookings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...booking,
+              paymentIntentId: result.paymentIntent.id,
+              status: "confirmed"
+            }),
+          });
+
+          if (!bookingRes.ok) {
+            throw new Error('Failed to create booking');
+          }
+
+          const bookingData = await bookingRes.json();
+          console.log('Booking created successfully:', bookingData);
+          
+          alert("Payment successful! Booking confirmed.");
+          navigate("/my-bookings");
+        } catch (bookingError) {
+          console.error('Error creating booking:', bookingError);
+          alert("Payment successful but booking creation failed. Please contact support.");
+          navigate("/");
+        }
       }
     } catch (error) {
       console.error('Payment error:', error);

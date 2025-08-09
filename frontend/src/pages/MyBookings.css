@@ -1,0 +1,86 @@
+.my-bookings-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.my-bookings-container h1 {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #2d3748;
+  font-size: 2rem;
+}
+
+.bookings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+  gap: 30px;
+}
+
+.no-bookings {
+  text-align: center;
+  padding: 50px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.no-bookings p {
+  font-size: 1.2rem;
+  color: #4a5568;
+  margin-bottom: 25px;
+}
+
+.no-bookings button {
+  background: #1890FF;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.no-bookings button:hover {
+  background: #096dd9;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: #e53e3e;
+}
+
+/* Add to match RoomCard styling */
+.room-card {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .bookings-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .my-bookings-container {
+    padding: 15px;
+  }
+  
+  .no-bookings {
+    padding: 30px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .my-bookings-container h1 {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+  }
+}

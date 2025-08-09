@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import ProtectedRoute from "./ProtectedRoute";
 import ConfirmPage from "./pages/Confirm";
 import PaymentPage from "./pages/Payment";
+import MyBookings from "./pages/MyBookings";
 
 function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -51,6 +52,10 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/my-bookings" element={<MyBookings />} />
+          {/* <Route path="/payment" element={<Payment />} />
+          <Route path="/booking-details" element={<Particulars />} />
+          <Route path="/confirm-booking" element={<ParticularsCheck />} /> */}
         </Routes>
       </div>
     </>
