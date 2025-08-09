@@ -33,7 +33,7 @@ export default function CheckoutForm({ booking }) {
       const res = await fetch("http://localhost:3002/api/payments/create-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: booking.room.converted_price * 100 || booking.room.price * 100 }),
+        body: JSON.stringify({ amount: Math.round(booking.room.converted_price * 100) || Math.round(booking.room.price * 100) }),
       });
 
       if (!res.ok) {
