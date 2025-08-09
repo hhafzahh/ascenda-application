@@ -19,7 +19,14 @@ export default function RecentlyViewedHotels() {
   const [hotels, setHotels] = useState([]);
 
   useEffect(() => {
-    const viewed = JSON.parse(localStorage.getItem("viewedHotels") || "[]");
+    let viewed;
+    try {
+      viewed = JSON.parse(localStorage.getItem("viewedHotels") || "[]");
+    } catch (error) {
+      console.error("Error parsing recently viewed hotels:", error);
+      return;
+    }
+    
     console.log(viewed);
     if (!viewed.length) return;
 
