@@ -5,42 +5,44 @@ import "./RoomCard/RoomCard.css"; // Reuse RoomCard styles
 export default function BookingCard({ booking }) {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+
   // Debug
-  console.log('BookingCard - Full booking object:', booking);
-  console.log('BookingCard - booking.hotel:', booking.hotel);
-  console.log('BookingCard - booking.hotelId:', booking.hotelId);
-  console.log('BookingCard - booking.hotelName:', booking.hotelName);
-  
+  // console.log("BookingCard - Full booking object:", booking);
+  // console.log("BookingCard - booking.hotel:", booking.hotel);
+  // console.log("BookingCard - booking.hotelId:", booking.hotelId);
+  // console.log("BookingCard - booking.hotelName:", booking.hotelName);
+
   // Handles both booking formats (from booking form vs from database)
   const hotel = booking.hotel || {
     id: booking.hotelId || booking.hotel?.id || booking.hotel?._id,
-    name: booking.hotelName || booking.hotel?.name || "Hotel Name Not Available",
-    address: booking.hotelAddress || booking.hotel?.address || "Address Not Available",
-    images: booking.hotel?.images || []
+    name:
+      booking.hotelName || booking.hotel?.name || "Hotel Name Not Available",
+    address:
+      booking.hotelAddress || booking.hotel?.address || "Address Not Available",
+    images: booking.hotel?.images || [],
   };
-  
-  console.log('BookingCard - Constructed hotel object:', hotel);
-  console.log('BookingCard - Final hotel.id that will be used:', hotel.id);
-  
+
+  // console.log("BookingCard - Constructed hotel object:", hotel);
+  // console.log("BookingCard - Final hotel.id that will be used:", hotel.id);
+
   const room = booking.room || {
     roomDescription: "Room details not available",
     converted_price: booking.totalPrice || 0,
     amenities: [],
-    images: []
+    images: [],
   };
-  
+
   const searchParams = booking.searchParams || {
     checkIn: booking.checkIn || "Date not available",
-    checkOut: booking.checkOut || "Date not available", 
+    checkOut: booking.checkOut || "Date not available",
     guests: booking.guests || 1,
-    destinationId: booking.destinationId || booking.searchParams?.destinationId
+    destinationId: booking.destinationId || booking.searchParams?.destinationId,
   };
-  
+
   // Calculate number of nights
   let nights = 1;
   let totalPrice = "0.00";
-  
+
   try {
     if (searchParams.checkIn && searchParams.checkOut) {
       const checkInDate = new Date(searchParams.checkIn);
@@ -48,17 +50,17 @@ export default function BookingCard({ booking }) {
       nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
       nights = nights > 0 ? nights : 1; // Ensure at least 1 night
     }
-    
+
     const pricePerNight = room.converted_price || room.price || 0;
     totalPrice = (pricePerNight * nights).toFixed(2);
   } catch (error) {
     console.error("Error calculating price:", error);
   }
-  
+
   // Carousel functionality
   const nextImage = () => {
     if (images && images.length > 0) {
-      setCurrentImageIndex(prev => 
+      setCurrentImageIndex((prev) =>
         prev === images.length - 1 ? 0 : prev + 1
       );
     }
@@ -66,43 +68,42 @@ export default function BookingCard({ booking }) {
 
   const prevImage = () => {
     if (images && images.length > 0) {
-      setCurrentImageIndex(prev => 
+      setCurrentImageIndex((prev) =>
         prev === 0 ? images.length - 1 : prev - 1
       );
     }
   };
 
   const handleViewHotel = () => {
-    // Get the correct hotel ID 
+    // Get the correct hotel ID
     const correctHotelId = booking.hotel?.id || booking.hotelId;
-    
-    console.log('Navigating to hotel with ID:', correctHotelId);
-    console.log('Hotel from booking:', booking.hotel);
-    
+
+    console.log("Navigating to hotel with ID:", correctHotelId);
+    console.log("Hotel from booking:", booking.hotel);
+
     if (correctHotelId) {
-      // Navigate to hotel details 
-      navigate(`/hotels/${correctHotelId}`, { 
-        state: { 
+      // Navigate to hotel details
+      navigate(`/hotels/${correctHotelId}`, {
+        state: {
           searchParams: booking.searchParams, // Pass search params so it can fetch full data
-          fromBooking: true // Flag to indicate this came from a booking
-        } 
+          fromBooking: true, // Flag to indicate this came from a booking
+        },
       });
     } else {
-      alert('Hotel ID not found');
+      alert("Hotel ID not found");
     }
   };
 
-  
-  const images = hotel.images?.length > 0 
-    ? hotel.images 
-    : room.images?.length > 0 
-      ? room.images 
+  const images =
+    hotel.images?.length > 0
+      ? hotel.images
+      : room.images?.length > 0
+      ? room.images
       : [];
 
-  
-  const formattedImages = images.map(img => 
-    typeof img === 'string' ? img : img?.url || img
-  ).filter(Boolean);
+  const formattedImages = images
+    .map((img) => (typeof img === "string" ? img : img?.url || img))
+    .filter(Boolean);
 
   return (
     <div className="room-card">
@@ -115,7 +116,8 @@ export default function BookingCard({ booking }) {
                 alt={`${hotel.name} - Image ${currentImageIndex + 1}`}
                 className="room-image"
                 onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Available";
+                  e.target.src =
+                    "https://via.placeholder.com/400x300?text=Image+Not+Available";
                 }}
               />
               {formattedImages.length > 1 && (
@@ -156,16 +158,16 @@ export default function BookingCard({ booking }) {
               <strong>Email:</strong> {booking.email}
             </p>
             <p>
-              <strong>Check-in:</strong> {searchParams.checkIn}
+              <strong>Check-in:</strong> {booking.searchParams?.checkin}
             </p>
             <p>
-              <strong>Check-out:</strong> {searchParams.checkOut}
+              <strong>Check-out:</strong> {booking.searchParams?.checkout}
             </p>
             <p>
               <strong>Nights:</strong> {nights}
             </p>
             <p>
-              <strong>Guests:</strong> {searchParams.guests}
+              <strong>Guests:</strong> {booking.searchParams?.guests}
             </p>
             {booking.specialRequests && (
               <p>
@@ -175,7 +177,7 @@ export default function BookingCard({ booking }) {
           </div>
         </div>
       </div>
-      
+
       <div className="right-column">
         <div className="amenities-section">
           <div className="amenity-group">
@@ -184,7 +186,7 @@ export default function BookingCard({ booking }) {
               <span className="amenity-tag">{room.roomDescription}</span>
             </div>
           </div>
-          
+
           {room.amenities && room.amenities.length > 0 && (
             <div className="amenity-group">
               <h4>Amenities:</h4>
@@ -198,7 +200,7 @@ export default function BookingCard({ booking }) {
             </div>
           )}
         </div>
-        
+
         <div className="price-section">
           <div className="price-display">
             <p className="current-price">
@@ -207,8 +209,8 @@ export default function BookingCard({ booking }) {
             <p className="price-note">per night</p>
             <p className="total-price">Total: ${totalPrice}</p>
           </div>
-          
-          <div className="booking-cta">
+
+          {/* <div className="booking-cta">
             {hotel.id || hotel._id || booking.hotelId || booking.hotel?.id || booking.hotel?._id ? (
               <button className="book-button" onClick={handleViewHotel}>
                 View Hotel
@@ -218,7 +220,7 @@ export default function BookingCard({ booking }) {
                 Hotel Details Unavailable
               </button>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
