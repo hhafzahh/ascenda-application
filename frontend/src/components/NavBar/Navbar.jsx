@@ -2,7 +2,7 @@
 
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "./NavBar.css";
+import "./Navbar.css";
 
 function NavBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -34,6 +34,11 @@ function NavBar() {
         <Link to="/" className="link">
           Home
         </Link>
+        {isLoggedIn && (
+          <Link to="/my-bookings" className="link">
+            My Bookings
+          </Link>
+        )}
         {isLoggedIn ? (
           <>
             <Link to="/profile" className="link profile">

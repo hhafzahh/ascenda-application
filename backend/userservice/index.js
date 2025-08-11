@@ -3,7 +3,7 @@
 const app = require("./app");
 const PORT = process.env.PORT || 3004;
 
-const { connect } = require("../database/db");
+const { connect } = require("./database/db");
 
 console.log("Starting UserService...");
 

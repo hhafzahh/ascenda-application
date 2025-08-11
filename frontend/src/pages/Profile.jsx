@@ -162,10 +162,12 @@ export default function Profile({ onLogout }) {
 
   const userId = sessionStorage.getItem("userId");
 
+  console.log(userId)
   useEffect(() => {
     axios.get(`http://localhost:3004/api/user/${userId}`)
       .then((res) => {
         const { username, email, dob } = res.data;
+        console.log(res.data)
         setUser({
           name: username,
           email,

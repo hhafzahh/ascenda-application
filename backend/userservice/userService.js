@@ -1,24 +1,30 @@
 const { ObjectId } = require("mongodb");
-const dbClient = require("../database/db");
+
+const dbClient = require("./database/db");
 const bcrypt = require("bcrypt");
 
 const SALT_ROUNDS = 10;
 
-// Register a new user
+//No request or response should be in service layer, service layer only deals with logic
 exports.register = async (userData) => {
   console.log("/register called");
   const { username, email, password } = userData;
-
   if (!username || !email || !password) {
+    //return res.status(400).json({ error: "All fields are required" });
     const error = new Error("All fields are required");
     error.status = 400;
     throw error;
+  }
+
+  if (email.length > 100 || password.length > 1000) {
+    throw { status: 400, message: "Input too long" };
   }
 
   const db = dbClient.getDb();
   const existingUser = await db.collection("users").findOne({ email });
 
   if (existingUser) {
+    //return res.status(409).json({ error: "Email already registered" });
     const error = new Error("Email already registered");
     error.status = 409;
     throw error;
@@ -29,18 +35,16 @@ exports.register = async (userData) => {
 
   const result = await db
     .collection("users")
-    .insertOne({
-      username,
-      email,
-      password: hashedPassword,
-      gender: "",
-      dob: "",
-    });
+    .insertOne({ username, email, password: hashedPassword });
 
   return { userId: result.insertedId };
+
+  //   res.status(201).json({
+  //     message: "User registered successfully",
+  //     userId: result.insertedId,
+  //   });
 };
 
-// Login user
 
 exports.login = async (userData) => {
   console.log("/login called");
@@ -56,7 +60,7 @@ exports.login = async (userData) => {
   const user = await db.collection("users").findOne({ email });
 
   if (!user) {
-    const error = new Error("No user found");
+    const error = new Error("Invalid email or password");
     error.status = 401;
     throw error;
   }
@@ -64,14 +68,15 @@ exports.login = async (userData) => {
   // compare hashed password
   const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) {
-    const error = new Error("Invalid password");
+    const error = new Error("Invalid email or password");
     error.status = 401;
     throw error;
-     //return res.status(401).json({ error: "Invalid email or password" });
+    //return res.status(401).json({ error: "Invalid email or password" });
   }
 
   return { userId: user._id, email: user.email };
 };
+
 
 // Get user profile by ID
 exports.getUserById = async (id) => {
