@@ -3,10 +3,10 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 
 // Mock CSS import
-jest.mock("../components/BookingLayout/BookingLayout.css", () => {});
+jest.mock("components/BookingLayout/BookingLayout.css", () => {});
 
 // Mock HotelDetails component
-jest.mock("../components/HotelDetails", () => {
+jest.mock("components/HotelDetails", () => {
   return function MockHotelDetails({ room, searchParams, hotel }) {
     return (
       <div data-testid="hotel-details">
@@ -19,7 +19,7 @@ jest.mock("../components/HotelDetails", () => {
   };
 });
 
-import BookingLayout from "../components/BookingLayout";
+import BookingLayout from "components/BookingLayout";
 
 const mockRoom = {
   roomDescription: "Deluxe King Room",

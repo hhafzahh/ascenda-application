@@ -39,7 +39,7 @@ jest.mock("@stripe/react-stripe-js", () => ({
 // Mock fetch
 global.fetch = jest.fn();
 
-import CheckoutForm from "../components/CheckoutForm";
+import CheckoutForm from "components/CheckoutForm";
 
 const mockBooking = {
   _id: "booking123",
@@ -301,7 +301,7 @@ describe("CheckoutForm Component", () => {
     }));
 
     // Re-import the component to get the mocked Stripe
-    const CheckoutFormWithoutStripe = require("../components/CheckoutForm").default;
+    const CheckoutFormWithoutStripe = require("components/CheckoutForm").default;
 
     render(
       <BrowserRouter>

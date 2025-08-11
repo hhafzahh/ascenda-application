@@ -12,12 +12,12 @@ jest.mock("react-router-dom", () => ({
 }));
 
 // Mock CSS import
-jest.mock("../components/BookingForm/BookingForm.css", () => {});
+jest.mock("components/BookingForm/BookingForm.css", () => {});
 
 // Mock fetch
 global.fetch = jest.fn();
 
-import BookingForm from "../components/BookingForm";
+import BookingForm from "components/BookingForm";
 
 const mockRoom = {
   roomDescription: "Deluxe King Room",

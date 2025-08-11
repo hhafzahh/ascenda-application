@@ -11,7 +11,7 @@ jest.mock("react-router-dom", () => ({
 }));
 
 // Mock components
-jest.mock("../components/BookingLayout", () => {
+jest.mock("components/BookingLayout", () => {
   return function MockBookingLayout({ children, room, searchParams, hotel }) {
     return (
       <div data-testid="booking-layout">
@@ -24,7 +24,7 @@ jest.mock("../components/BookingLayout", () => {
   };
 });
 
-jest.mock("../components/BookingForm", () => {
+jest.mock("components/BookingForm", () => {
   return function MockBookingForm({ room, searchParams, hotel }) {
     return (
       <div data-testid="booking-form">

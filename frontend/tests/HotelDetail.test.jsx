@@ -120,11 +120,11 @@ const MockHotelDetails = ({ room, searchParams, hotel }) => {
 };
 
 // Mock the component import
-jest.mock("../components/HotelDetails", () => {
+jest.mock("components/HotelDetails", () => {
   return MockHotelDetails;
 });
 
-import HotelDetails from "../components/HotelDetails";
+import HotelDetails from "components/HotelDetails";
 
 const mockRoom = {
   roomDescription: "Deluxe King Room",
