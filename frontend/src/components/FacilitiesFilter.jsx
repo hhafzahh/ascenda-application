@@ -1,5 +1,5 @@
 import { roomAmenities } from "../config/hotel-config";
-
+import React from "react";
 const FacilitiesFilter = ({ selectedFacilities, onChange }) => {
   return (
     <div
