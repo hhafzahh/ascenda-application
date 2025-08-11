@@ -1,4 +1,3 @@
-// tests/user.robust.fuzz.test.jsx
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
@@ -13,19 +12,19 @@ afterAll(async () => { await cleanup(); });
 // Let CI override; default 30s per file
 jest.setTimeout(parseInt(process.env.FUZZ_TEST_TIMEOUT || "30000", 10));
 
-// Helper: ensure no stack traces / internals leak to clients
+// ensure no stack traces / internals leak to clients
 const noLeak = (res) => {
   const s = JSON.stringify(res.body ?? {});
   expect(s).not.toMatch(/BSONError|stack|node_modules|ObjectId/i);
 };
 
-// Header‑safe token generator (avoids raw unicode/control chars)
+// header‑safe token generator (avoids raw unicode/control chars)
 const safeChar = fc.constantFrom(
   ..."ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-"
 );
 const safeToken = fc.array(safeChar, { maxLength: 300 }).map(a => a.join(""));
 
-// ---------- /api/user/register ----------
+// register
 describe("Fuzz: /api/user/register robustness", () => {
   test("randomized username/email/password never crash; returns 201/400/409", async () => {
     await fc.assert(
@@ -52,7 +51,7 @@ describe("Fuzz: /api/user/register robustness", () => {
   });
 });
 
-// ---------- /api/user/login ----------
+//login
 describe("Fuzz: /api/user/login robustness", () => {
   test("malformed payloads => 200/400/401/404/500 (never crash)", async () => {
     await fc.assert(
@@ -106,7 +105,7 @@ describe("Fuzz: /api/user/login robustness", () => {
   });
 });
 
-// ---------- /api/user/profile ----------
+// protected route - profule
 describe("Fuzz: /api/user/profile Authorization header", () => {
   test("random Authorization header => 200/401 (never 5xx)", async () => {
     await fc.assert(
