@@ -137,7 +137,7 @@ export default function SearchResults() {
   return (
     <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "20px" }}>
       {/* Search Bar */}
-      <div style={{ marginBottom: "20px" }}>
+      <div data-testid="search-bar" style={{ marginBottom: "20px" }}>
         <SearchBar
           queryval={searchQuery}
           initialCheckin={checkin}
@@ -204,6 +204,7 @@ export default function SearchResults() {
                     style={{ cursor: "pointer" }}
                   >
                     <HotelCard
+                      data-testid="hotel-card"
                       id={`hotel-${hotel.id}`}
                       hotel={hotel}
                       isSelected={selectedHotelId === hotel.id}
