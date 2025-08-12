@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import MiniMap from "../src/components/MiniMap";
+import MiniMap from "../src/components/Minimap";
 
 // Mock Leaflet
 jest.mock("leaflet", () => ({

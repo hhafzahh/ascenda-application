@@ -41,22 +41,27 @@ export default function Amenities({ nearbyAmenities, address}) {
                 
             </div>
 
-            {distances && distances.length > 0 && ( 
-            <div className="nearby-amenities-list">
-                {distances.map((item, idx) => {
-                const [place, distance] = Object.entries(item)[0];
-                return (
-                    <div className="amenity-row" key={idx}>
-                    <div className="amenity-left">
-                        <FmdGoodIcon className="location-icon" />
-                        <span className="place-name">{place}</span>
-                    </div>
-                    <div className="amenity-distance">{distance} km</div>
-                    </div>
-                );
-                })}
-            </div>
-            )}
+            {Array.isArray(distances) && distances.length > 0 ? (
+                <div className="nearby-amenities-list">
+                    {distances.map((item, idx) => {
+                    const [place, distance] = Object.entries(item)[0];
+                    return (
+                        <div className="amenity-row" key={idx}>
+                        <div className="amenity-left">
+                            <FmdGoodIcon className="location-icon" />
+                            <span className="place-name">{place}</span>
+                        </div>
+                        <div className="amenity-distance">{distance} km</div>
+                        </div>
+                    );
+                    })}
+                </div>
+                ) : (
+                <div className="amenities-empty" aria-live="polite">
+                    No information available
+                </div>
+                )}
+
 
         </div>
         );

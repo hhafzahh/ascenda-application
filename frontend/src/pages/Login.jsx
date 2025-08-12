@@ -28,13 +28,15 @@ export default function Login() {
         setError(data.error || "Login failed");
       } else {
         setSuccess("Login successful");
-
+        // Always set token if present
+        if (data && data.token) {
+          sessionStorage.setItem("token", data.token);
+          console.log("Token set in sessionStorage:", data.token);
+        }
         if (data && data.userId) {
           sessionStorage.setItem("userId", data.userId);
-          sessionStorage.setItem("token", data.token);
           console.log("User ID set in sessionStorage:", data.userId);
-          console.log("Token set in sessionStorage:", data.token);
-        } else {
+        } else if (data && data.token) {
           console.warn("User ID not found in response:", data);
         }
         window.dispatchEvent(new Event("custom-login-event"));
@@ -51,20 +53,20 @@ export default function Login() {
       {error && <p style={{ color: "red" }}>{error}</p>}
       {success && <p style={{ color: "green" }}>{success}</p>}
       <form onSubmit={handleSubmit}>
-        <label>Email:</label>
+        <label htmlFor="email">Email:</label>
         <input
+          id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required
         />
         <br />
-        <label>Password:</label>
+        <label htmlFor="password">Password:</label>
         <input
+          id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required
         />
         <br />
         <button type="submit">Login</button>

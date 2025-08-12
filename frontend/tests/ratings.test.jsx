@@ -114,4 +114,28 @@ describe("Robust Boundary Value Testing", () => {
     expect(screen.getByText('0.01')).toBeInTheDocument();  // 0.1 should be floored
     });
 
+    test('handles missing amenities_ratings from API (no grid, fallback label)', () => {
+      // API returns hotel object without `amenities_ratings`
+      const mockHotel = {
+        name: 'ST Residences Novena',
+        rating: 4,
+        // amenities_ratings: undefined
+      };
+
+      const { container } = render(<Ratings hotel={mockHotel} />);
+
+      // Should show fallback label for overall rating
+      expect(screen.getByText(/No ratings available/i)).toBeInTheDocument();
+
+      // Grid should not render when there are no amenities
+      expect(container.querySelector('.amenities-ratings-grid')).toBeNull();
+
+      // Also ensure no individual rating bars are rendered
+      expect(container.querySelector('.rating-bar-fill')).toBeNull();
+
+      // The left value should be empty (overall score is null), but the "/10" suffix remains
+      expect(screen.getByText('/10')).toBeInTheDocument();
+    });
+
+
 })

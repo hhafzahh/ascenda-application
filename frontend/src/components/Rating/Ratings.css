@@ -17,31 +17,38 @@
   display: flex;
   height: 65px;
   align-items: center;
-  margin-top: 0;
-  margin-bottom: 0;
-  padding: 10px 0px;
+  /* padding: 10px 0px; */
   border-bottom: 1px solid #eee;
   position: sticky;
   top: 0;
   background-color: white;
 }
 
-.header-text {
+.ratings-header .header-text {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 5px;
+  
 }
-.header-text .header-title {
+.ratings-header .header-text .header-title {
   font-size: 1.2rem;
   font-weight: bold;
   color: #353535;
   margin: 0px;
+  padding-bottom: 10px;
 }
 
-.header-text .rating-label {
+.ratings-header .header-text .rating-label {
+  /* font-size: 0.8rem;
+  color: #202020;
+  text-align: left;
+  padding-top: 10px; */
+  padding-top: 10px;
+  margin-top:0px;
   font-size: 0.8rem;
   color: #202020;
   text-align: left;
+  margin-bottom: 0;
 }
 .rating-value {
   font-size: 2.5rem;

@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import axios from "axios";
-import HotelOverview from "../../components/HotelOverview";
+import HotelOverview from "../../components/HotelOverview/HotelOverview";
 import HotelRooms from "../HotelRooms";
 import PhotoGallery from "../../components/PhotoGallery/PhotoGallery";
 import "../HotelDetails/HotelDetails.css";

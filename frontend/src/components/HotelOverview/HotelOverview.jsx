@@ -2,68 +2,28 @@ import React from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { Tag } from "primereact/tag";
 import { Button } from "@mui/material";
-import { ScrollPanel } from "primereact/scrollpanel";
-import { Card } from "primereact/card";
-import Ratings from "./Rating/Ratings";
-import Amenities from "./AmenitiesCard/Amenities";
-import Map from "./MapCard/Map";
+import Ratings from "../Rating/Ratings";
+import Amenities from "../AmenitiesCard/amenities";
+import Map from "../MapCard/Map";
+import { splitDescription, computeStarParts } from "./utils";
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 
 export default function HotelOverview({ hotel, hotelMetadata, onSelectRoom }) {
-  const splitDescription = (text) => {
-    const distancesMarker = "Distances are displayed";
-    const airportsMarker = "The nearest airports are:";
-
-    const distancesIdx = text.indexOf(distancesMarker);
-    const airportsIdx = text.indexOf(airportsMarker);
-
-    let mainDescription = text;
-    let nearbyAmenities = "";
-    let nearestAirports = "";
-
-    if (distancesIdx !== -1 && airportsIdx !== -1) {
-      mainDescription =
-        text.slice(0, distancesIdx).trim() +
-        "\n\n" +
-        text
-          .slice(airportsIdx + text.slice(airportsIdx).indexOf("</p>") + 4)
-          .trim();
-
-      nearbyAmenities = text.slice(distancesIdx, airportsIdx).trim();
-      nearestAirports = text
-        .slice(
-          airportsIdx,
-          airportsIdx + text.slice(airportsIdx).indexOf("</p>") + 4
-        )
-        .trim();
-    }
-
-    return {
-      main: mainDescription,
-      nearby: nearbyAmenities,
-      airports: nearestAirports,
-    };
-  };
+  const safeHotel = hotel || {};
+  const { main, nearby } = splitDescription(safeHotel.description || "");
 
   const hotelRating = (rating) => {
+    const { full, half, empty } = computeStarParts(rating || 0);
     const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
-    for (let i = 0; i < fullStars; i++)
-      stars.push(<FaStar key={`full-${i}`} color="#FFD700" />);
-    if (hasHalfStar) stars.push(<FaStarHalfAlt key="half" color="#FFD700" />);
-    for (let i = 0; i < emptyStars; i++)
-      stars.push(<FaRegStar key={`empty-${i}`} color="#FFD700" />);
-
+    for (let i = 0; i < full; i++) stars.push(<FaStar key={`full-${i}`} color="#FFD700" />);
+    if (half) stars.push(<FaStarHalfAlt key="half" color="#FFD700" />);
+    for (let i = 0; i < empty; i++) stars.push(<FaRegStar key={`empty-${i}`} color="#FFD700" />);
     return stars;
   };
 
-  const category = "Hotel"; // Simplify or use your findCategory logic here
-  const { main, nearby, airports } = splitDescription(hotel.description);
+  const category = "Hotel";
 
   return (
     <div className="hotel-overview">
@@ -85,35 +45,25 @@ export default function HotelOverview({ hotel, hotelMetadata, onSelectRoom }) {
             textAlign: "left",
           }}
         >
-          <h2
-            className="text-2xl font-bold"
-            style={{ textAlign: "left", margin: "0" }}
-          >
-            {hotel.name}
+          <h2 className="text-2xl font-bold" style={{ textAlign: "left", margin: "0" }}>
+            {safeHotel.name || "Unnamed Property"}
           </h2>
-          <div
-            className="hotel-rating"
-            style={{ display: "flex", alignItems: "center" }}
-          >
+          <div className="hotel-rating" style={{ display: "flex", alignItems: "center" }}>
             <Tag
               value={category}
               rounded
-              style={{
-                padding: "0.2rem 0.8rem 0.2rem 0.8rem",
-                marginRight: "0.5rem",
-              }}
-            ></Tag>
-            {hotelRating(hotel.rating || 0)}
+              style={{ padding: "0.2rem 0.8rem 0.2rem 0.8rem", marginRight: "0.5rem" }}
+            />
+            {hotelRating(safeHotel.rating || 0)}
           </div>
         </div>
+
         <div>
           <Button
             variant="contained"
             sx={{
               backgroundColor: "#FF6D3A",
-              "&:hover": {
-                backgroundColor: "#e6551f",
-              },
+              "&:hover": { backgroundColor: "#e6551f" },
               textTransform: "none",
               fontWeight: "600",
             }}
@@ -129,76 +79,27 @@ export default function HotelOverview({ hotel, hotelMetadata, onSelectRoom }) {
         dangerouslySetInnerHTML={{ __html: main }}
       />
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: "1rem",
-          marginTop: "1rem",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "row", gap: "1rem", marginTop: "1rem" }}>
         <div style={{ flex: 1 }}>
-          <Ratings hotel={hotelMetadata || hotel} />
+          <Ratings hotel={hotelMetadata || safeHotel} />
         </div>
         <div style={{ flex: 1 }}>
-          <Amenities nearbyAmenities={nearby} address={hotel.address} />
+          <Amenities nearbyAmenities={nearby} address={safeHotel.address} />
         </div>
         <div style={{ flex: 1 }}>
           <Map
-            lat={hotel.latitude}
-            lng={hotel.longitude}
-            hotelName={hotel.name}
-            price={hotel.price}
+            lat={safeHotel.latitude}
+            lng={safeHotel.longitude}
+            hotelName={safeHotel.name}
+            price={safeHotel.price}
           />
         </div>
       </div>
     </div>
   );
-
-  //   return (
-  //     <div className="hotel-overview">
-  //       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-  //         <div>
-  //           <h2>{hotel.name}</h2>
-  //           <div>
-  //             <Tag value={category} rounded style={{ marginRight: '0.5rem' }} />
-  //             {hotelRating(hotel.rating || 0)}
-  //           </div>
-  //         </div>
-  //         <Button
-  //           variant="contained"
-  //           sx={{ backgroundColor: '#FF6D3A' }}
-  //           onClick={onSelectRoom}
-  //         >
-  //           Select Room
-  //         </Button>
-  //       </div>
-
-  //       <p dangerouslySetInnerHTML={{ __html: main }} />
-
-  //       <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-  //         {nearby && (
-  //           <Card>
-  //             <h3>In the area 📍</h3>
-  //             <ScrollPanel style={{ height: '200px' }}>
-  //               <p>{hotel.address}</p>
-  //               <div dangerouslySetInnerHTML={{ __html: nearby }} />
-  //             </ScrollPanel>
-  //           </Card>
-  //         )}
-
-  //         {airports && (
-  //           <Card>
-  //             <h3>Nearest Airports ✈️</h3>
-  //             <ScrollPanel style={{ height: '200px' }}>
-  //               <div dangerouslySetInnerHTML={{ __html: airports }} />
-  //             </ScrollPanel>
-  //           </Card>
-  //         )}
-  //       </div>
-  //     </div>
-  //   );
 }
+
+
 
 // import React from 'react';
 // import { useParams } from 'react-router-dom';
