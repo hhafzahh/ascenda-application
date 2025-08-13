@@ -12,7 +12,6 @@ export default function SearchBar({
   setLoading,
   initialCheckin,
   initialCheckout,
-  initialGuests,
 }) {
   const [query, setQuery] = useState(queryval || ""); // Make sure query is initialized as an empty string
   const [suggestions, setSuggestions] = useState([]);
@@ -20,6 +19,9 @@ export default function SearchBar({
   const [selectedUID, setSelectedUID] = useState(null);
   const metaRef = useRef({});
   const [loading, setLoadingInternal] = useState(false);
+  const [adults, setAdults] = useState(1);
+  const [children, setChildren] = useState(0);
+  const [rooms, setRooms] = useState(1);
 
   const [startDate, setStartDate] = useState(() => {
     const date = new Date();
@@ -45,21 +47,6 @@ export default function SearchBar({
       .then((res) => res.json())
       .then((data) => setDestinations(data));
   }, []);
-
-  useEffect(() => {
-    if (!initialGuests) return;
-
-    if (typeof initialGuests === "object") {
-      const { adults: a = 1, children: c = 0, rooms: r = 1 } = initialGuests;
-      setAdults(Math.max(1, a));
-      setChildren(Math.max(0, c));
-      setRooms(Math.max(1, r));
-    }
-  }, [initialGuests]);
-
-  const [adults, setAdults] = useState(initialGuests?.adults || 1);
-  const [children, setChildren] = useState(initialGuests?.children || 0);
-  const [rooms, setRooms] = useState(initialGuests?.rooms || 1);
 
   ////added this so that any changes to search bar query in SearchResults page, will change
   useEffect(() => {
@@ -184,7 +171,7 @@ export default function SearchBar({
           destinationId: uidToUse,
           checkin: startDate.toISOString().split("T")[0],
           checkout: endDate.toISOString().split("T")[0],
-          guests: { adults, children, rooms }, // <-- keep structure
+          guests: adults + children, // <-- keep structure
         },
       });
       setLoading?.(false);
