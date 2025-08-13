@@ -135,8 +135,6 @@ describe("Hotel Unit: hotelApiService.getHotelsByUid", () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledTimes(1);
 
-
-
     const merged = res.json.mock.calls[0][0];
     expect(merged).toHaveLength(1);
     expect(merged[0]).toEqual(
@@ -243,4 +241,176 @@ describe("Hotel Unit: hotelApiService.getHotelsByUid", () => {
     errSpy.mockRestore();
     jest.useRealTimers();
   }, 15000); // optional longer timeout for safety
+});
+
+describe("Hotel Unit: hotelApiService.getRooms", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns room data for a valid hotel and forwards query params", async () => {
+    const req = {
+      query: {
+        hotel_id: "H1",
+        destination_id: "RsBU",
+        checkin: "2025-08-10",
+        checkout: "2025-08-12",
+        guests: "2|2",
+      },
+    };
+    const res = mockRes();
+
+    const priceData = { rooms: [{ id: "R1", name: "Suite" }] };
+    const hotelData = [{ id: "H1", name: "Test Hotel" }];
+
+    axios.get
+      .mockResolvedValueOnce({ data: priceData }) // price endpoint
+      .mockResolvedValueOnce({ data: hotelData }); // hotels endpoint
+
+    await hotelApiService.getRooms(req, res);
+
+    expect(axios.get).toHaveBeenCalledTimes(2);
+    expect(res.json).toHaveBeenCalledWith({
+      ...priceData,
+      hotel: hotelData.find(h => h.id === "H1"),
+    });
+  });
+
+  it("returns 400 when required params are missing", async () => {
+    const req = {
+      query: {
+        hotel_id: "H1",
+        // missing destination_id, checkin, checkout, guests
+      },
+    };
+    const res = mockRes();
+
+    await hotelApiService.getRooms(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Missing required query params",
+    });
+    expect(axios.get).not.toHaveBeenCalled();
+  });
+
+  it("returns 500 when API call fails", async () => {
+    const req = {
+      query: {
+        hotel_id: "H1",
+        destination_id: "RsBU",
+        checkin: "2025-08-10",
+        checkout: "2025-08-12",
+        guests: "2|2",
+      },
+    };
+    const res = mockRes();
+
+    axios.get.mockRejectedValueOnce(new Error("API error"));
+
+    await hotelApiService.getRooms(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Failed to fetch room prices",
+      details: "API error",
+    });
+  });
+});
+
+describe("Hotel Unit: hotelApiService.getHotelByHotelId", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns hotel data for a valid hotelId", async () => {
+    const req = {
+      params: { hotelId: "H1" },
+    };
+    const res = mockRes();
+
+    const fakeHotel = [{ id: "H1", name: "Test Hotel" }];
+    axios.get.mockResolvedValueOnce({ data: fakeHotel });
+
+    await hotelApiService.getHotelByHotelId(req, res);
+
+    expect(axios.get).toHaveBeenCalledWith(
+      "https://hotelapi.loyalty.dev/api/hotels",
+      {
+        params: {
+          hotel_id: "H1",
+          lang: "en_US",
+          currency: "SGD",
+          country_code: "SG",
+        },
+      }
+    );
+    expect(res.json).toHaveBeenCalledWith(fakeHotel[0]);
+  });
+
+  it("returns 404 when hotel is not found", async () => {
+    const req = {
+      params: { hotelId: "INVALID" },
+    };
+    const res = mockRes();
+
+    axios.get.mockResolvedValueOnce({ data: [] });
+
+    await hotelApiService.getHotelByHotelId(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "Hotel not found" });
+  });
+
+  it("returns 500 when API call fails", async () => {
+    const req = {
+      params: { hotelId: "H1" },
+    };
+    const res = mockRes();
+
+    axios.get.mockRejectedValueOnce(new Error("API error"));
+
+    await hotelApiService.getHotelByHotelId(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Error retrieving hotel info",
+      details: "API error",
+    });
+  });
+});
+
+describe("Hotel Unit: hotelApiService.getHotelById", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns hotel data for a valid id", async () => {
+    const req = { params: { id: "H1" } };
+    const res = mockRes();
+
+    const fakeHotel = { id: "H1", name: "Test Hotel" };
+    axios.get.mockResolvedValueOnce({ data: fakeHotel });
+
+    await hotelApiService.getHotelById(req, res);
+
+    expect(axios.get).toHaveBeenCalledWith(
+      "https://hotelapi.loyalty.dev/api/hotels/H1"
+    );
+    expect(res.json).toHaveBeenCalledWith(fakeHotel);
+  });
+
+  it("returns 500 when API call fails", async () => {
+    const req = { params: { id: "H1" } };
+    const res = mockRes();
+
+    axios.get.mockRejectedValueOnce(new Error("API error"));
+
+    await hotelApiService.getHotelById(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Error retrieving hotel details",
+    });
+  });
 });
