@@ -50,9 +50,8 @@ function App({ initialPath = "/register" }) {
 
 // Fills out the registration form with provided data
 // Uses userEvent to simulate realistic user typing
-async function fillRegisterForm(u, { name, email, password, dob }) {
+async function fillRegisterForm(u, { name, email, password }) {
   await u.type(screen.getByPlaceholderText(/enter your full name/i), name);
-  await u.type(screen.getByLabelText(/date of birth/i), dob);
   await u.type(screen.getByPlaceholderText(/enter your email address/i), email);
   await u.type(screen.getByPlaceholderText(/enter your password/i), password);
 }
@@ -88,8 +87,7 @@ describe("Auth integration flow", () => {
     await fillRegisterForm(user, {
       name: "Alice Doe",
       email: "alice@example.com",
-      password: "secret1",
-      dob: "2000-01-01"
+      password: "secret1"
     });
     // Submit registration
     await user.click(screen.getByRole("button", { name: /sign up/i }));
@@ -121,7 +119,7 @@ describe("Auth integration flow", () => {
 
     // Mock profile data response for when we visit the profile page
     axios.get.mockResolvedValueOnce({
-      data: { username: "Alice Doe", email: "alice@example.com", dob: "2000-01-01" },
+      data: { username: "Alice Doe", email: "alice@example.com" },
     });
     cleanup(); // Clean up before rendering new page
     render(<App initialPath="/profile" />);
@@ -152,7 +150,7 @@ describe("Auth integration flow", () => {
     });
 
     render(<App initialPath="/register" />);
-    await fillRegisterForm(user, { name: "Bob", email: "bob@example.com", dob: "2000-01-01", password: "secret1" });
+    await fillRegisterForm(user, { name: "Bob", email: "bob@example.com", password: "secret1" });
     await user.click(screen.getByRole("button", { name: /sign up/i }));
 
     expect(await screen.findByText(/email already exists/i)).toBeInTheDocument();
@@ -189,7 +187,7 @@ describe("Auth integration flow", () => {
     axios.post.mockResolvedValueOnce({ status: 201, data: {} });
 
     render(<App initialPath="/register" />);
-    await fillRegisterForm(user, { name: "Carol", email: "carol@example.com",dob: "2000-01-01", password: "secret1" });
+    await fillRegisterForm(user, { name: "Carol", email: "carol@example.com", password: "secret1" });
 
     await user.click(screen.getByRole("button", { name: /sign up/i }));
 

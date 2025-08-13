@@ -26,7 +26,6 @@ test("shows validation errors for missing/invalid fields", async () => {
 
   fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
   expect(await screen.findByText(/full name is required/i)).toBeInTheDocument();
-  expect(screen.getByText(/date of birth is required/i)).toBeInTheDocument();
   expect(screen.getByText(/please enter a valid email/i)).toBeInTheDocument();
   expect(screen.getByText(/password must be at least 6/i)).toBeInTheDocument();
 });
@@ -42,7 +41,6 @@ test("successful registration shows message and navigates to /login", async () =
   );
 
   fireEvent.change(screen.getByPlaceholderText(/enter your full name/i), { target: { value: "Ada Lovelace" } });
-  fireEvent.change(screen.getByLabelText(/date of birth/i), { target: { value: "2000-01-01" } });
   fireEvent.change(screen.getByPlaceholderText(/enter your email address/i), { target: { value: "ada@math.com" } });
   fireEvent.change(screen.getByPlaceholderText(/enter your password/i), { target: { value: "secret123" } });
 
@@ -65,7 +63,6 @@ test("backend error message is shown", async () => {
   );
 
   fireEvent.change(screen.getByPlaceholderText(/enter your full name/i), { target: { value: "Ada" } });
-  fireEvent.change(screen.getByLabelText(/date of birth/i), { target: { value: "2000-01-01" } });
   fireEvent.change(screen.getByPlaceholderText(/enter your email address/i), { target: { value: "ada@math.com" } });
   fireEvent.change(screen.getByPlaceholderText(/enter your password/i), { target: { value: "secret123" } });
 

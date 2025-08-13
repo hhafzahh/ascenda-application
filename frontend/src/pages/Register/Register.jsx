@@ -31,7 +31,6 @@ const Registration = () => {
   const validateForm = () => {
     const errors = {};
     if (!formData.fullName.trim()) errors.fullName = "Full name is required";
-    if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth is required";
     if (!formData.email.includes("@")) errors.email = "Please enter a valid email";
     if (formData.password.length < 6) errors.password = "Password must be at least 6 characters";
     setValidationErrors(errors);
@@ -89,18 +88,6 @@ const Registration = () => {
             required
           />
           {validationErrors.fullName && <div className="error-message">{validationErrors.fullName}</div>}
-
-          <label className="register-label" htmlFor="dateOfBirth">Date of Birth</label>
-          <input
-            id="dateOfBirth"
-            type="date"
-            name="dateOfBirth"
-            className="register-input"
-            value={formData.dateOfBirth}
-            onChange={handleChange}
-            required
-          />
-          {validationErrors.dateOfBirth && <div className="error-message">{validationErrors.dateOfBirth}</div>}
 
           <label className="register-label" htmlFor="email">Email Address</label>
           <input
