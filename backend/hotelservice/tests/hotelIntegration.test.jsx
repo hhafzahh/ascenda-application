@@ -91,8 +91,8 @@ describe("Hotel Integration: /api/hotelproxy/hotels/:uid (getHotelsByUid)", () =
 
   beforeEach(() => {
     // silence polling logs in test output
-    logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-    errSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    logSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+    errSpy = jest.spyOn(console, "error").mockImplementation(() => { });
   });
 
   afterEach(() => {
@@ -135,11 +135,13 @@ describe("Hotel Integration: /api/hotelproxy/hotels/:uid (getHotelsByUid)", () =
       .mockResolvedValueOnce({ data: meta })
       .mockResolvedValueOnce({ data: pricesPayload });
 
-    const res = await request(app).get("/api/hotelproxy/hotels/RsBU").query({
-      checkin: "2025-08-10",
-      checkout: "2025-08-12",
-      guests: "2|2",
-    });
+    const res = await request(app)
+      .get("/api/hotelproxy/hotels/RsBU")
+      .query({
+        checkin: "2025-08-10",
+        checkout: "2025-08-12",
+        guests: "2|2",
+      });
 
     // verify calls
     expect(axios.get).toHaveBeenNthCalledWith(
@@ -191,11 +193,13 @@ describe("Hotel Integration: /api/hotelproxy/hotels/:uid (getHotelsByUid)", () =
         data: { completed: true, hotels: [{ id: "H1" }] },
       }); // prices
 
-    const res = await request(app).get("/api/hotelproxy/hotels/RsBU").query({
-      checkin: "2025-08-10",
-      checkout: "2025-08-12",
-      guests: "2|2",
-    });
+    const res = await request(app)
+      .get("/api/hotelproxy/hotels/RsBU")
+      .query({
+        checkin: "2025-08-10",
+        checkout: "2025-08-12",
+        guests: "2|2",
+      });
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual([]);
@@ -206,11 +210,13 @@ describe("Hotel Integration: /api/hotelproxy/hotels/:uid (getHotelsByUid)", () =
       .mockResolvedValueOnce({ data: [{ id: "H1", name: "Hotel One" }] }) // metadata
       .mockResolvedValueOnce({ data: { completed: true, hotels: [] } }); // prices
 
-    const res = await request(app).get("/api/hotelproxy/hotels/RsBU").query({
-      checkin: "2025-08-10",
-      checkout: "2025-08-12",
-      guests: "2|2",
-    });
+    const res = await request(app)
+      .get("/api/hotelproxy/hotels/RsBU")
+      .query({
+        checkin: "2025-08-10",
+        checkout: "2025-08-12",
+        guests: "2|2",
+      });
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual([]);
@@ -243,11 +249,13 @@ describe("Hotel Integration: /api/hotelproxy/hotels/:uid (getHotelsByUid)", () =
         },
       });
 
-    const res = await request(app).get("/api/hotelproxy/hotels/RsBU").query({
-      checkin: "2025-08-10",
-      checkout: "2025-08-12",
-      guests: "2|2",
-    });
+    const res = await request(app)
+      .get("/api/hotelproxy/hotels/RsBU")
+      .query({
+        checkin: "2025-08-10",
+        checkout: "2025-08-12",
+        guests: "2|2",
+      });
 
     expect(axios.get).toHaveBeenCalledTimes(4);
     expect(res.statusCode).toBe(200);
