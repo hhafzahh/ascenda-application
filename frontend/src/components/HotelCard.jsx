@@ -36,6 +36,7 @@ export default function HotelCard({
   return (
     <div
       id={id}
+      data-testid="hotel-card"
       className="hotel-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -88,6 +89,7 @@ export default function HotelCard({
       >
         <div>
           <h3
+            data-testid="hotel-name"
             style={{
               fontSize: isCompact ? "1.1rem" : "1.2rem",
               marginBottom: "0.4rem",
@@ -109,6 +111,7 @@ export default function HotelCard({
 
           <div>
             <div
+              data-testid="hotel-rating"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -152,6 +155,7 @@ export default function HotelCard({
 
       {/* Right: Price + Button */}
       <div
+        data-testid="hotel-price"
         style={{
           minWidth: "140px",
           display: "flex",

@@ -93,21 +93,24 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
         />
       )} */}
       <h1 className="p-6 space-y-6">Available Rooms</h1>
-      {rooms === null ? null : fetched ? (
-        rooms.length > 0 ? (
-          currentRooms.map((room) => (
-            <RoomCard
-              key={room.id}
-              room={room}
-              searchParams={searchParams}
-              hotelId={hotelId}
-              hotelDetails={hotelDetails} // Pass hotel details to RoomCard
-            />
-          ))
-        ) : (
-          <p>No rooms available for the selected dates.</p>
-        )
-      ) : null}
+      <div data-testid="hotel-rooms-wrapper-2">
+        {rooms === null ? null : fetched ? (
+          rooms.length > 0 ? (
+            currentRooms.map((room, idx) => (
+              <RoomCard
+                key={`${room.id}-${idx}`}
+                data-testid="hotel-room-card"
+                room={room}
+                searchParams={searchParams}
+                hotelId={hotelId}
+                hotelDetails={hotelDetails} // Pass hotel details to RoomCard
+              />
+            ))
+          ) : (
+            <p>No rooms available for the selected dates.</p>
+          )
+        ) : null}
+      </div>
 
       {/* Pagination controls */}
       {totalPages > 1 && (

@@ -26,7 +26,7 @@ export default function RecentlyViewedHotels() {
       console.error("Error parsing recently viewed hotels:", error);
       return;
     }
-    
+
     console.log(viewed);
     if (!viewed.length) return;
 
@@ -62,9 +62,16 @@ export default function RecentlyViewedHotels() {
   if (!hotels.length) return null;
 
   return (
-    <div className="recently-viewed-hotels-grid">
+    <div
+      className="recently-viewed-hotels-grid"
+      data-testid="recently-viewed-hotels"
+    >
       {hotels.map((hotel) => (
-        <RecentlyViewedHotelCard key={hotel.id} hotel={hotel} />
+        <RecentlyViewedHotelCard
+          key={hotel.id}
+          hotel={hotel}
+          data-testid="hotel-card"
+        />
       ))}
       {Array.from({ length: 4 - hotels.length }).map((_, i) => (
         <div key={`placeholder-${i}`} />

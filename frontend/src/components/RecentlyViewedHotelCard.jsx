@@ -57,7 +57,11 @@ export default function RecentlyViewedHotelCard({ hotel }) {
   };
 
   return (
-    <div className="recently-viewed-card" onClick={handleClick}>
+    <div
+      className="recently-viewed-card"
+      onClick={handleClick}
+      data-testid="hotel-card"
+    >
       <img
         src={imageUrl}
         alt={hotel.name}
@@ -65,7 +69,9 @@ export default function RecentlyViewedHotelCard({ hotel }) {
       />
 
       <div className="recently-viewed-card-body">
-        <h4 className="recently-viewed-title">{hotel.name}</h4>
+        <h4 className="recently-viewed-title" data-testid="hotel-name">
+          {hotel.name}
+        </h4>
         <p className="recently-viewed-location">{hotel.address}</p>
         <p className="recently-viewed-rating">
           <strong>{rating.toFixed(1)}</strong>/5 — {reviewText}
@@ -73,7 +79,7 @@ export default function RecentlyViewedHotelCard({ hotel }) {
       </div>
 
       <div className="recently-viewed-card-footer">
-        <div className="price">
+        <div className="price" data-testid="hotel-price">
           {hotel.price != null
             ? `S$ ${hotel.price.toFixed(2)}`
             : "Price unavailable"}
