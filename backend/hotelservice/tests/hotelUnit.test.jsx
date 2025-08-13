@@ -80,33 +80,29 @@ describe("Hotel Unit: hotelApiService.getHotelsByUid", () => {
     };
     const res = mockRes();
 
-    const meta = [
-      {
-        id: "H1",
-        name: "Hotel One",
-        address: "1 Test Street",
-        rating: 4.3,
-        image_details: [{ url: "x.jpg" }],
-        default_image_index: 0,
-        trustyou: { score: { kaligo_overall: 4.6 } },
-        description: "Nice place",
-        amenities: ["WiFi", "Pool"],
-        latitude: 1.23,
-        longitude: 4.56,
-      },
-    ];
+    const meta = [{
+      id: "H1",
+      name: "Hotel One",
+      address: "1 Test Street",
+      rating: 4.3,
+      image_details: [{ url: "x.jpg" }],
+      default_image_index: 0,
+      trustyou: { score: { kaligo_overall: 4.6 } },
+      description: "Nice place",
+      amenities: ["WiFi", "Pool"],
+      latitude: 1.23,
+      longitude: 4.56,
+    }];
 
     const pricesPayload = {
       completed: true,
-      hotels: [
-        {
-          id: "H1",
-          converted_price: 123.45,
-          lowest_converted_price: 120.0,
-          rooms_available: 5,
-          free_cancellation: true,
-        },
-      ],
+      hotels: [{
+        id: "H1",
+        converted_price: 123.45,
+        lowest_converted_price: 120.0,
+        rooms_available: 5,
+        free_cancellation: true,
+      }],
     };
 
     axios.get
@@ -167,9 +163,7 @@ describe("Hotel Unit: hotelApiService.getHotelsByUid", () => {
 
     axios.get
       .mockResolvedValueOnce({ data: [] }) // metadata empty
-      .mockResolvedValueOnce({
-        data: { completed: true, hotels: [{ id: "H1" }] },
-      });
+      .mockResolvedValueOnce({ data: { completed: true, hotels: [{ id: "H1" }] } });
 
     await hotelApiService.getHotelsByUid(req, res);
 
@@ -197,8 +191,8 @@ describe("Hotel Unit: hotelApiService.getHotelsByUid", () => {
   });
   it("polls until completed=true (simulated retries) then returns merged data", async () => {
     jest.useFakeTimers();
-    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-    const errSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+    const errSpy = jest.spyOn(console, "error").mockImplementation(() => { });
 
     const req = {
       params: { uid: "RsBU" },
@@ -220,9 +214,7 @@ describe("Hotel Unit: hotelApiService.getHotelsByUid", () => {
       .mockResolvedValueOnce({
         data: {
           completed: true,
-          hotels: [
-            { id: "H1", converted_price: 200, lowest_converted_price: 180 },
-          ],
+          hotels: [{ id: "H1", converted_price: 200, lowest_converted_price: 180 }],
         },
       });
 

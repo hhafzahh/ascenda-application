@@ -1,14 +1,16 @@
 module.exports = {
-  setupFiles: ['<rootDir>/tests/setupTests.js'],
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/tests/setupTests.js'],
   transform: {
-    "^.+\\.[jt]sx?$": "babel-jest",
+    '^.+\\.[jt]sx?$': 'babel-jest',
   },
   moduleNameMapper: {
-    "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
   },
-  testEnvironment: 'jsdom',
   testMatch: ['<rootDir>/tests/**/*.test.jsx'],
-  transformIgnorePatterns: [
-    "/node_modules/(?!(react-leaflet|@react-leaflet|leaflet)/)"
-  ],
+  moduleNameMapper: {
+    "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+    "\\.(gif|ttf|eot|svg|png|jpg|jpeg|webp|avif)$": "<rootDir>/tests/__mocks__/fileMock.js",
+  }
+
 };

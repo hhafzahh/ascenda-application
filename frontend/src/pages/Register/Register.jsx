@@ -73,9 +73,10 @@ const Registration = () => {
         {error && <div className="error-message">{error}</div>}
         {success && <div className="success-message">{success}</div>}
 
-        <form onSubmit={handleSubmit}>
-          <label className="register-label">Full Name</label>
+        <form onSubmit={handleSubmit} noValidate>
+          <label className="register-label" htmlFor="fullName">Full Name</label>
           <input
+            id="fullName"
             type="text"
             name="fullName"
             className="register-input"
@@ -86,9 +87,21 @@ const Registration = () => {
           />
           {validationErrors.fullName && <div className="error-message">{validationErrors.fullName}</div>}
 
-
-          <label className="register-label">Email Address</label>
+          <label className="register-label" htmlFor="dateOfBirth">Date of Birth</label>
           <input
+            id="dateOfBirth"
+            type="date"
+            name="dateOfBirth"
+            className="register-input"
+            value={formData.dateOfBirth}
+            onChange={handleChange}
+            required
+          />
+          {validationErrors.dateOfBirth && <div className="error-message">{validationErrors.dateOfBirth}</div>}
+
+          <label className="register-label" htmlFor="email">Email Address</label>
+          <input
+            id="email"
             type="email"
             name="email"
             className="register-input"
@@ -99,8 +112,9 @@ const Registration = () => {
           />
           {validationErrors.email && <div className="error-message">{validationErrors.email}</div>}
 
-          <label className="register-label">Password</label>
+          <label className="register-label" htmlFor="password">Password</label>
           <input
+            id="password"
             type="password"
             name="password"
             className="register-input"

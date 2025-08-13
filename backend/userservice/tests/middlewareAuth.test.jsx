@@ -4,6 +4,8 @@ require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 const authMiddleware = require("../middleware/auth");
 const httpMocks = require("node-mocks-http");
 
+const verifySpy = jest.spyOn(jwt, "verify");
+
 describe("authMiddleware", () => {
   it("should return 401 if Authorization header is missing", () => {
     const req = httpMocks.createRequest();
@@ -42,4 +44,19 @@ describe("authMiddleware", () => {
     expect(next).toHaveBeenCalled();
     expect(req.user).toMatchObject(payload);
   });
+  it("returns 401 when verify throws TokenExpiredError", () => {
+  verifySpy.mockImplementation(() => { 
+    const e = new Error("jwt expired");
+    e.name = "TokenExpiredError";
+    throw e;
+  });
+  const req = httpMocks.createRequest({ headers: { authorization: "Bearer whatever" } });
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  authMiddleware(req, res, next);
+
+  expect(res.statusCode).toBe(401);
+  expect(next).not.toHaveBeenCalled();
+});
 });
