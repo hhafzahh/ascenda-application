@@ -1,9 +1,12 @@
-import React from "react";
 import { useState } from "react";
+import React from 'react';
 import "./RoomCard.css";
 import { useNavigate } from "react-router-dom";
 
 export default function RoomCard({ room, searchParams, hotelId, hotelDetails }) {
+
+    if (!room) return null;
+    
   //Take in room as an object from Hotel API
   const {
     roomDescription,
