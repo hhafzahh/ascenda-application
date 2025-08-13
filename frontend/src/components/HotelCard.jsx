@@ -89,6 +89,7 @@ export default function HotelCard({
       >
         <div>
           <h3
+            data-testid="hotel-name"
             style={{
               fontSize: isCompact ? "1.1rem" : "1.2rem",
               marginBottom: "0.4rem",

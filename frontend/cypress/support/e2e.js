@@ -14,3 +14,11 @@ Cypress.Commands.add("getStripeElement", (testId) => {
         .should("exist");
     });
 });
+
+// in cypress/support/e2e.js or commands.js
+Cypress.on("uncaught:exception", (err, runnable) => {
+  // ignore leaflet _leaflet_pos errors
+  if (err.message.includes("_leaflet_pos")) {
+    return false; // prevents Cypress from failing the test
+  }
+});

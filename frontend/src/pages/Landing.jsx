@@ -14,7 +14,10 @@ export default function Landing() {
         </BackgroundHeader>
       </div>
 
-      <h2 style={{ textAlign: "center", margin: "2rem 0" }}>
+      <h2
+        style={{ textAlign: "center", margin: "2rem 0" }}
+        data-testid="recently-viewed-title"
+      >
         Recently Viewed Hotels for You
       </h2>
 
