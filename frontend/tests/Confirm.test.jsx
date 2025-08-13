@@ -13,7 +13,7 @@ jest.mock("react-router-dom", () => ({
 }));
 
 // Mock BookingLayout component
-jest.mock("components/BookingLayout", () => {
+jest.mock("../src/components/BookingLayout", () => {
   return function MockBookingLayout({ children, room, searchParams, hotel }) {
     return (
       <div data-testid="booking-layout">
@@ -29,7 +29,18 @@ jest.mock("components/BookingLayout", () => {
 // Mock fetch
 global.fetch = jest.fn();
 
-import Confirm from "../pages/Confirm";
+// Suppress console logs for cleaner test output
+beforeAll(() => {
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+afterAll(() => {
+  console.log.mockRestore();
+  console.error.mockRestore();
+});
+
+import Confirm from "../src/pages/Confirm";
 
 const mockBookingData = {
   _id: "booking123",

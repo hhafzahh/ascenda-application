@@ -23,7 +23,7 @@ jest.mock("@stripe/react-stripe-js", () => ({
 }));
 
 // Mock components
-jest.mock("components/CheckoutForm", () => {
+jest.mock("../src/components/CheckoutForm", () => {
   return function MockCheckoutForm({ booking }) {
     return (
       <div data-testid="checkout-form">
@@ -35,7 +35,7 @@ jest.mock("components/CheckoutForm", () => {
   };
 });
 
-jest.mock("components/BookingLayout", () => {
+jest.mock("../src/components/BookingLayout", () => {
   return function MockBookingLayout({ children, room, searchParams, hotel }) {
     return (
       <div data-testid="booking-layout">
@@ -48,7 +48,7 @@ jest.mock("components/BookingLayout", () => {
   };
 });
 
-import Payment from "../pages/Payment";
+import Payment from "../src/pages/Payment";
 
 const mockBooking = {
   _id: "booking123",

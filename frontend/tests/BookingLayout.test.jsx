@@ -3,10 +3,10 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 
 // Mock CSS import
-jest.mock("components/BookingLayout/BookingLayout.css", () => {});
+jest.mock("../components/BookingLayout/BookingLayout.css", () => {});
 
 // Mock HotelDetails component
-jest.mock("components/HotelDetails", () => {
+jest.mock("../src/components/HotelDetails", () => {
   return function MockHotelDetails({ room, searchParams, hotel }) {
     return (
       <div data-testid="hotel-details">
@@ -19,7 +19,7 @@ jest.mock("components/HotelDetails", () => {
   };
 });
 
-import BookingLayout from "components/BookingLayout";
+import BookingLayout from "../src/components/BookingLayout";
 
 const mockRoom = {
   roomDescription: "Deluxe King Room",
@@ -47,6 +47,66 @@ describe("BookingLayout Component", () => {
 
     render(
       <BookingLayout room={mockRoom} searchParams={mockSearchParams} hotel={mockHotel}>
+        <TestChild />
+      </BookingLayout>
+    );
+
+    expect(screen.getByTestId("test-child")).toBeInTheDocument();
+    expect(screen.getByTestId("hotel-details")).toBeInTheDocument();
+    expect(screen.getByText("Test Content")).toBeInTheDocument();
+  });
+
+  test("passes correct props to HotelDetails component", () => {
+    const TestChild = () => <div>Test Content</div>;
+
+    render(
+      <BookingLayout room={mockRoom} searchParams={mockSearchParams} hotel={mockHotel}>
+        <TestChild />
+      </BookingLayout>
+    );
+
+    expect(screen.getByTestId("hotel-details-room")).toHaveTextContent("Deluxe King Room");
+    expect(screen.getByTestId("hotel-details-hotel")).toHaveTextContent("Test Hotel");
+    expect(screen.getByTestId("hotel-details-search")).toHaveTextContent("2024-01-15");
+    expect(screen.getByTestId("hotel-details-guests")).toHaveTextContent("2");
+  });
+
+  test("renders with multiple children", () => {
+    render(
+      <BookingLayout room={mockRoom} searchParams={mockSearchParams} hotel={mockHotel}>
+        <div data-testid="child-1">First Child</div>
+        <div data-testid="child-2">Second Child</div>
+        <div data-testid="child-3">Third Child</div>
+      </BookingLayout>
+    );
+
+    expect(screen.getByTestId("child-1")).toBeInTheDocument();
+    expect(screen.getByTestId("child-2")).toBeInTheDocument();
+    expect(screen.getByTestId("child-3")).toBeInTheDocument();
+    expect(screen.getByText("First Child")).toBeInTheDocument();
+    expect(screen.getByText("Second Child")).toBeInTheDocument();
+    expect(screen.getByText("Third Child")).toBeInTheDocument();
+  });
+
+  test("handles missing room data gracefully", () => {
+    const TestChild = () => <div data-testid="test-child">Test Content</div>;
+
+    render(
+      <BookingLayout room={null} searchParams={mockSearchParams} hotel={mockHotel}>
+        <TestChild />
+      </BookingLayout>
+    );
+
+    expect(screen.getByTestId("test-child")).toBeInTheDocument();
+    expect(screen.getByTestId("hotel-details")).toBeInTheDocument();
+    expect(screen.getByTestId("hotel-details-room")).toBeEmptyDOMElement();
+  });
+
+  test("handles missing search params gracefully", () => {
+    const TestChild = () => <div data-testid="test-child">Test Content</div>;
+
+    render(
+      <BookingLayout room={mockRoom} searchParams={null} hotel={mockHotel}>
         <TestChild />
       </BookingLayout>
     );
@@ -131,7 +191,7 @@ describe("BookingLayout Component", () => {
 
   test("handles partial room data", () => {
     const partialRoom = {
-      roomDescription: "Basic Room"
+      roomDescription: "Basic Room",
       // missing converted_price and amenities
     };
 
@@ -149,7 +209,7 @@ describe("BookingLayout Component", () => {
 
   test("handles partial search params", () => {
     const partialSearchParams = {
-      checkIn: "2024-01-15"
+      checkIn: "2024-01-15",
       // missing checkOut, guests, destinationId
     };
 
@@ -167,7 +227,7 @@ describe("BookingLayout Component", () => {
 
   test("handles partial hotel data", () => {
     const partialHotel = {
-      name: "Partial Hotel"
+      name: "Partial Hotel",
       // missing id, address, images
     };
 
@@ -182,64 +242,4 @@ describe("BookingLayout Component", () => {
     expect(screen.getByTestId("hotel-details-hotel")).toHaveTextContent("Partial Hotel");
     expect(screen.getByTestId("test-child")).toBeInTheDocument();
   });
-});screen.getByText("Test Content").toBeInTheDocument();
-
-
-  test("passes correct props to HotelDetails component", () => {
-    const TestChild = () => <div>Test Content</div>;
-
-    render(
-      <BookingLayout room={mockRoom} searchParams={mockSearchParams} hotel={mockHotel}>
-        <TestChild />
-      </BookingLayout>
-    );
-
-    expect(screen.getByTestId("hotel-details-room")).toHaveTextContent("Deluxe King Room");
-    expect(screen.getByTestId("hotel-details-hotel")).toHaveTextContent("Test Hotel");
-    expect(screen.getByTestId("hotel-details-search")).toHaveTextContent("2024-01-15");
-    expect(screen.getByTestId("hotel-details-guests")).toHaveTextContent("2");
-  });
-
-  test("renders with multiple children", () => {
-    render(
-      <BookingLayout room={mockRoom} searchParams={mockSearchParams} hotel={mockHotel}>
-        <div data-testid="child-1">First Child</div>
-        <div data-testid="child-2">Second Child</div>
-        <div data-testid="child-3">Third Child</div>
-      </BookingLayout>
-    );
-
-    expect(screen.getByTestId("child-1")).toBeInTheDocument();
-    expect(screen.getByTestId("child-2")).toBeInTheDocument();
-    expect(screen.getByTestId("child-3")).toBeInTheDocument();
-    expect(screen.getByText("First Child")).toBeInTheDocument();
-    expect(screen.getByText("Second Child")).toBeInTheDocument();
-    expect(screen.getByText("Third Child")).toBeInTheDocument();
-  });
-
-  test("handles missing room data gracefully", () => {
-    const TestChild = () => <div data-testid="test-child">Test Content</div>;
-
-    render(
-      <BookingLayout room={null} searchParams={mockSearchParams} hotel={mockHotel}>
-        <TestChild />
-      </BookingLayout>
-    );
-
-    expect(screen.getByTestId("test-child")).toBeInTheDocument();
-    expect(screen.getByTestId("hotel-details")).toBeInTheDocument();
-    expect(screen.getByTestId("hotel-details-room")).toBeEmptyDOMElement();
-  });
-
-  test("handles missing search params gracefully", () => {
-    const TestChild = () => <div data-testid="test-child">Test Content</div>;
-
-    render(
-      <BookingLayout room={mockRoom} searchParams={null} hotel={mockHotel}>
-        <TestChild />
-      </BookingLayout>
-    );
-
-    expect(screen.getByTestId("test-child")).toBeInTheDocument();
-    expect(screen.getByTestId("hotel-details")).toBeInTheDocument();
 });

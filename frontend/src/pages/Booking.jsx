@@ -1,6 +1,7 @@
 import BookingLayout from "../components/BookingLayout";
 import BookingForm from "../components/BookingForm";
 import { useLocation } from "react-router-dom";
+import React from "react";
 
 export default function Booking() {
   const location = useLocation();

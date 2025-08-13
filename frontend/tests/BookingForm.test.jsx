@@ -12,12 +12,21 @@ jest.mock("react-router-dom", () => ({
 }));
 
 // Mock CSS import
-jest.mock("components/BookingForm/BookingForm.css", () => {});
+jest.mock("../src/components/BookingForm/BookingForm.css", () => {});
 
 // Mock fetch
 global.fetch = jest.fn();
 
-import BookingForm from "components/BookingForm";
+// Suppress console logs for cleaner test output
+beforeAll(() => {
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+});
+
+afterAll(() => {
+  console.log.mockRestore();
+});
+
+import BookingForm from "../src/components/BookingForm";
 
 const mockRoom = {
   roomDescription: "Deluxe King Room",
@@ -229,7 +238,6 @@ describe("BookingForm Component", () => {
   });
 
   test("handles API error during submission", async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
     fetch.mockResolvedValueOnce({
@@ -260,12 +268,10 @@ describe("BookingForm Component", () => {
 
     expect(screen.getByText("Continue to Confirmation →")).toBeInTheDocument();
 
-    consoleSpy.mockRestore();
     alertSpy.mockRestore();
   });
 
   test("handles network error during submission", async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
     fetch.mockRejectedValueOnce(new Error("Network error"));
@@ -290,12 +296,10 @@ describe("BookingForm Component", () => {
       expect(alertSpy).toHaveBeenCalledWith("Failed to create booking. Please try again.");
     });
 
-    consoleSpy.mockRestore();
     alertSpy.mockRestore();
   });
 
   test("handles missing booking ID in response", async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
     fetch.mockResolvedValueOnce({
@@ -323,7 +327,6 @@ describe("BookingForm Component", () => {
       expect(alertSpy).toHaveBeenCalledWith("Failed to create booking. Please try again.");
     });
 
-    consoleSpy.mockRestore();
     alertSpy.mockRestore();
   });
 

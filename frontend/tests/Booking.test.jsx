@@ -11,7 +11,7 @@ jest.mock("react-router-dom", () => ({
 }));
 
 // Mock components
-jest.mock("components/BookingLayout", () => {
+jest.mock("../src/components/BookingLayout", () => {
   return function MockBookingLayout({ children, room, searchParams, hotel }) {
     return (
       <div data-testid="booking-layout">
@@ -24,7 +24,7 @@ jest.mock("components/BookingLayout", () => {
   };
 });
 
-jest.mock("components/BookingForm", () => {
+jest.mock("../src/components/BookingForm", () => {
   return function MockBookingForm({ room, searchParams, hotel }) {
     return (
       <div data-testid="booking-form">
@@ -37,7 +37,7 @@ jest.mock("components/BookingForm", () => {
 });
 
 // Import the actual component after mocking dependencies
-import Booking from "../pages/Booking";
+import Booking from "../src/pages/Booking";
 
 const mockLocationState = {
   room: {
@@ -75,9 +75,15 @@ describe("Booking Component", () => {
 
     expect(screen.getByTestId("booking-layout")).toBeInTheDocument();
     expect(screen.getByTestId("booking-form")).toBeInTheDocument();
-    expect(screen.getByText("Deluxe King Room")).toBeInTheDocument();
-    expect(screen.getByText("Test Hotel")).toBeInTheDocument();
-    expect(screen.getByText("2024-01-15")).toBeInTheDocument();
+    // Use getAllByText since there are multiple "Deluxe King Room" elements
+    const roomElements = screen.getAllByText("Deluxe King Room");
+    expect(roomElements.length).toBeGreaterThanOrEqual(1);
+    
+    const hotelElements = screen.getAllByText("Test Hotel");
+    expect(hotelElements.length).toBeGreaterThanOrEqual(1);
+    
+    const dateElements = screen.getAllByText("2024-01-15");
+    expect(dateElements.length).toBeGreaterThanOrEqual(1);
   });
 
   test("passes correct props to BookingLayout", () => {
