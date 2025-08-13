@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import RoomCard from "../src/components/RoomCard/RoomCard";
 import { BrowserRouter } from "react-router-dom";
-import "@testing-library/jest-dom"
+import "@testing-library/jest-dom";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -17,8 +17,12 @@ const Room = {
     "<strong>1 King Bed</strong> Enjoy a spacious 400-sq-foot room. Bed type: King",
   free_cancellation: true,
   images: [
-    { url: "https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aG90ZWx8ZW58MHx8MHx8fDA%3D" },
-    { url: "https://media.istockphoto.com/id/104731717/photo/luxury-resort.jpg?s=612x612&w=0&k=20&c=cODMSPbYyrn1FHake1xYz9M8r15iOfGz9Aosy9Db7mI=" },
+    {
+      url: "https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aG90ZWx8ZW58MHx8MHx8fDA%3D",
+    },
+    {
+      url: "https://media.istockphoto.com/id/104731717/photo/luxury-resort.jpg?s=612x612&w=0&k=20&c=cODMSPbYyrn1FHake1xYz9M8r15iOfGz9Aosy9Db7mI=",
+    },
   ],
   converted_price: 500.0,
   base_rate_in_currency: 550.0,
@@ -35,7 +39,7 @@ const Room = {
     "WiFi",
     "TV",
     "Desk",
-    "Tablet"
+    "Tablet",
   ],
 };
 
@@ -58,6 +62,13 @@ function renderRoomCard(room = Room) {
 describe("Rendering RoomCard Component", () => {
   beforeEach(() => {
     mockedUsedNavigate.mockClear();
+
+    // Mock a logged-in user in sessionStorage
+    window.sessionStorage.setItem("userId", "testUser123");
+    window.sessionStorage.setItem("token", "fake-jwt-token-xyz");
+  });
+  afterEach(() => {
+    sessionStorage.clear();
   });
 
   test("renders all room info correctly", () => {
@@ -78,7 +89,7 @@ describe("Rendering RoomCard Component", () => {
     expect(screen.getByText("WiFi")).toBeInTheDocument();
     expect(screen.getByText("TV")).toBeInTheDocument();
     expect(screen.getByText("Desk")).toBeInTheDocument();
-    
+
     expect(screen.queryByText("Two pillows")).not.toBeInTheDocument();
     expect(screen.queryByText("Five showers")).not.toBeInTheDocument();
     expect(screen.queryByText("Tablet")).not.toBeInTheDocument();
@@ -91,16 +102,16 @@ describe("Rendering RoomCard Component", () => {
     fireEvent.click(button);
 
     expect(mockedUsedNavigate).toHaveBeenCalledWith(
-  "/booking",
-  expect.objectContaining({
-    state: expect.objectContaining({
-      hotel: expect.objectContaining({ id: "SG60" }),
-      room: expect.any(Object),
-      searchParams: expect.any(Object),
-    }),
-  })
-)
-});
+      "/booking",
+      expect.objectContaining({
+        state: expect.objectContaining({
+          hotel: expect.objectContaining({ id: "SG60" }),
+          room: expect.any(Object),
+          searchParams: expect.any(Object),
+        }),
+      })
+    );
+  });
 
   test("carousel next/prev buttons work correctly", () => {
     renderRoomCard();
@@ -123,7 +134,7 @@ describe("Rendering RoomCard Component", () => {
 });
 
 describe("Room Card Dealing with Missing Data", () => {
-    test("renders fallback image if image fails to load", () => {
+  test("renders fallback image if image fails to load", () => {
     renderRoomCard();
 
     const img = screen.getByRole("img");
@@ -132,8 +143,8 @@ describe("Room Card Dealing with Missing Data", () => {
     expect(img.src).toMatch(/placeholder\.com/);
   });
 
-    test("renders no card if room object is null", () => {
-        const { container } = render(<RoomCard room={null} />);
-        expect(container.firstChild).toBeNull();
-    })
-})
+  test("renders no card if room object is null", () => {
+    const { container } = render(<RoomCard room={null} />);
+    expect(container.firstChild).toBeNull();
+  });
+});
