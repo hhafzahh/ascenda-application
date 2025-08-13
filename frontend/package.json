@@ -52,7 +52,8 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.4",
     "jest-environment-jsdom": "^30.0.4",
-    "vite": "^7.0.0"
+    "vite": "^7.0.0",
+    "whatwg-fetch": "^3.6.20"
   },
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
   "main": "eslint.config.js",

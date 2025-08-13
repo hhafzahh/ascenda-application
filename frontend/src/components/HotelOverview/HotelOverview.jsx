@@ -17,9 +17,11 @@ export default function HotelOverview({ hotel, hotelMetadata, onSelectRoom }) {
   const hotelRating = (rating) => {
     const { full, half, empty } = computeStarParts(rating || 0);
     const stars = [];
-    for (let i = 0; i < full; i++) stars.push(<FaStar key={`full-${i}`} color="#FFD700" />);
+    for (let i = 0; i < full; i++)
+      stars.push(<FaStar key={`full-${i}`} color="#FFD700" />);
     if (half) stars.push(<FaStarHalfAlt key="half" color="#FFD700" />);
-    for (let i = 0; i < empty; i++) stars.push(<FaRegStar key={`empty-${i}`} color="#FFD700" />);
+    for (let i = 0; i < empty; i++)
+      stars.push(<FaRegStar key={`empty-${i}`} color="#FFD700" />);
     return stars;
   };
 
@@ -45,14 +47,23 @@ export default function HotelOverview({ hotel, hotelMetadata, onSelectRoom }) {
             textAlign: "left",
           }}
         >
-          <h2 className="text-2xl font-bold" style={{ textAlign: "left", margin: "0" }}>
+          <h2
+            className="text-2xl font-bold"
+            style={{ textAlign: "left", margin: "0" }}
+          >
             {safeHotel.name || "Unnamed Property"}
           </h2>
-          <div className="hotel-rating" style={{ display: "flex", alignItems: "center" }}>
+          <div
+            className="hotel-rating"
+            style={{ display: "flex", alignItems: "center" }}
+          >
             <Tag
               value={category}
               rounded
-              style={{ padding: "0.2rem 0.8rem 0.2rem 0.8rem", marginRight: "0.5rem" }}
+              style={{
+                padding: "0.2rem 0.8rem 0.2rem 0.8rem",
+                marginRight: "0.5rem",
+              }}
             />
             {hotelRating(safeHotel.rating || 0)}
           </div>
@@ -79,7 +90,14 @@ export default function HotelOverview({ hotel, hotelMetadata, onSelectRoom }) {
         dangerouslySetInnerHTML={{ __html: main }}
       />
 
-      <div style={{ display: "flex", flexDirection: "row", gap: "1rem", marginTop: "1rem" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          gap: "1rem",
+          marginTop: "1rem",
+        }}
+      >
         <div style={{ flex: 1 }}>
           <Ratings hotel={hotelMetadata || safeHotel} />
         </div>
@@ -98,8 +116,6 @@ export default function HotelOverview({ hotel, hotelMetadata, onSelectRoom }) {
     </div>
   );
 }
-
-
 
 // import React from 'react';
 // import { useParams } from 'react-router-dom';
