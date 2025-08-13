@@ -12,6 +12,7 @@ export default function SearchBar({
   setLoading,
   initialCheckin,
   initialCheckout,
+  initialGuests,
 }) {
   const [query, setQuery] = useState(queryval || ""); // Make sure query is initialized as an empty string
   const [suggestions, setSuggestions] = useState([]);
@@ -20,11 +21,18 @@ export default function SearchBar({
   const metaRef = useRef({});
   const [loading, setLoadingInternal] = useState(false);
 
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [adults, setAdults] = useState(1);
-  const [children, setChildren] = useState(0);
-  const [rooms, setRooms] = useState(1);
+  const [startDate, setStartDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 3); // Add 3 days to today
+    return date;
+  });
+
+  const [endDate, setEndDate] = useState(() => {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + 1); // Set checkout to 1 day after the check-in date
+    return date;
+  });
+
   const [hotels, setHotels] = useState([]);
 
   useEffect(() => {
@@ -37,6 +45,21 @@ export default function SearchBar({
       .then((res) => res.json())
       .then((data) => setDestinations(data));
   }, []);
+
+  useEffect(() => {
+    if (!initialGuests) return;
+
+    if (typeof initialGuests === "object") {
+      const { adults: a = 1, children: c = 0, rooms: r = 1 } = initialGuests;
+      setAdults(Math.max(1, a));
+      setChildren(Math.max(0, c));
+      setRooms(Math.max(1, r));
+    }
+  }, [initialGuests]);
+
+  const [adults, setAdults] = useState(initialGuests?.adults || 1);
+  const [children, setChildren] = useState(initialGuests?.children || 0);
+  const [rooms, setRooms] = useState(initialGuests?.rooms || 1);
 
   ////added this so that any changes to search bar query in SearchResults page, will change
   useEffect(() => {
@@ -131,17 +154,6 @@ export default function SearchBar({
         .fill(adults + children)
         .join("|");
 
-      //wake up api call //need to see if there is a better way to do this
-      await axios.get(
-        `http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`,
-        {
-          params: {
-            checkin: startDate.toISOString().split("T")[0],
-            checkout: endDate.toISOString().split("T")[0],
-            guests: guestString,
-          },
-        }
-      );
       //call again
       const res = await axios.get(
         `http://localhost:3001/api/hotelproxy/hotels/uid/${uidToUse}`,
@@ -172,7 +184,7 @@ export default function SearchBar({
           destinationId: uidToUse,
           checkin: startDate.toISOString().split("T")[0],
           checkout: endDate.toISOString().split("T")[0],
-          guests: adults + children,
+          guests: { adults, children, rooms }, // <-- keep structure
         },
       });
       setLoading?.(false);

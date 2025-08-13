@@ -17,7 +17,7 @@ export default function MiniMap({ lat, lng, hotelName, price }) {
   if (!lat || !lng) return null;
 
   return (
-    <div style={{ height: "200px", width: "100%", borderRadius: "10px", overflow: "hidden" }}>
+    <div style={{ height: "300px", width: "100%", borderRadius: "10px", overflow: "hidden" }}>
       <MapContainer
         center={[lat, lng]}
         zoom={16}
