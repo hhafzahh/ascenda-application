@@ -110,6 +110,7 @@ export default function HotelCard({
 
           <div>
             <div
+              data-testid="hotel-rating"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -153,6 +154,7 @@ export default function HotelCard({
 
       {/* Right: Price + Button */}
       <div
+        data-testid="hotel-price"
         style={{
           minWidth: "140px",
           display: "flex",

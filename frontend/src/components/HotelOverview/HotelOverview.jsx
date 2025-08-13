@@ -49,6 +49,7 @@ export default function HotelOverview({ hotel, hotelMetadata, onSelectRoom }) {
         >
           <h2
             className="text-2xl font-bold"
+            data-testid="hotel-name"
             style={{ textAlign: "left", margin: "0" }}
           >
             {safeHotel.name || "Unnamed Property"}
