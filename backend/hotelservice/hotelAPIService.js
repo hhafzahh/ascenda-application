@@ -23,6 +23,9 @@ const pollUntilCompleted = async (url, params, retries = 10, delay = 5000) => {
   throw new Error("Polling exceeded maximum retries");
 };
 
+//export only for testing purposes!
+exports._test = { pollUntilCompleted };
+
 exports.getHotelsByUid = async (req, res) => {
   const destinationId = req.params.uid;
   const { checkin, checkout, guests } = req.query;
