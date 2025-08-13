@@ -66,6 +66,7 @@ exports.login = async (userData) => {
   }
 
   // compare hashed password
+  console.log(`Comparing passwords ${user.password} and ${password}`);
   const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) {
     const error = new Error("Invalid email or password");

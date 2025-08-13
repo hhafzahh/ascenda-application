@@ -135,6 +135,8 @@ describe("Hotel Unit: hotelApiService.getHotelsByUid", () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledTimes(1);
 
+
+
     const merged = res.json.mock.calls[0][0];
     expect(merged).toHaveLength(1);
     expect(merged[0]).toEqual(

@@ -1,5 +1,6 @@
 //UNIT TESTING
 const userService = require("../userService");
+const userController = require("../userController");
 const dbClient = require("../database/db");
 
 const bcrypt = require("bcrypt");
@@ -127,5 +128,183 @@ describe("User Unit: userService.login", () => {
             password: "123"
         })).rejects.toThrow("DB error");
     });
+});
+
+const makeRes = () => {
+  const res = {};
+  res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
+  res.sendStatus = jest.fn().mockReturnValue(res);
+  return res;
+};
+const makeNext = () => jest.fn();
+
+describe("Controller Unit: getUserById (GET /:id)", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("returns 200 with user when found", async () => {
+    const req = { params: { id: "abc" } };
+    const res = makeRes();
+    jest.spyOn(userService, "getUserById").mockResolvedValue({ _id: "abc", email: "e@e.com" });
+
+    await userController.getUserById(req, res);
+
+    expect(userService.getUserById).toHaveBeenCalledWith("abc");
+    expect(res.status).not.toHaveBeenCalled(); // default 200
+    expect(res.json).toHaveBeenCalledWith({ _id: "abc", email: "e@e.com" });
+  });
+
+  it("returns 404 when not found", async () => {
+    const req = { params: { id: "missing" } };
+    const res = makeRes();
+    jest.spyOn(userService, "getUserById").mockResolvedValue(null);
+
+    await userController.getUserById(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "User not found" });
+  });
+
+  it("returns 500 on service error", async () => {
+    const req = { params: { id: "abc" } };
+    const res = makeRes();
+    jest.spyOn(userService, "getUserById").mockRejectedValue(new Error("boom"));
+
+    await userController.getUserById(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Failed to fetch user" });
+  });
+});
+
+describe("Controller Unit: updateUserById (PUT /:id)", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("returns 200 with message + updated user", async () => {
+    const req = { params: { id: "abc" }, body: { username: "Neo" } };
+    const res = makeRes();
+    jest.spyOn(userService, "updateUserById").mockResolvedValue({ _id: "abc", username: "Neo" });
+
+    await userController.updateUserById(req, res);
+
+    expect(userService.updateUserById).toHaveBeenCalledWith("abc", { username: "Neo" });
+    expect(res.json).toHaveBeenCalledWith({
+      message: "User updated successfully",
+      user: { _id: "abc", username: "Neo" },
+    });
+  });
+
+  it("returns 404 when user not found", async () => {
+    const req = { params: { id: "abc" }, body: { username: "Neo" } };
+    const res = makeRes();
+    jest.spyOn(userService, "updateUserById").mockResolvedValue(null);
+
+    await userController.updateUserById(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "User not found" });
+  });
+
+  it("returns 500 on service error", async () => {
+    const req = { params: { id: "abc" }, body: {} };
+    const res = makeRes();
+    jest.spyOn(userService, "updateUserById").mockRejectedValue(new Error("db fail"));
+
+    await userController.updateUserById(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Failed to update user" });
+  });
+});
+
+describe("Controller Unit: updatePassword (PUT /:id/password)", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("returns 200 with success message", async () => {
+    const req = {
+      params: { id: "abc" },
+      body: { currentPassword: "old", newPassword: "new!" },
+    };
+    const res = makeRes();
+    jest.spyOn(userService, "updatePassword").mockResolvedValue({ ok: true });
+
+    await userController.updatePassword(req, res);
+
+    expect(userService.updatePassword).toHaveBeenCalledWith("abc", "old", "new!");
+    expect(res.json).toHaveBeenCalledWith({ message: "Password updated successfully" });
+  });
+
+  it("propagates status/message from service error", async () => {
+    const req = {
+      params: { id: "abc" },
+      body: { currentPassword: "bad", newPassword: "new!" },
+    };
+    const res = makeRes();
+    const err = new Error("Invalid current password");
+    err.status = 401;
+    jest.spyOn(userService, "updatePassword").mockRejectedValue(err);
+
+    await userController.updatePassword(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ error: "Invalid current password" });
+  });
+});
+
+describe("Controller Unit: deleteUserById (DELETE /:id)", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("returns 200 with success message when deletion truthy", async () => {
+    const req = { params: { id: "abc" } };
+    const res = makeRes();
+    jest.spyOn(userService, "deleteUserById").mockResolvedValue({ deletedCount: 1 });
+
+    await userController.deleteUserById(req, res);
+
+    expect(userService.deleteUserById).toHaveBeenCalledWith("abc");
+    expect(res.json).toHaveBeenCalledWith({ message: "User deleted successfully" });
+  });
+
+  it("returns 404 when service returns falsy", async () => {
+    const req = { params: { id: "missing" } };
+    const res = makeRes();
+    jest.spyOn(userService, "deleteUserById").mockResolvedValue(null);
+
+    await userController.deleteUserById(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "User not found" });
+  });
+
+  it("returns 500 on service error", async () => {
+    const req = { params: { id: "abc" } };
+    const res = makeRes();
+    jest.spyOn(userService, "deleteUserById").mockRejectedValue(new Error("db fail"));
+
+    await userController.deleteUserById(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Failed to delete user" });
+  });
 });
 

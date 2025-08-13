@@ -12,7 +12,7 @@ export default function BackgroundHeader({ children }) {
         <h1 className="hero-title">
           Discover Your Perfect
           <br />
-          Gateway Destination
+          Getaway Destination
         </h1>
         <p className="hero-subtitle">
           Unparalleled luxury and comfort await at the world's most exclusive
