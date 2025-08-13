@@ -92,7 +92,9 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
           }}
         />
       )} */}
-      <h1 className="p-6 space-y-6">Available Rooms</h1>
+      <h1 className="p-6 space-y-6" data-testid="hotel-rooms-container">
+        Available Rooms
+      </h1>
       {rooms === null ? null : fetched ? (
         rooms.length > 0 ? (
           currentRooms.map((room) => (
@@ -102,6 +104,7 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
               searchParams={searchParams}
               hotelId={hotelId}
               hotelDetails={hotelDetails} // Pass hotel details to RoomCard
+              data-testid={`hotel-room-card-${room.id}`}
             />
           ))
         ) : (

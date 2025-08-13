@@ -36,6 +36,7 @@ export default function HotelCard({
   return (
     <div
       id={id}
+      data-testid="hotel-card"
       className="hotel-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
