@@ -16,6 +16,10 @@ describe("Recently Viewed Hotels - Guest User Flow", () => {
 
     cy.url({ timeout: 15000 }).should("include", "/results");
 
+    cy.contains("Sort by").should("exist"); // optional check
+    cy.contains("High to Low Price").click();
+    cy.wait(500);
+
     // Wait for hotel cards to appear
     cy.get("[data-testid='hotel-card']", { timeout: 20000 }).should(
       "have.length.greaterThan",

@@ -43,11 +43,16 @@ describe("Flow 1: Guest user searches, filters, sorts, and selects hotel card", 
     cy.wait(500); // allow sorting to apply
 
     // === Verify hotel cards after filters and sort ===
-    // cypress/e2e/checkout.cy.js
-
-    cy.getStripeElement("cardNumber").type("4242424242424242");
-    cy.getStripeElement("cardExpiry").type("12/34");
-    cy.getStripeElement("cardCvc").type("123");
+    cy.get("[data-testid='hotel-card']").each(($card) => {
+      cy.wrap($card).within(() => {
+        cy.get("[data-testid='hotel-price']").should("exist");
+        cy.get("[data-testid='hotel-rating']").should(($rating) => {
+          // Verify it contains at least one full star for 3+
+          const stars = $rating.text();
+          expect(stars.split("★").length - 1).to.be.gte(3);
+        });
+      });
+    });
 
     // === Select first hotel card ===
     cy.get("[data-testid='hotel-card']").first().click();
