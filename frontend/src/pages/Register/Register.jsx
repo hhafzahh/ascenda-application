@@ -7,6 +7,7 @@ const Registration = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
+    dateOfBirth: "",
     email: "",
     password: "",
     rememberMe: false,
@@ -30,6 +31,7 @@ const Registration = () => {
   const validateForm = () => {
     const errors = {};
     if (!formData.fullName.trim()) errors.fullName = "Full name is required";
+    if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth is required";
     if (!formData.email.includes("@")) errors.email = "Please enter a valid email";
     if (formData.password.length < 6) errors.password = "Password must be at least 6 characters";
     setValidationErrors(errors);
@@ -47,6 +49,7 @@ const Registration = () => {
         username: formData.fullName,
         email: formData.email,
         password: formData.password,
+        dateOfBirth: formData.dateOfBirth,
       };
       const res = await axios.post("http://localhost:3004/api/user/register", registrationData);
       if (res.status === 201) {
