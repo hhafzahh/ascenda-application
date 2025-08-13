@@ -73,7 +73,7 @@ export default function HotelDetails() {
           hotelMetadata={hotelMetadata}
           onSelectRoom={scrollToRooms}
         />
-        <div ref={roomRef}>
+        <div ref={roomRef} data-testid="hotel-rooms-wrapper">
           <HotelRooms
             hotelId={hotelId}
             searchParams={searchParams}

@@ -1,12 +1,16 @@
 import { useState } from "react";
-import React from 'react';
+import React from "react";
 import "./RoomCard.css";
 import { useNavigate } from "react-router-dom";
 
-export default function RoomCard({ room, searchParams, hotelId, hotelDetails }) {
+export default function RoomCard({
+  room,
+  searchParams,
+  hotelId,
+  hotelDetails,
+}) {
+  if (!room) return null;
 
-    if (!room) return null;
-    
   //Take in room as an object from Hotel API
   const {
     roomDescription,
@@ -25,10 +29,20 @@ export default function RoomCard({ room, searchParams, hotelId, hotelDetails }) 
   const navigate = useNavigate();
 
   const handleSelectRoom = () => {
+    const userId = sessionStorage.getItem("userId");
+    const token = sessionStorage.getItem("token");
+
+    if (!userId || !token) {
+      // User is not logged in
+      alert("Please log in to select a room.");
+      navigate("/login"); // Redirect to login page
+      return;
+    }
+
     console.log("RoomCard - hotelDetails:", hotelDetails);
     console.log("RoomCard - hotelDetails.name:", hotelDetails?.name);
     console.log("RoomCard - hotelDetails.address:", hotelDetails?.address);
-    
+
     navigate("/booking", {
       state: {
         room,
@@ -36,12 +50,12 @@ export default function RoomCard({ room, searchParams, hotelId, hotelDetails }) 
         hotel: {
           id: hotelId,
           name: hotelDetails?.name,
-          address: hotelDetails?.address || hotelDetails?.address1
-        }
+          address: hotelDetails?.address || hotelDetails?.address1,
+        },
       },
     });
   };
-  
+
   // Extract bed information from the long description
   const extractBedInfo = () => {
     if (!long_description) return "—";
@@ -147,7 +161,7 @@ export default function RoomCard({ room, searchParams, hotelId, hotelDetails }) 
   };
 
   return (
-    <div className="room-card">
+    <div className="room-card" data-testid="hotel-room-card">
       {" "}
       {/* Main container for the room card */}
       {/* Left Column - Image and Basic Info */}
@@ -259,7 +273,11 @@ export default function RoomCard({ room, searchParams, hotelId, hotelDetails }) 
           </div>
 
           <div className="booking-cta">
-            <button className="book-button" onClick={handleSelectRoom}>
+            <button
+              className="book-button"
+              data-testid="select-room"
+              onClick={handleSelectRoom}
+            >
               Select Room
             </button>
           </div>
