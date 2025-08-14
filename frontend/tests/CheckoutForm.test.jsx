@@ -41,7 +41,7 @@ global.fetch = jest.fn();
 
 // Suppress console errors for cleaner test output
 beforeAll(() => {
-  jest.spyOn(console, 'error').mockImplementation(() => {});
+  jest.spyOn(console, 'error').mockImplementation(() => { });
 });
 
 afterAll(() => {
@@ -123,13 +123,19 @@ describe("CheckoutForm Component", () => {
   });
 
   test("processes payment successfully", async () => {
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => { });
 
     // Mock successful payment intent creation
     fetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ clientSecret: "pi_test_client_secret" })
-    });
+
+    })
+      // Mock successful booking creation (2nd fetch)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ _id: "bk_1" })
+      });
 
     // Mock successful payment confirmation
     mockStripe.confirmCardPayment.mockResolvedValueOnce({
@@ -169,15 +175,15 @@ describe("CheckoutForm Component", () => {
     });
 
     await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith("Payment successful!");
-      expect(mockNavigate).toHaveBeenCalledWith("/");
+      expect(alertSpy).toHaveBeenCalledWith("Payment successful! Booking confirmed.");
+      expect(mockNavigate).toHaveBeenCalledWith("/my-bookings");
     });
 
     alertSpy.mockRestore();
   });
 
   test("handles payment failure", async () => {
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => { });
 
     // Mock successful payment intent creation
     fetch.mockResolvedValueOnce({
@@ -212,7 +218,7 @@ describe("CheckoutForm Component", () => {
   });
 
   test("handles payment intent creation failure", async () => {
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => { });
 
     // Mock failed payment intent creation
     fetch.mockResolvedValueOnce({
@@ -241,7 +247,7 @@ describe("CheckoutForm Component", () => {
 
   test("shows loading state during payment processing", async () => {
     // Mock payment intent creation that never resolves
-    fetch.mockImplementation(() => new Promise(() => {}));
+    fetch.mockImplementation(() => new Promise(() => { }));
 
     render(
       <BrowserRouter>
@@ -306,7 +312,7 @@ describe("CheckoutForm Component", () => {
   });
 
   test("uses correct amount for payment intent with price field", async () => {
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => { });
 
     fetch.mockResolvedValueOnce({
       ok: true,

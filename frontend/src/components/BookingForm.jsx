@@ -26,6 +26,7 @@ export default function BookingForm({ room, searchParams, hotel }) { // Added ho
     if (!userId) {
       alert("Please log in first");
       navigate("/login");
+      setIsSubmitting(false);
       return;
     }
     
