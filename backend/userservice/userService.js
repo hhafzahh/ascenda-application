@@ -116,8 +116,8 @@ exports.updatePassword = async (userId, currentPassword, newPassword) => {
     throw error;
   }
 
- console.log(`Comparing passwords ${user.password} and ${password}`);
-  const passwordMatch = await bcrypt.compare(password, user.password);
+
+  const passwordMatch = await bcrypt.compare(currentPassword, newPassword);
   if (!passwordMatch) {
     const error = new Error("Invalid email or password");
     error.status = 401;
