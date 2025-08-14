@@ -116,17 +116,22 @@ exports.updatePassword = async (userId, currentPassword, newPassword) => {
     throw error;
   }
 
-  if (user.password !== currentPassword) {
-    const error = new Error("Current password is incorrect");
+ console.log(`Comparing passwords ${user.password} and ${password}`);
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    const error = new Error("Invalid email or password");
     error.status = 401;
     throw error;
+    //return res.status(401).json({ error: "Invalid email or password" });
   }
+
+  const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
   await db
     .collection("users")
     .updateOne(
       { _id: new ObjectId(userId) },
-      { $set: { password: newPassword } }
+      { $set: { password: hashedPassword } }
     );
 };
 
