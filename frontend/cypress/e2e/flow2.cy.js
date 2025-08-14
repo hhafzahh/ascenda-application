@@ -158,6 +158,10 @@ describe("Login Page Tests", () => {
     // Wait for confirmation and redirect
     cy.url({ timeout: 20000 }).should("include", "/my-bookings");
 
+    cy.wait(10000);
+
+    cy.get("button.logout-btn").click();
+
     // Ensure sessionStorage has booking info
     // cy.window().then((win) => {
     //   const bookingData = JSON.parse(win.sessionStorage.getItem("booking"));
