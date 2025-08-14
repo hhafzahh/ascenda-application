@@ -247,6 +247,37 @@ describe("BookingForm Component", () => {
   //   expect(screen.getByText("← Back")).toBeDisabled();
   // });
 
+  test("redirects to login when not logged in", async () => {
+    window.sessionStorage.clear();
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => { });
+
+    render(
+      <BrowserRouter>
+        <BookingForm room={mockRoom} searchParams={mockSearchParams} hotel={mockHotel} />
+      </BrowserRouter>
+    );
+
+    fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Mr" } });
+    fireEvent.change(screen.getByLabelText("First Name *"), { target: { value: "John" } });
+    fireEvent.change(screen.getByLabelText("Last Name *"), { target: { value: "Doe" } });
+    fireEvent.change(screen.getByLabelText("Email Address *"), { target: { value: "john.doe@email.com" } });
+    fireEvent.change(screen.getByLabelText("Phone Number *"), { target: { value: "1234567890" } });
+
+    const submitButton = screen.getByRole("button", { name: /continue to payment →/i });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith("Please log in first");
+      expect(mockNavigate).toHaveBeenCalledWith("/login");
+    });
+    // Ensure it did NOT navigate to /payment
+    expect(
+      mockNavigate.mock.calls.find(([path]) => path === "/payment")
+    ).toBeUndefined();
+
+    alertSpy.mockRestore();
+  });
+
   test("navigates to payment on submit", async () => {
     fetch.mockImplementation(() => new Promise(() => { })); // Never resolves
 
