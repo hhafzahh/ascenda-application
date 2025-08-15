@@ -1,18 +1,19 @@
-// tests/SearchResultsPagination.test.jsx
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom";
 import SearchResults from "../src/pages/SearchResults";
 
+// --- Global fetch mock (e.g., for any destinations fetches) ---
 global.fetch = jest.fn(() =>
   Promise.resolve({
-    json: () => Promise.resolve([]), // /destinations.json mock
+    json: () => Promise.resolve([]),
   })
 );
 
-//  Map/Leaflet mocks
+//------------------
+////mock components
 jest.mock("leaflet", () => ({
   Map: jest.fn(),
   TileLayer: jest.fn(),
@@ -47,7 +48,6 @@ jest.mock("react-leaflet", () => ({
   Popup: jest.fn(({ children }) => <div data-testid="popup">{children}</div>),
 }));
 
-// mock hotelcard
 jest.mock("../src/components/HotelCard", () => (props) => (
   <div data-testid="hotel-card-proxy-id">
     <h3>{props.hotel.name}</h3>
@@ -55,14 +55,144 @@ jest.mock("../src/components/HotelCard", () => (props) => (
   </div>
 ));
 
-// for pagination
+jest.mock("../src/components/SearchBar/searchBar", () => () => (
+  <div data-testid="search-bar-mock" />
+));
+jest.mock("../src/components/RatingSlider", () => () => (
+  <div data-testid="rating-slider" />
+));
+jest.mock("../src/components/MapPreview", () => () => (
+  <div data-testid="map-preview" />
+));
+jest.mock("../src/components/FullMapModal", () => () => (
+  <div data-testid="full-map-modal" />
+));
+
+// Lightweight filters so we can toggle stars & facilities in tests
+jest.mock("../src/components/FacilitiesFilter", () => (props) => (
+  <div data-testid="facilities-filter">
+    <label>
+      <input
+        type="checkbox"
+        value="wifi"
+        checked={props.selectedFacilities?.includes?.("wifi") || false}
+        onChange={props.onChange}
+      />
+      WiFi
+    </label>
+    <label>
+      <input
+        type="checkbox"
+        value="pool"
+        checked={props.selectedFacilities?.includes?.("pool") || false}
+        onChange={props.onChange}
+      />
+      Pool
+    </label>
+  </div>
+));
+
+jest.mock("../src/components/StarRatingFilter", () => (props) => (
+  <div data-testid="star-filter">
+    {[1, 2, 3, 4, 5].map((n) => (
+      <label key={n}>
+        <input
+          type="checkbox"
+          value={String(n)}
+          checked={props.selectedStars?.includes?.(String(n)) || false}
+          onChange={props.onChange}
+        />
+        {n} Star
+      </label>
+    ))}
+  </div>
+));
+
+// SortControl is present but not directly used in these tests; keep it inert
+jest.mock("../src/components/SortControl", () => (props) => (
+  <div data-testid="sort-control">Sort: {props.selected}</div>
+));
+
+// --- Mock rc-slider used inside PriceRangeFilter so we can drive onChange easily ---
+// Uses fireEvent.change in tests (no userEvent.clear/type on range inputs)
+jest.mock("rc-slider", () => {
+  const React = require("react");
+  // Simple single-handle that controls MAX value while keeping current MIN.
+  return function MockSlider({ value, min = 100, max = 5000, onChange }) {
+    const currentMax = Math.min(max, value?.[1] ?? max);
+    const currentMin = value?.[0] ?? min;
+    return (
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={currentMax}
+        data-testid="price-slider"
+        onChange={(e) => {
+          const newMax = Number(e.target.value);
+          onChange?.([currentMin, newMax]);
+        }}
+      />
+    );
+  };
+});
+
+//------------------
+
 const buildHotels = (n) =>
   Array.from({ length: n }, (_, i) => ({
     id: `h-${i + 1}`,
     name: `Hotel ${i + 1}`,
     price: 50 + i, // distinct prices
-    rating: (i % 5) + 1, // 1..5, cycles; default sort is by rating desc
+    rating: (i % 5) + 1, // 1..5 cycles; default sort = rating desc
     amenities: { wifi: true },
+  }));
+
+const buildMixedHotels = () => [
+  {
+    id: "h1",
+    name: "Budget Inn",
+    price: 200,
+    rating: 2,
+    amenities: { wifi: false, pool: false },
+  },
+  {
+    id: "h2",
+    name: "Comfort Stay",
+    price: 800,
+    rating: 3,
+    amenities: { wifi: true, pool: false },
+  },
+  {
+    id: "h3",
+    name: "City Hotel",
+    price: 1200,
+    rating: 4,
+    amenities: { wifi: true, pool: true },
+  },
+  {
+    id: "h4",
+    name: "Grand Plaza",
+    price: 3000,
+    rating: 5,
+    amenities: { wifi: true, pool: true },
+  },
+  {
+    id: "h5",
+    name: "Royal Suites",
+    price: 4500,
+    rating: 5,
+    amenities: { wifi: false, pool: true },
+  },
+];
+
+const buildElevenHotels = () =>
+  Array.from({ length: 11 }, (_, i) => ({
+    id: `p-${i + 1}`,
+    name: `Hotel P${i + 1}`,
+    price: 100 + i * 50, // 100,150,...,600
+    rating: 5 - (i % 5),
+    amenities: { wifi: i % 2 === 0, pool: i % 3 === 0 },
   }));
 
 const baseState = {
@@ -84,9 +214,20 @@ function renderWithRouter(stateHotels) {
   );
 }
 
-//pagination
+// Ensure we start a test with no star/facility filters selected (idempotent)
+async function ensureNoFiltersSelected() {
+  const boxes = screen.queryAllByRole("checkbox");
+  for (const box of boxes) {
+    // If a box is checked, click to uncheck it
+    if (box.checked) {
+      await userEvent.click(box);
+    }
+  }
+}
+
+// --- Pagination tests (your originals, intact) ---
 describe("SearchResults pagination", () => {
-  test("shows 10 items per page, navigates through pages, honors sorting by rating (default)", async () => {
+  test("shows 10 items per page, navigates through pages, sorting by rating (default)", async () => {
     const hotels = buildHotels(23); // expect 3 pages (10, 10, 3)
     renderWithRouter(hotels);
 
@@ -95,7 +236,7 @@ describe("SearchResults pagination", () => {
     let cards = await screen.findAllByTestId("hotel-card-proxy-id");
     expect(cards).toHaveLength(10);
 
-    //
+    // expected names per page with rating-desc default sort
     const sortedByRatingDesc = [...hotels].sort(
       (a, b) => (b.rating || 0) - (a.rating || 0)
     );
@@ -103,7 +244,6 @@ describe("SearchResults pagination", () => {
     const expectedPage2 = sortedByRatingDesc.slice(10, 20).map((h) => h.name);
     const expectedPage3 = sortedByRatingDesc.slice(20).map((h) => h.name);
 
-    // assert all expected names for page 1 are present
     expectedPage1.forEach((name) => {
       expect(screen.getByText(name)).toBeInTheDocument();
     });
@@ -111,7 +251,6 @@ describe("SearchResults pagination", () => {
     const prevBtn = screen.getByRole("button", { name: /previous/i });
     const nextBtn = screen.getByRole("button", { name: /next/i });
 
-    // Prev disabled on first page; Next enabled
     expect(prevBtn).toBeDisabled();
     expect(nextBtn).toBeEnabled();
 
@@ -137,7 +276,7 @@ describe("SearchResults pagination", () => {
     expect(prevBtn).toBeEnabled();
     expect(nextBtn).toBeDisabled();
 
-    // Back to page 2 to confirm going backwards works
+    // Back to page 2
     await userEvent.click(prevBtn);
     expect(await screen.findByText(/Page 2 of 3/i)).toBeInTheDocument();
     cards = await screen.findAllByTestId("hotel-card-proxy-id");
@@ -158,5 +297,89 @@ describe("SearchResults pagination", () => {
     expect(
       screen.queryByRole("button", { name: /next/i })
     ).not.toBeInTheDocument();
+  });
+});
+
+// --- Filtering tests (price range, stars, facilities, pagination reset) ---
+describe("SearchResults filtering", () => {
+  test("Price range filter reduces visible hotels and hides pagination when ≤ 10 remain", async () => {
+    // 11 hotels -> initially 2 pages (10 + 1)
+    const hotels = buildElevenHotels();
+    renderWithRouter(hotels);
+
+    // Initially -> 11 results => Page 1 of 2 visible
+    expect(await screen.findByText(/Page 1 of 2/i)).toBeInTheDocument();
+    expect(await screen.findAllByTestId("hotel-card-proxy-id")).toHaveLength(
+      10
+    );
+
+    // Slide mocked price MAX down to 500 → keep only prices <= 500
+    const slider = screen.getByTestId("price-slider");
+    fireEvent.change(slider, { target: { value: "500" } });
+
+    // Now only P1..P9 (100..500) remain: 9 results => no pagination
+    const remainingNames = [
+      "Hotel P1",
+      "Hotel P2",
+      "Hotel P3",
+      "Hotel P4",
+      "Hotel P5",
+      "Hotel P6",
+      "Hotel P7",
+      "Hotel P8",
+      "Hotel P9",
+    ];
+    for (const name of remainingNames) {
+      expect(await screen.findByText(name)).toBeInTheDocument();
+    }
+    expect(screen.queryByText("Hotel P10")).not.toBeInTheDocument();
+    expect(screen.queryByText("Hotel P11")).not.toBeInTheDocument();
+
+    expect(screen.queryByText(/Page \d+ of \d+/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /previous/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /next/i })
+    ).not.toBeInTheDocument();
+  });
+
+  test("Combines star rating and facilities filters with price range (AND semantics)", async () => {
+    const hotels = buildMixedHotels();
+    renderWithRouter(hotels);
+
+    // Initially all 5 visible (≤10 so no pagination)
+    for (const h of hotels) {
+      expect(await screen.findByText(h.name)).toBeInTheDocument();
+    }
+    expect(screen.queryByText(/Page \d+ of \d+/i)).not.toBeInTheDocument();
+
+    // Select 5-star
+    const fiveStar = screen.getByLabelText("5 Star");
+    await userEvent.click(fiveStar);
+
+    // Only rating === 5 should remain: Grand Plaza, Royal Suites
+    expect(await screen.findByText("Grand Plaza")).toBeInTheDocument();
+    expect(await screen.findByText("Royal Suites")).toBeInTheDocument();
+    expect(screen.queryByText("City Hotel")).not.toBeInTheDocument();
+    expect(screen.queryByText("Comfort Stay")).not.toBeInTheDocument();
+    expect(screen.queryByText("Budget Inn")).not.toBeInTheDocument();
+
+    // Require WiFi too
+    const wifi = screen.getByLabelText("WiFi");
+    await userEvent.click(wifi);
+
+    // Of the 5-star hotels, only Grand Plaza has wifi:true
+    expect(await screen.findByText("Grand Plaza")).toBeInTheDocument();
+    expect(screen.queryByText("Royal Suites")).not.toBeInTheDocument();
+
+    // Constrain price max to 2500 → excludes Grand Plaza (3000) → no matches
+    const slider = screen.getByTestId("price-slider"); //mock slider
+    fireEvent.change(slider, { target: { value: "2500" } });
+
+    expect(screen.queryByTestId("hotel-card-proxy-id")).not.toBeInTheDocument();
+    expect(
+      await screen.findByText(/No hotels found matching your criteria/i)
+    ).toBeInTheDocument();
   });
 });
