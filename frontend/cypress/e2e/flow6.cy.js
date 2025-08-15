@@ -1,7 +1,7 @@
 //guest -> seach -> searchresults -> open map -> select hotel card ->
 // flow6.cy.js
 describe("Guest user searches and open map preview", () => {
-  it("searches, expand map preview, clicks the hotel card in full map modal, navigated to /hotel/", () => {
+  it("Guest user search Dubai hotels, gets 5 hotel rating, expand map preview, clicks the hotel card in full map modal", () => {
     // Visit landing page
     cy.visit("/");
 
