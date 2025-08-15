@@ -119,7 +119,7 @@ describe("Flow5 with real login+delete and mocked registration", () => {
   //login with that account
   //go to profile check the email is the same as the one login
   // delete account
-  it("Real login → My Bookings → Profile (email matches) → real delete → logout", () => {
+  it("Login and view profile, delete account", () => {
     cy.visit("/login");
 
     // REAL login (no intercept)

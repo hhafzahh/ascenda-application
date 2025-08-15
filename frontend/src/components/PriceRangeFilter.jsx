@@ -4,7 +4,7 @@ import "rc-slider/assets/index.css";
 
 function PriceRangeFilter({ value, onChange }) {
   const MIN = 100;
-  const MAX = 12000; //hardcoded
+  const MAX = 5000;
 
   const boxStyle = {
     marginTop: "20px",
