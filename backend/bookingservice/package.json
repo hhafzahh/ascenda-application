@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "test:e2e": "jest bookingE2E.test.jsx",
     "start": "nodemon index.js"
   },
   "keywords": [],
