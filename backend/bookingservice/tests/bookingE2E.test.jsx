@@ -3,6 +3,9 @@ const request = require("supertest");
 const { MongoClient, ObjectId } = require("mongodb");
 const cors = require("cors");
 
+// Set timeout at the very top - BEFORE any other Jest configuration
+jest.setTimeout(30000);
+
 // Mock database connection
 let testDb;
 let mongoClient;
@@ -29,8 +32,6 @@ const bookingController = require("../bookingController");
 const paymentController = require("../paymentController");
 const mockDbModule = require("../database/db");
 
-jest.setTimeout(30000);
-
 function appFactory() {
   const app = express();
   app.use(cors());
@@ -47,13 +48,21 @@ function appFactory() {
   return app;
 }
 
-// Setup and teardown
+// Setup and teardown with better error handling
 beforeAll(async () => {
   try {
     const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017";
-    mongoClient = new MongoClient(mongoUri);
+    mongoClient = new MongoClient(mongoUri, {
+      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+      connectTimeoutMS: 5000,
+    });
+    
     await mongoClient.connect();
     testDb = mongoClient.db(testDbName);
+    
+    // Test the connection
+    await testDb.admin().ping();
+    console.log("E2E: Connected to MongoDB successfully");
     
     // Configure the mock to return our test database
     mockDbModule.getDb.mockReturnValue(testDb);
@@ -61,12 +70,28 @@ beforeAll(async () => {
     // Set test environment
     process.env.STRIPE_SECRET_KEY = "sk_test_mock_key";
   } catch (error) {
-    console.warn("MongoDB not available, tests may fail:", error.message);
-    // Create a mock database if real MongoDB is not available
+    console.warn("E2E: MongoDB not available, using mocks:", error.message);
+    
+    // Create a comprehensive mock database if real MongoDB is not available
     testDb = {
       collection: jest.fn(() => ({
-        insertOne: jest.fn().mockResolvedValue({ insertedId: new ObjectId() }),
-        findOne: jest.fn().mockResolvedValue(null),
+        insertOne: jest.fn().mockImplementation(async (doc) => {
+          const id = new ObjectId();
+          return { insertedId: id };
+        }),
+        findOne: jest.fn().mockImplementation(async (query) => {
+          if (query._id) {
+            return {
+              _id: query._id,
+              firstName: "Mock",
+              lastName: "User",
+              email: "mock@email.com",
+              createdAt: new Date(),
+              status: "confirmed"
+            };
+          }
+          return null;
+        }),
         find: jest.fn(() => ({
           sort: jest.fn(() => ({
             toArray: jest.fn().mockResolvedValue([])
@@ -74,7 +99,10 @@ beforeAll(async () => {
         })),
         deleteMany: jest.fn().mockResolvedValue({ deletedCount: 0 })
       })),
-      dropDatabase: jest.fn().mockResolvedValue(undefined)
+      dropDatabase: jest.fn().mockResolvedValue(undefined),
+      admin: jest.fn(() => ({
+        ping: jest.fn().mockResolvedValue({})
+      }))
     };
     mockDbModule.getDb.mockReturnValue(testDb);
   }
@@ -82,14 +110,14 @@ beforeAll(async () => {
 
 afterAll(async () => {
   try {
-    if (testDb) {
+    if (testDb && testDb.dropDatabase && typeof testDb.dropDatabase === 'function') {
       await testDb.dropDatabase();
     }
     if (mongoClient) {
       await mongoClient.close();
     }
   } catch (error) {
-    console.warn("Cleanup error:", error.message);
+    console.warn("E2E cleanup error:", error.message);
   }
 });
 
@@ -98,7 +126,7 @@ beforeEach(async () => {
     try {
       await testDb.collection("bookings").deleteMany({});
     } catch (error) {
-      console.warn("Collection cleanup error:", error.message);
+      console.warn("E2E collection cleanup error:", error.message);
     }
   }
   jest.clearAllMocks();
