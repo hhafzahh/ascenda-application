@@ -162,6 +162,7 @@ export default function SearchResults() {
           <RatingSlider value={minGuestRating} onChange={setMinGuestRating} />
 
           {/* Use MapPreview component */}
+
           <MapPreview
             hotels={currentHotelsWithCoords}
             onClickExpand={() => setShowFullMap(true)}

@@ -1,6 +1,6 @@
 // flow1.cy.js
-describe("Flow 1: Guest user searches, filters, sorts, and selects hotel card", () => {
-  it("performs search, applies filters, sorts, and selects a hotel card", () => {
+describe("Multiple Filtering flow and Sorting", () => {
+  it("should filter hotels and sort the hotels and select hotel", () => {
     // Visit landing page
     cy.visit("/");
 
