@@ -14,6 +14,7 @@ export default function FullMapModal({ hotels, onClose, onMarkerClick }) {
 
   return ReactDOM.createPortal(
     <div
+      data-testid="full-map-modal"
       style={{
         position: "fixed",
         top: 0,
@@ -28,8 +29,9 @@ export default function FullMapModal({ hotels, onClose, onMarkerClick }) {
     >
       {/* LEFT: Hotel Cards */}
       <div
+        data-testid="map-hotel-cards"
         style={{
-          width: 400,
+          width: 500,
           background: "#fff",
           overflowY: "auto",
           padding: 20,
@@ -73,21 +75,24 @@ export default function FullMapModal({ hotels, onClose, onMarkerClick }) {
           ← Back to Hotel List
         </button>
 
-        <h3 style={{ fontSize: "1.2rem", marginBottom: "10px" }}>Available Hotels</h3>
+        <h3 style={{ fontSize: "1.2rem", marginBottom: "10px" }}>
+          Available Hotels
+        </h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           {hotels.map((h) => (
-            <HotelCard key={h.id} hotel={h} id={`hotel-${h.id}`} isCompact={true}/>
+            <HotelCard
+              key={h.id}
+              hotel={h}
+              id={`hotel-${h.id}`}
+              isCompact={true}
+            />
           ))}
         </div>
       </div>
 
       {/* RIGHT: Map View */}
       <div style={{ flex: 1 }}>
-        <MapView
-          hotels={hotels}
-          onMarkerClick={onMarkerClick}
-          height="100%"
-        />
+        <MapView hotels={hotels} onMarkerClick={onMarkerClick} height="100%" />
       </div>
     </div>,
     document.body

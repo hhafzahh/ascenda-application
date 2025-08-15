@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../css/Profile.css";
 
-export default function Profile({  onLogout, onCancel = () => window.location.reload() } ) {
+export default function Profile({
+  onLogout,
+  onCancel = () => window.location.reload(),
+}) {
   const [user, setUser] = useState({
     name: "",
     email: "",
@@ -10,22 +13,24 @@ export default function Profile({  onLogout, onCancel = () => window.location.re
   const [passwordFields, setPasswordFields] = useState({
     currentPassword: "",
     newPassword: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordSection, setShowPasswordSection] = useState(false);
 
   const userId = sessionStorage.getItem("userId");
 
-  console.log(userId)
+  console.log(userId);
   useEffect(() => {
-    axios.get(`http://localhost:3004/api/user/${userId}`).then((res) => {
+    axios
+      .get(`http://localhost:3004/api/user/${userId}`)
+      .then((res) => {
         const { username, email, dob } = res.data;
-        console.log(res.data)
+        console.log(res.data);
         setUser({
           name: username,
           email,
-          dob: dob || ""
+          dob: dob || "",
         });
       })
       .catch((err) => {
@@ -44,10 +49,11 @@ export default function Profile({  onLogout, onCancel = () => window.location.re
   };
 
   const handleSave = () => {
-    axios.put(`http://localhost:3004/api/user/${userId}`, {
-      username: user.name,
-      dob: user.dob
-    })
+    axios
+      .put(`http://localhost:3004/api/user/${userId}`, {
+        username: user.name,
+        dob: user.dob,
+      })
       .then(() => {
         alert("Profile updated successfully!");
       })
@@ -63,10 +69,15 @@ export default function Profile({  onLogout, onCancel = () => window.location.re
       return;
     }
 
-    axios.put(`http://localhost:3004/api/user/${userId}/password`, passwordFields)
+    axios
+      .put(`http://localhost:3004/api/user/${userId}/password`, passwordFields)
       .then(() => {
         alert("Password updated successfully!");
-        setPasswordFields({ currentPassword: "", newPassword: "", confirmPassword: "" });
+        setPasswordFields({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
         setShowPasswordSection(false);
       })
       .catch((err) => {
@@ -76,7 +87,7 @@ export default function Profile({  onLogout, onCancel = () => window.location.re
   };
 
   return (
-    <div className="profile-container">
+    <div className="profile-container" data-testid="profile-container">
       <div className="profile-card">
         <h2>Account Settings</h2>
 
@@ -87,18 +98,24 @@ export default function Profile({  onLogout, onCancel = () => window.location.re
           </div>
 
           <label>Email Address</label>
-          <input name="email" value={user.email} disabled />
+          <input
+            name="email"
+            value={user.email}
+            disabled
+            data-testid="profile-email"
+          />
 
-
-          <button className="change-password-toggle" 
-                  onClick={() => setShowPasswordSection(!showPasswordSection)}
-                  style={{backgroundColor: "transparent",
-                          color: "#4000ffff",
-                          border: "none",
-                          cursor: "pointer",
-                          margin: "0.5rem 0"
-                
-                  }}>
+          <button
+            className="change-password-toggle"
+            onClick={() => setShowPasswordSection(!showPasswordSection)}
+            style={{
+              backgroundColor: "transparent",
+              color: "#4000ffff",
+              border: "none",
+              cursor: "pointer",
+              margin: "0.5rem 0",
+            }}
+          >
             {showPasswordSection ? "Cancel Password Change" : "Change Password"}
           </button>
 
@@ -135,7 +152,8 @@ export default function Profile({  onLogout, onCancel = () => window.location.re
                   type="checkbox"
                   checked={showPassword}
                   onChange={() => setShowPassword(!showPassword)}
-                /> Show Passwords
+                />{" "}
+                Show Passwords
               </label>
 
               <button className="save-btn" onClick={handlePasswordSubmit}>
@@ -149,7 +167,12 @@ export default function Profile({  onLogout, onCancel = () => window.location.re
           <a
             className="delete-link"
             onClick={async () => {
-              if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
+              if (
+                !window.confirm(
+                  "Are you sure you want to delete your account? This action cannot be undone."
+                )
+              )
+                return;
 
               try {
                 await axios.delete(`http://localhost:3004/api/user/${userId}`);
@@ -171,11 +194,14 @@ export default function Profile({  onLogout, onCancel = () => window.location.re
         </div>
 
         <div className="button-group">
-          <button className="cancel-btn" onClick={onCancel}>Cancel</button>
-          <button className="save-btn" onClick={handleSave}>Save</button>
+          <button className="cancel-btn" onClick={onCancel}>
+            Cancel
+          </button>
+          <button className="save-btn" onClick={handleSave}>
+            Save
+          </button>
         </div>
       </div>
     </div>
   );
 }
-

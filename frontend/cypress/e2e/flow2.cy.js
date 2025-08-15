@@ -34,7 +34,7 @@ describe("Login Page Tests", () => {
     cy.url().should("include", "/register");
   });
 
-  it("login user -> search -> select room -> book room", () => {
+  it("should allow login user to book and pay a room -> search", () => {
     // Intercept the login API call to mock successful login
     cy.intercept("POST", "http://localhost:3004/api/user/login", {
       statusCode: 200,
@@ -161,11 +161,5 @@ describe("Login Page Tests", () => {
     cy.wait(10000);
 
     cy.get("button.logout-btn").click();
-
-    // Ensure sessionStorage has booking info
-    // cy.window().then((win) => {
-    //   const bookingData = JSON.parse(win.sessionStorage.getItem("booking"));
-    //   expect(bookingData).to.have.property("status", "confirmed");
-    // });
   });
 });

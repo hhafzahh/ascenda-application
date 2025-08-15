@@ -41,7 +41,11 @@ function NavBar() {
         )}
         {isLoggedIn ? (
           <>
-            <Link to="/profile" className="link profile">
+            <Link
+              to="/profile"
+              className="link profile"
+              data-testid="nav-profile"
+            >
               Profile
             </Link>
 

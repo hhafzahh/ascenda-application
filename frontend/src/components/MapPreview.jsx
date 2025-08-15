@@ -5,6 +5,7 @@ import MapView from "./MapView";
 export default function MapPreview({ hotels, onClickExpand }) {
   return (
     <div
+      data-testid="map-preview"
       style={{
         position: "relative",
         height: 220,
@@ -19,6 +20,7 @@ export default function MapPreview({ hotels, onClickExpand }) {
 
       {/* Expand icon in corner */}
       <div
+        data-testid="expand-button"
         onClick={onClickExpand}
         style={{
           position: "absolute",
