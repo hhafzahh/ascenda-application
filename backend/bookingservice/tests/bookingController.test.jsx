@@ -97,7 +97,15 @@ describe("Booking Controller Tests", () => {
         .post("/api/bookings")
         .send(validBookingData);
 
-      expect(mockCollection.insertOne).toHaveBeenCalledWith(validBookingData);
+      // Verify that insertOne was called with the booking data plus the added fields
+      expect(mockCollection.insertOne).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...validBookingData,
+          createdAt: expect.any(Date),
+          status: "confirmed"
+        })
+      );
+      
       expect(mockCollection.findOne).toHaveBeenCalledWith({
         _id: mockInsertedId
       });
