@@ -266,3 +266,150 @@ describe("Hotel Integration: /api/hotelproxy/hotels/:uid (getHotelsByUid)", () =
     setTimeoutSpy.mockRestore();
   }, 10000);
 });
+
+describe("Hotel Integration: /api/hotelproxy/rooms", () => {
+  let app;
+  let logSpy, errSpy;
+
+  beforeAll(() => {
+    const express = require("express");
+    const hotelApiService = require("../hotelAPIService");
+    app = express();
+    app.get("/api/hotelproxy/rooms", (req, res) =>
+      hotelApiService.getRooms(req, res)
+    );
+  });
+
+  beforeEach(() => {
+    logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    errSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    logSpy.mockRestore();
+    errSpy.mockRestore();
+  });
+
+  it("400 if required params missing", async () => {
+    const res = await request(app).get("/api/hotelproxy/rooms").query({ hotel_id: "H1" });
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: "Missing required query params" });
+  });
+
+  it("200 with merged price + hotel info", async () => {
+    const priceData = { rooms: [{ id: "R1", price: 200 }] };
+    const hotelList = [{ id: "H1", name: "Hotel One" }];
+    axios.get
+      .mockResolvedValueOnce({ data: priceData })
+      .mockResolvedValueOnce({ data: hotelList });
+
+    const res = await request(app)
+      .get("/api/hotelproxy/rooms")
+      .query({
+        hotel_id: "H1",
+        destination_id: "D1",
+        checkin: "2025-08-10",
+        checkout: "2025-08-12",
+        guests: "2",
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ ...priceData, hotel: hotelList[0] });
+  });
+
+  it("502 if price API fails", async () => {
+    axios.get.mockRejectedValueOnce({ response: { status: 502, data: "Bad Gateway" } });
+    const res = await request(app)
+      .get("/api/hotelproxy/rooms")
+      .query({
+        hotel_id: "H1",
+        destination_id: "D1",
+        checkin: "2025-08-10",
+        checkout: "2025-08-12",
+        guests: "2",
+      });
+
+    expect(res.statusCode).toBe(502);
+    expect(res.body).toEqual({
+      error: "Failed to fetch room prices",
+      details: "Bad Gateway",
+    });
+  });
+});
+
+describe("Hotel Integration: /api/hotelproxy/hotelByHotelId/:hotelId", () => {
+  let app;
+
+  beforeAll(() => {
+    const express = require("express");
+    const hotelApiService = require("../hotelAPIService");
+    app = express();
+    app.get("/api/hotelproxy/hotelByHotelId/:hotelId", (req, res) =>
+      hotelApiService.getHotelByHotelId(req, res)
+    );
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("200 returns first hotel when found", async () => {
+    const hotels = [{ id: "H100", name: "Test Hotel" }];
+    axios.get.mockResolvedValueOnce({ data: hotels });
+
+    const res = await request(app).get("/api/hotelproxy/hotelByHotelId/H100");
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual(hotels[0]);
+  });
+
+  it("404 when no hotel matches", async () => {
+    axios.get.mockResolvedValueOnce({ data: [] });
+    const res = await request(app).get("/api/hotelproxy/hotelByHotelId/XXX");
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toEqual({ error: "Hotel not found" });
+  });
+
+  it("500 on API failure", async () => {
+    axios.get.mockRejectedValueOnce(new Error("network fail"));
+    const res = await request(app).get("/api/hotelproxy/hotelByHotelId/H123");
+    expect(res.statusCode).toBe(500);
+    expect(res.body).toEqual({
+      error: "Error retrieving hotel info",
+      details: "network fail",
+    });
+  });
+});
+
+describe("Hotel Integration: /api/hotelproxy/hotelById/:id", () => {
+  let app;
+
+  beforeAll(() => {
+    const express = require("express");
+    const hotelApiService = require("../hotelAPIService");
+    app = express();
+    app.get("/api/hotelproxy/hotelById/:id", (req, res) =>
+      hotelApiService.getHotelById(req, res)
+    );
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("200 returns hotel details", async () => {
+    const detail = { id: "H200", name: "Hotel Detail" };
+    axios.get.mockResolvedValueOnce({ data: detail });
+
+    const res = await request(app).get("/api/hotelproxy/hotelById/H200");
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual(detail);
+  });
+
+  it("500 on hotel detail fetch failure", async () => {
+    axios.get.mockRejectedValueOnce(new Error("timeout"));
+    const res = await request(app).get("/api/hotelproxy/hotelById/H200");
+    expect(res.statusCode).toBe(500);
+    expect(res.body).toEqual({ error: "Error retrieving hotel details" });
+  });
+});
