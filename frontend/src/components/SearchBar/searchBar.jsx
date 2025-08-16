@@ -12,6 +12,9 @@ export default function SearchBar({
   setLoading,
   initialCheckin,
   initialCheckout,
+  initialAdults = 1,
+  initialChildren = 0,
+  initialRooms = 1
 }) {
   const [query, setQuery] = useState(queryval || ""); // Make sure query is initialized as an empty string
   const [suggestions, setSuggestions] = useState([]);
@@ -19,9 +22,10 @@ export default function SearchBar({
   const [selectedUID, setSelectedUID] = useState(null);
   const metaRef = useRef({});
   const [loading, setLoadingInternal] = useState(false);
-  const [adults, setAdults] = useState(1);
-  const [children, setChildren] = useState(0);
-  const [rooms, setRooms] = useState(1);
+
+  const [adults, setAdults] = useState(initialAdults);
+  const [children, setChildren] = useState(initialChildren);
+  const [rooms, setRooms] = useState(initialRooms);
 
   const [startDate, setStartDate] = useState(() => {
     const date = new Date();
@@ -108,6 +112,7 @@ export default function SearchBar({
     }
 
     let uidToUse = meta.uid || metaRef.current.uid || selectedUID;
+    let newQuery = query;
 
     if (!uidToUse) {
       const fuseMatch = fuseInstance.search(query);
@@ -116,7 +121,8 @@ export default function SearchBar({
       if (fuseMatch.length > 0) {
         const corrected = fuseMatch[0].item;
         uidToUse = corrected.uid;
-        setQuery(corrected.term); // Update input box text
+        newQuery = corrected.term;
+        setQuery(corrected.term); // Update input box text           
         setSelectedUID(corrected.uid);
         setSuggestions([]);
         metaRef.current = { uid: corrected.uid };
@@ -167,11 +173,14 @@ export default function SearchBar({
       navigate("/results", {
         state: {
           hotels: hotelsList,
-          searchQuery: query,
+          searchQuery: newQuery,
           destinationId: uidToUse,
           checkin: startDate.toISOString().split("T")[0],
           checkout: endDate.toISOString().split("T")[0],
-          guests: adults + children, // <-- keep structure
+          // guests: adults + children, // <-- keep structure
+          adults,
+          children,
+          rooms
         },
       });
       setLoading?.(false);

@@ -20,7 +20,9 @@ export default function SearchResults() {
     destinationId,
     checkin,
     checkout,
-    guests,
+    adults,
+    children,
+    rooms
   } = location.state || {};
 
   const [selectedFacilities, setSelectedFacilities] = useState([]);
@@ -142,7 +144,9 @@ export default function SearchResults() {
           queryval={searchQuery}
           initialCheckin={checkin}
           initialCheckout={checkout}
-          guests={guests}
+          initialAdults={adults}
+          initialChildren={children}
+          initialRooms={rooms}
         />
       </div>
 
@@ -187,7 +191,9 @@ export default function SearchResults() {
                         destinationId,
                         checkin,
                         checkout,
-                        guests,
+                        adults,
+                        children,
+                        rooms
                       });
                       console.log("Navigating with hotel:", hotel); // Debug
                       navigate(`/hotels/${hotel.id}`, {
@@ -197,7 +203,9 @@ export default function SearchResults() {
                             destinationId,
                             checkin,
                             checkout,
-                            guests,
+                            adults,
+                        children,
+                        rooms
                           },
                         },
                       });
@@ -214,7 +222,9 @@ export default function SearchResults() {
                         destinationId,
                         checkin,
                         checkout,
-                        guests,
+                        adults,
+                        children,
+                        rooms
                       }}
                     />
                   </div>
@@ -258,25 +268,25 @@ export default function SearchResults() {
                         padding: "8px 16px",
                         background:
                           currentPage >=
-                          Math.ceil(
-                            filteredHotelsForList.length / resultsPerPage
-                          )
+                            Math.ceil(
+                              filteredHotelsForList.length / resultsPerPage
+                            )
                             ? "#f0f0f0"
                             : "#0071c2",
                         color:
                           currentPage >=
-                          Math.ceil(
-                            filteredHotelsForList.length / resultsPerPage
-                          )
+                            Math.ceil(
+                              filteredHotelsForList.length / resultsPerPage
+                            )
                             ? "#999"
                             : "white",
                         border: "none",
                         borderRadius: "4px",
                         cursor:
                           currentPage >=
-                          Math.ceil(
-                            filteredHotelsForList.length / resultsPerPage
-                          )
+                            Math.ceil(
+                              filteredHotelsForList.length / resultsPerPage
+                            )
                             ? "not-allowed"
                             : "pointer",
                       }}
