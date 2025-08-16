@@ -4,7 +4,12 @@ import { FiX } from "react-icons/fi";
 import MapView from "./MapView";
 import HotelCard from "./HotelCard";
 
-export default function FullMapModal({ hotels, onClose, onMarkerClick }) {
+export default function FullMapModal({
+  hotels,
+  onClose,
+  onMarkerClick,
+  searchParams,
+}) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -12,6 +17,7 @@ export default function FullMapModal({ hotels, onClose, onMarkerClick }) {
     };
   }, []);
 
+  // console.log(searchParams);
   return ReactDOM.createPortal(
     <div
       data-testid="full-map-modal"
@@ -83,6 +89,7 @@ export default function FullMapModal({ hotels, onClose, onMarkerClick }) {
             <HotelCard
               key={h.id}
               hotel={h}
+              searchParams={searchParams}
               id={`hotel-${h.id}`}
               isCompact={true}
             />

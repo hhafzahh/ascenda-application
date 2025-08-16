@@ -43,7 +43,8 @@ export default function RecentlyViewedHotelCard({ hotel }) {
       destinationId: hotel.searchParams.destinationId,
       checkin: hotel.searchParams.checkin,
       checkout: hotel.searchParams.checkout,
-      guests: hotel.searchParams.guests,
+      adults: hotel.searchParams.adults,
+      children: hotel.searchParams.children,
     };
 
     //console.log(searchParams); //for testing

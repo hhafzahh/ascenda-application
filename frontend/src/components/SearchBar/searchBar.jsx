@@ -177,7 +177,7 @@ export default function SearchBar({
           destinationId: uidToUse,
           checkin: startDate.toISOString().split("T")[0],
           checkout: endDate.toISOString().split("T")[0],
-          guests: adults + children, //rooms and recentlyview using
+          // guests: adults + children, //rooms and recentlyview using
           adults,
           children,
           rooms,

@@ -30,7 +30,7 @@ export default function HotelCard({
 
   const handleClick = () => {
     storeRecentlyViewed(hotel, searchParams);
-    navigate(`/hotels/${hotel.id}`, { state: { hotel } });
+    navigate(`/hotels/${hotel.id}`, { state: { hotel, searchParams } });
   };
 
   return (

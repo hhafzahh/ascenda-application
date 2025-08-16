@@ -22,7 +22,7 @@ export default function SearchResults() {
     checkout,
     adults,
     children,
-    rooms
+    rooms,
   } = location.state || {};
 
   const [selectedFacilities, setSelectedFacilities] = useState([]);
@@ -149,7 +149,6 @@ export default function SearchResults() {
           initialRooms={rooms}
         />
       </div>
-
       <div style={{ display: "flex", gap: "30px" }}>
         {/* Left Sidebar */}
         <div style={{ width: "300px" }}>
@@ -193,7 +192,7 @@ export default function SearchResults() {
                         checkout,
                         adults,
                         children,
-                        rooms
+                        rooms,
                       });
                       console.log("Navigating with hotel:", hotel); // Debug
                       navigate(`/hotels/${hotel.id}`, {
@@ -204,8 +203,8 @@ export default function SearchResults() {
                             checkin,
                             checkout,
                             adults,
-                        children,
-                        rooms
+                            children,
+                            rooms,
                           },
                         },
                       });
@@ -224,7 +223,7 @@ export default function SearchResults() {
                         checkout,
                         adults,
                         children,
-                        rooms
+                        rooms,
                       }}
                     />
                   </div>
@@ -268,25 +267,25 @@ export default function SearchResults() {
                         padding: "8px 16px",
                         background:
                           currentPage >=
-                            Math.ceil(
-                              filteredHotelsForList.length / resultsPerPage
-                            )
+                          Math.ceil(
+                            filteredHotelsForList.length / resultsPerPage
+                          )
                             ? "#f0f0f0"
                             : "#0071c2",
                         color:
                           currentPage >=
-                            Math.ceil(
-                              filteredHotelsForList.length / resultsPerPage
-                            )
+                          Math.ceil(
+                            filteredHotelsForList.length / resultsPerPage
+                          )
                             ? "#999"
                             : "white",
                         border: "none",
                         borderRadius: "4px",
                         cursor:
                           currentPage >=
-                            Math.ceil(
-                              filteredHotelsForList.length / resultsPerPage
-                            )
+                          Math.ceil(
+                            filteredHotelsForList.length / resultsPerPage
+                          )
                             ? "not-allowed"
                             : "pointer",
                       }}
@@ -323,6 +322,14 @@ export default function SearchResults() {
       {showFullMap && (
         <FullMapModal
           hotels={filteredHotelsForMap}
+          searchParams={{
+            destinationId,
+            checkin,
+            checkout,
+            adults,
+            children,
+            rooms,
+          }}
           onClose={() => setShowFullMap(false)}
           onMarkerClick={(hotelId) => {
             setSelectedHotelId(hotelId);
