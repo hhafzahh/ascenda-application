@@ -74,9 +74,15 @@ test("clicking on hotel card triggers navigate function", () => {
   fireEvent.click(hotelCard);
 
   // Assert that the navigate function is called with the correct path and state
-  expect(mockedUsedNavigate).toHaveBeenCalledWith("/hotels/obxM", {
-    state: { hotel: mockHotel },
-  });
+  expect(mockedUsedNavigate).toHaveBeenCalledWith(
+    "/hotels/obxM",
+    expect.objectContaining({
+      state: expect.objectContaining({
+        hotel: mockHotel,
+        searchParams,
+      }),
+    })
+  );
 });
 
 test("displays fallback image when hotel image is missing", () => {

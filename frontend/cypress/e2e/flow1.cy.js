@@ -49,6 +49,8 @@ describe("Flow 1: Guest user selects room and gets login alert", () => {
       "exist"
     );
 
+    cy.wait(2000);
+
     // Click select room on first room card
     cy.get('[data-testid="select-room"]')
       .should("have.length.greaterThan", 0) // ensure at least one button exists
