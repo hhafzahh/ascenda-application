@@ -13,6 +13,7 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 4; // Number of rooms per page
 
+  console.log(searchParams);
   // Fetch hotel metadata and rooms based on hotelId and searchParams
   useEffect(() => {
     const fetchHotelMetadata = async () => {
@@ -41,7 +42,7 @@ export default function HotelRooms({ hotelId, searchParams, hotelDetails }) {
               destination_id: searchParams.destinationId,
               checkin: searchParams.checkin,
               checkout: searchParams.checkout,
-              guests: searchParams.guests,
+              guests: searchParams.adults + searchParams.children,
               lang: "en_US",
               currency: "SGD",
               country_code: "SG",
