@@ -14,7 +14,7 @@ export default function SearchBar({
   initialCheckout,
   initialAdults = 1,
   initialChildren = 0,
-  initialRooms = 1
+  initialRooms = 1,
 }) {
   const [query, setQuery] = useState(queryval || ""); // Make sure query is initialized as an empty string
   const [suggestions, setSuggestions] = useState([]);
@@ -122,7 +122,7 @@ export default function SearchBar({
         const corrected = fuseMatch[0].item;
         uidToUse = corrected.uid;
         newQuery = corrected.term;
-        setQuery(corrected.term); // Update input box text           
+        setQuery(corrected.term); // Update input box text
         setSelectedUID(corrected.uid);
         setSuggestions([]);
         metaRef.current = { uid: corrected.uid };
@@ -177,10 +177,10 @@ export default function SearchBar({
           destinationId: uidToUse,
           checkin: startDate.toISOString().split("T")[0],
           checkout: endDate.toISOString().split("T")[0],
-          // guests: adults + children, // <-- keep structure
+          guests: adults + children, //rooms and recentlyview using
           adults,
           children,
-          rooms
+          rooms,
         },
       });
       setLoading?.(false);
