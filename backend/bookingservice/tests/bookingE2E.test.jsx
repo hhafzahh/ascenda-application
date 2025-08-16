@@ -1,140 +1,194 @@
+// tests/bookingE2E.test.jsx
 const express = require("express");
 const request = require("supertest");
 const { MongoClient, ObjectId } = require("mongodb");
 const cors = require("cors");
 
-// Set timeout at the very top - BEFORE any other Jest configuration
+// Make sure long ops don't flake locally/CI
 jest.setTimeout(30000);
 
-// Mock database connection
-let testDb;
-let mongoClient;
-const testDbName = `booking_e2e_test_${Date.now()}`;
-
-// Mock Stripe
+/* ------------------------------------------------------------------
+   Stripe mock
+------------------------------------------------------------------- */
 const mockStripe = {
   paymentIntents: {
     create: jest.fn()
   }
 };
-
 jest.mock("stripe", () => jest.fn(() => mockStripe));
 
-// Mock database module with proper Jest mock structure
+/* ------------------------------------------------------------------
+   DB module mock (we'll point getDb() to either a real db or our
+   in-memory fallback during setup)
+------------------------------------------------------------------- */
 jest.mock("../database/db", () => ({
   connect: jest.fn().mockResolvedValue(undefined),
   getDb: jest.fn(),
   close: jest.fn().mockResolvedValue(undefined)
 }));
-
-// Import your actual modules after mocking
-const bookingController = require("../bookingController");
-const paymentController = require("../paymentController");
 const mockDbModule = require("../database/db");
 
+/* ------------------------------------------------------------------
+   Import controllers AFTER mocks
+------------------------------------------------------------------- */
+const bookingController = require("../bookingController");
+const paymentController = require("../paymentController");
+
+/* ------------------------------------------------------------------
+   Express app factory
+------------------------------------------------------------------- */
 function appFactory() {
   const app = express();
   app.use(cors());
   app.use(express.json());
-  
+
   // Booking routes
   app.post("/api/bookings", bookingController.createBooking);
   app.get("/api/bookings/:id", bookingController.getBookingById);
   app.get("/api/bookings/user/:userId", bookingController.getBookingsByUserId);
-  
-  // Payment routes
+
+  // Payments
   app.post("/api/payments/create-intent", paymentController.createPaymentIntent);
-  
+
   return app;
 }
 
-// Setup and teardown with better error handling
+/* ------------------------------------------------------------------
+   Test DB setup (real Mongo if available, otherwise robust in-memory)
+------------------------------------------------------------------- */
+let testDb;
+let mongoClient;
+const testDbName = `booking_e2e_test_${Date.now()}`;
+
+// Simple, realistic in-memory collection for fallback mode
+function makeInMemoryDb() {
+  const bookings = new Map(); // key: _id.toString(), value: doc
+
+  const collectionApi = {
+    insertOne: jest.fn(async (doc) => {
+      const id = new ObjectId();
+      // emulate controller-added fields if controller doesn’t
+      const newDoc = {
+        _id: id,
+        createdAt: doc.createdAt || new Date(),
+        status: doc.status || "confirmed",
+        ...doc
+      };
+      bookings.set(id.toString(), newDoc);
+      return { insertedId: id };
+    }),
+
+    findOne: jest.fn(async (query) => {
+      // Only _id lookups are used in tests
+      if (query && query._id) {
+        return bookings.get(query._id.toString()) || null;
+      }
+      return null;
+    }),
+
+    // Only queries used in tests: { userId: "<id>" }
+    find: jest.fn((query = {}) => {
+      let results = Array.from(bookings.values());
+      if (query.userId) {
+        results = results.filter((b) => b.userId === query.userId);
+      }
+      // Your controllers likely do .sort({ createdAt: -1 }).toArray()
+      const sortApi = {
+        toArray: jest.fn(async () => results)
+      };
+      return {
+        sort: jest.fn(() => sortApi)
+      };
+    }),
+
+    deleteMany: jest.fn(async () => {
+      bookings.clear();
+      return { deletedCount: 0 };
+    })
+  };
+
+  return {
+    collection: jest.fn((name) => {
+      if (name !== "bookings") {
+        // If your code ever requests other collections, you can add them here
+        throw new Error(`Unknown collection requested in tests: ${name}`);
+      }
+      return collectionApi;
+    }),
+    dropDatabase: jest.fn(async () => {
+      bookings.clear();
+    }),
+    admin: jest.fn(() => ({
+      ping: jest.fn(async () => ({}))
+    }))
+  };
+}
+
 beforeAll(async () => {
   try {
     const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017";
     mongoClient = new MongoClient(mongoUri, {
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000
     });
-    
+
     await mongoClient.connect();
     testDb = mongoClient.db(testDbName);
-    
-    // Test the connection
     await testDb.admin().ping();
-    console.log("E2E: Connected to MongoDB successfully");
-    
-    // Configure the mock to return our test database
+    // point the mocked db module to this db
     mockDbModule.getDb.mockReturnValue(testDb);
-    
-    // Set test environment
+
+    // ensure stripe key exists for controller logic
     process.env.STRIPE_SECRET_KEY = "sk_test_mock_key";
-  } catch (error) {
-    console.warn("E2E: MongoDB not available, using mocks:", error.message);
-    
-    // Create a comprehensive mock database if real MongoDB is not available
-    testDb = {
-      collection: jest.fn(() => ({
-        insertOne: jest.fn().mockImplementation(async (doc) => {
-          const id = new ObjectId();
-          return { insertedId: id };
-        }),
-        findOne: jest.fn().mockImplementation(async (query) => {
-          if (query._id) {
-            return {
-              _id: query._id,
-              firstName: "Mock",
-              lastName: "User",
-              email: "mock@email.com",
-              createdAt: new Date(),
-              status: "confirmed"
-            };
-          }
-          return null;
-        }),
-        find: jest.fn(() => ({
-          sort: jest.fn(() => ({
-            toArray: jest.fn().mockResolvedValue([])
-          }))
-        })),
-        deleteMany: jest.fn().mockResolvedValue({ deletedCount: 0 })
-      })),
-      dropDatabase: jest.fn().mockResolvedValue(undefined),
-      admin: jest.fn(() => ({
-        ping: jest.fn().mockResolvedValue({})
-      }))
-    };
+
+    // extra safety: clean bookings if collection exists
+    try {
+      await testDb.collection("bookings").deleteMany({});
+    } catch (_) {}
+    // eslint-disable-next-line no-console
+    console.log("E2E: Connected to real MongoDB successfully");
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn("E2E: Real MongoDB unavailable, using in-memory DB fallback:", err.message);
+    testDb = makeInMemoryDb();
     mockDbModule.getDb.mockReturnValue(testDb);
+    process.env.STRIPE_SECRET_KEY = "sk_test_mock_key";
   }
 });
 
 afterAll(async () => {
   try {
-    if (testDb && testDb.dropDatabase && typeof testDb.dropDatabase === 'function') {
+    if (testDb && typeof testDb.dropDatabase === "function") {
       await testDb.dropDatabase();
     }
     if (mongoClient) {
       await mongoClient.close();
     }
-  } catch (error) {
-    console.warn("E2E cleanup error:", error.message);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn("E2E cleanup error:", err.message);
   }
 });
 
 beforeEach(async () => {
-  if (testDb && testDb.collection && typeof testDb.collection === 'function') {
-    try {
-      await testDb.collection("bookings").deleteMany({});
-    } catch (error) {
-      console.warn("E2E collection cleanup error:", error.message);
-    }
-  }
   jest.clearAllMocks();
-  // Ensure the mock returns the current testDb
+  // re-point getDb in case any tests mutated it
   mockDbModule.getDb.mockReturnValue(testDb);
+
+  try {
+    if (testDb && typeof testDb.collection === "function") {
+      await testDb.collection("bookings").deleteMany({});
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn("E2E collection cleanup error:", err.message);
+  }
 });
 
-//TO BE INTEGRATED WITH MORE ROUTES HERE FOR A FULL FLOW OF BOOKING BACKEND!!
+/* ------------------------------------------------------------------
+   TESTS
+------------------------------------------------------------------- */
+
 describe("Booking E2E: POST /api/bookings", () => {
   const app = appFactory();
 
@@ -149,7 +203,7 @@ describe("Booking E2E: POST /api/bookings", () => {
       specialRequests: "Late check-in",
       room: {
         roomDescription: "Deluxe King Room",
-        converted_price: 250.00,
+        converted_price: 250.0,
         amenities: ["WiFi", "Air Conditioning", "Mini Bar"]
       },
       searchParams: {
@@ -164,10 +218,7 @@ describe("Booking E2E: POST /api/bookings", () => {
       }
     };
 
-    const res = await request(app)
-      .post("/api/bookings")
-      .send(bookingData);
-
+    const res = await request(app).post("/api/bookings").send(bookingData);
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty("_id");
     expect(res.body.firstName).toBe("John");
@@ -182,11 +233,7 @@ describe("Booking E2E: POST /api/bookings", () => {
       lastName: "Smith",
       email: "jane.smith@email.com"
     };
-
-    const res = await request(app)
-      .post("/api/bookings")
-      .send(minimalData);
-
+    const res = await request(app).post("/api/bookings").send(minimalData);
     expect(res.statusCode).toBe(201);
     expect(res.body.firstName).toBe("Jane");
     expect(res.body).toHaveProperty("_id");
@@ -200,36 +247,31 @@ describe("Booking E2E: POST /api/bookings", () => {
       bookingForSomeone: true,
       specialRequests: "Wheelchair accessible room"
     };
-
-    const res = await request(app)
-      .post("/api/bookings")
-      .send(bookingData);
-
+    const res = await request(app).post("/api/bookings").send(bookingData);
     expect(res.statusCode).toBe(201);
     expect(res.body.bookingForSomeone).toBe(true);
     expect(res.body.specialRequests).toBe("Wheelchair accessible room");
   });
 
   it("handles database errors gracefully", async () => {
-    // Simulate database error by making the mock throw
-    const originalMock = mockDbModule.getDb.getMockImplementation();
+    // Temporarily force getDb() to throw
+    const original = mockDbModule.getDb.getMockImplementation();
     mockDbModule.getDb.mockImplementation(() => {
       throw new Error("Database connection failed");
     });
 
-    const res = await request(app)
-      .post("/api/bookings")
-      .send({
-        firstName: "Error",
-        lastName: "Test",
-        email: "error@email.com"
-      });
+    const res = await request(app).post("/api/bookings").send({
+      firstName: "Error",
+      lastName: "Test",
+      email: "error@email.com"
+    });
 
+    // Depending on your controller, it may 500 or still succeed (201) if it soft-falls-back internally
     expect([500, 201]).toContain(res.statusCode);
-    
-    // Restore original mock
-    if (originalMock) {
-      mockDbModule.getDb.mockImplementation(originalMock);
+
+    // Restore
+    if (original) {
+      mockDbModule.getDb.mockImplementation(original);
     } else {
       mockDbModule.getDb.mockReturnValue(testDb);
     }
@@ -240,25 +282,20 @@ describe("Booking E2E: GET /api/bookings/:id", () => {
   const app = appFactory();
 
   it("returns 200 + booking data for valid ID", async () => {
-    // Create a booking first
-    const createRes = await request(app)
-      .post("/api/bookings")
-      .send({
-        firstName: "Test",
-        lastName: "User",
-        email: "test@email.com",
-        room: {
-          roomDescription: "Standard Room",
-          converted_price: 150.00
-        }
-      });
+    const createRes = await request(app).post("/api/bookings").send({
+      firstName: "Test",
+      lastName: "User",
+      email: "test@email.com",
+      room: {
+        roomDescription: "Standard Room",
+        converted_price: 150.0
+      }
+    });
 
     expect(createRes.statusCode).toBe(201);
     const bookingId = createRes.body._id;
 
-    // Retrieve the booking
-    const getRes = await request(app)
-      .get(`/api/bookings/${bookingId}`);
+    const getRes = await request(app).get(`/api/bookings/${bookingId}`);
 
     expect(getRes.statusCode).toBe(200);
     expect(getRes.body._id).toBe(bookingId);
@@ -268,18 +305,13 @@ describe("Booking E2E: GET /api/bookings/:id", () => {
 
   it("returns 404 for non-existent booking ID", async () => {
     const nonExistentId = new ObjectId();
-
-    const res = await request(app)
-      .get(`/api/bookings/${nonExistentId}`);
-
+    const res = await request(app).get(`/api/bookings/${nonExistentId}`);
     expect(res.statusCode).toBe(404);
     expect(res.body.error).toBe("Booking not found");
   });
 
   it("returns 400 for invalid ID format", async () => {
-    const res = await request(app)
-      .get("/api/bookings/invalid-id-format");
-
+    const res = await request(app).get("/api/bookings/invalid-id-format");
     expect(res.statusCode).toBe(400);
     expect(res.body.error).toBe("Invalid booking ID format");
   });
@@ -291,59 +323,43 @@ describe("Booking E2E: GET /api/bookings/user/:userId", () => {
   it("returns 200 + user bookings for valid userId", async () => {
     const userId = new ObjectId().toString();
 
-    // Create multiple bookings for the same user
-    const booking1 = await request(app)
-      .post("/api/bookings")
-      .send({
-        userId: userId,
-        firstName: "User1",
-        lastName: "Test",
-        email: "user1@email.com",
-        room: { converted_price: 100.00 }
-      });
+    const booking1 = await request(app).post("/api/bookings").send({
+      userId,
+      firstName: "User1",
+      lastName: "Test",
+      email: "user1@email.com",
+      room: { converted_price: 100.0 }
+    });
 
-    const booking2 = await request(app)
-      .post("/api/bookings")
-      .send({
-        userId: userId,
-        firstName: "User2",
-        lastName: "Test",
-        email: "user2@email.com",
-        room: { converted_price: 200.00 }
-      });
+    const booking2 = await request(app).post("/api/bookings").send({
+      userId,
+      firstName: "User2",
+      lastName: "Test",
+      email: "user2@email.com",
+      room: { converted_price: 200.0 }
+    });
 
     expect(booking1.statusCode).toBe(201);
     expect(booking2.statusCode).toBe(201);
 
-    // Retrieve user bookings
-    const res = await request(app)
-      .get(`/api/bookings/user/${userId}`);
-
+    const res = await request(app).get(`/api/bookings/user/${userId}`);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body).toHaveLength(2);
-    
-    // Verify all bookings belong to the user
-    res.body.forEach(booking => {
-      expect(booking.userId).toBe(userId);
-    });
+    res.body.forEach((b) => expect(b.userId).toBe(userId));
   });
 
   it("returns empty array for user with no bookings", async () => {
     const emptyUserId = new ObjectId().toString();
-
-    const res = await request(app)
-      .get(`/api/bookings/user/${emptyUserId}`);
-
+    const res = await request(app).get(`/api/bookings/user/${emptyUserId}`);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body).toHaveLength(0);
   });
 
   it("returns 400 for missing userId", async () => {
-    const res = await request(app)
-      .get("/api/bookings/user/");
-
+    const res = await request(app).get("/api/bookings/user/");
+    // Depending on express router, this can be 404 (no route) or your controller may send 400
     expect([400, 404]).toContain(res.statusCode);
   });
 });
@@ -366,7 +382,7 @@ describe("Payment E2E: POST /api/payments/create-intent", () => {
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("clientSecret");
     expect(res.body.clientSecret).toBe("pi_test_123_secret_abc");
-    
+
     expect(mockStripe.paymentIntents.create).toHaveBeenCalledWith({
       amount: 15000,
       currency: "usd",
@@ -385,10 +401,7 @@ describe("Payment E2E: POST /api/payments/create-intent", () => {
   });
 
   it("returns 400 for missing amount", async () => {
-    const res = await request(app)
-      .post("/api/payments/create-intent")
-      .send({});
-
+    const res = await request(app).post("/api/payments/create-intent").send({});
     expect(res.statusCode).toBe(400);
     expect(res.body.error).toBe("Invalid amount");
   });
@@ -418,7 +431,7 @@ describe("Complete Booking Flow E2E", () => {
       email: "complete@email.com",
       room: {
         roomDescription: "Premium Suite",
-        converted_price: 500.00
+        converted_price: 500.0
       },
       hotel: {
         id: "050G",
@@ -426,17 +439,12 @@ describe("Complete Booking Flow E2E", () => {
       }
     };
 
-    const bookingRes = await request(app)
-      .post("/api/bookings")
-      .send(bookingData);
-
+    const bookingRes = await request(app).post("/api/bookings").send(bookingData);
     expect(bookingRes.statusCode).toBe(201);
     const bookingId = bookingRes.body._id;
 
     // Step 2: Verify booking exists
-    const getRes = await request(app)
-      .get(`/api/bookings/${bookingId}`);
-
+    const getRes = await request(app).get(`/api/bookings/${bookingId}`);
     expect(getRes.statusCode).toBe(200);
     expect(getRes.body.firstName).toBe("Complete");
 
@@ -450,41 +458,35 @@ describe("Complete Booking Flow E2E", () => {
 
     const paymentRes = await request(app)
       .post("/api/payments/create-intent")
-      .send({ amount: 50000 }); // $500.00 in cents
+      .send({ amount: 50000 });
 
     expect(paymentRes.statusCode).toBe(200);
     expect(paymentRes.body.clientSecret).toBe("pi_complete_flow_secret");
 
     // Step 4: Verify booking still exists after payment
-    const finalCheck = await request(app)
-      .get(`/api/bookings/${bookingId}`);
-
+    const finalCheck = await request(app).get(`/api/bookings/${bookingId}`);
     expect(finalCheck.statusCode).toBe(200);
     expect(finalCheck.body.email).toBe("complete@email.com");
   });
 
   it("handles multiple concurrent bookings", async () => {
     const bookingPromises = Array.from({ length: 5 }, (_, index) =>
-      request(app)
-        .post("/api/bookings")
-        .send({
-          firstName: `User${index}`,
-          lastName: "Concurrent",
-          email: `user${index}@concurrent.com`,
-          room: { converted_price: 100 + (index * 50) }
-        })
+      request(app).post("/api/bookings").send({
+        firstName: `User${index}`,
+        lastName: "Concurrent",
+        email: `user${index}@concurrent.com`,
+        room: { converted_price: 100 + index * 50 }
+      })
     );
 
     const responses = await Promise.all(bookingPromises);
 
-    // All should succeed
-    responses.forEach(response => {
+    responses.forEach((response) => {
       expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty("_id");
     });
 
-    // All should have unique IDs
-    const ids = responses.map(res => res.body._id);
+    const ids = responses.map((res) => res.body._id);
     const uniqueIds = new Set(ids);
     expect(uniqueIds.size).toBe(5);
   });
@@ -492,34 +494,24 @@ describe("Complete Booking Flow E2E", () => {
   it("maintains data consistency across operations", async () => {
     const userId = new ObjectId().toString();
 
-    // Create booking
-    const createRes = await request(app)
-      .post("/api/bookings")
-      .send({
-        userId: userId,
-        firstName: "Consistency",
-        lastName: "Test",
-        email: "consistency@email.com",
-        room: { converted_price: 300.00 }
-      });
+    const createRes = await request(app).post("/api/bookings").send({
+      userId,
+      firstName: "Consistency",
+      lastName: "Test",
+      email: "consistency@email.com",
+      room: { converted_price: 300.0 }
+    });
 
     expect(createRes.statusCode).toBe(201);
     const bookingId = createRes.body._id;
 
-    // Retrieve by ID
-    const getByIdRes = await request(app)
-      .get(`/api/bookings/${bookingId}`);
-
+    const getByIdRes = await request(app).get(`/api/bookings/${bookingId}`);
     expect(getByIdRes.statusCode).toBe(200);
 
-    // Retrieve by user ID
-    const getUserRes = await request(app)
-      .get(`/api/bookings/user/${userId}`);
-
+    const getUserRes = await request(app).get(`/api/bookings/user/${userId}`);
     expect(getUserRes.statusCode).toBe(200);
     expect(getUserRes.body).toHaveLength(1);
 
-    // Verify data consistency
     expect(getByIdRes.body.firstName).toBe(createRes.body.firstName);
     expect(getUserRes.body[0]._id).toBe(bookingId);
     expect(getUserRes.body[0].email).toBe("consistency@email.com");
@@ -532,9 +524,8 @@ describe("Error Handling E2E", () => {
   it("handles malformed JSON gracefully", async () => {
     const res = await request(app)
       .post("/api/bookings")
-      .set('Content-Type', 'application/json')
+      .set("Content-Type", "application/json")
       .send('{"firstName": "Test", "invalid": json}');
-
     expect([400, 500]).toContain(res.statusCode);
   });
 
@@ -543,63 +534,52 @@ describe("Error Handling E2E", () => {
       firstName: "Large",
       lastName: "Booking",
       email: "large@email.com",
-      specialRequests: "x".repeat(50000), // 50KB string
+      specialRequests: "x".repeat(50000),
       room: {
         roomDescription: "Standard Room",
         amenities: Array(1000).fill("WiFi")
       }
     };
 
-    const res = await request(app)
-      .post("/api/bookings")
-      .send(largeBooking);
-
+    const res = await request(app).post("/api/bookings").send(largeBooking);
+    // body size limit / validation can vary by environment; accept a safe range
     expect([201, 400, 413, 422]).toContain(res.statusCode);
   });
 
   it("handles booking creation failures gracefully", async () => {
-    // Temporarily break the database mock
-    const originalMock = mockDbModule.getDb.getMockImplementation();
+    const original = mockDbModule.getDb.getMockImplementation();
     mockDbModule.getDb.mockImplementation(() => {
       throw new Error("Database unavailable");
     });
 
-    const res = await request(app)
-      .post("/api/bookings")
-      .send({
-        firstName: "Failure",
-        lastName: "Test",
-        email: "failure@email.com"
-      });
+    const res = await request(app).post("/api/bookings").send({
+      firstName: "Failure",
+      lastName: "Test",
+      email: "failure@email.com"
+    });
 
     expect([500, 201]).toContain(res.statusCode);
-    
-    // Restore database mock
-    if (originalMock) {
-      mockDbModule.getDb.mockImplementation(originalMock);
+
+    if (original) {
+      mockDbModule.getDb.mockImplementation(original);
     } else {
       mockDbModule.getDb.mockReturnValue(testDb);
     }
   });
 
   it("handles payment failures after successful booking", async () => {
-    // Create booking successfully
-    const bookingRes = await request(app)
-      .post("/api/bookings")
-      .send({
-        firstName: "Payment",
-        lastName: "Failure",
-        email: "payment.failure@email.com"
-      });
+    const bookingRes = await request(app).post("/api/bookings").send({
+      firstName: "Payment",
+      lastName: "Failure",
+      email: "payment.failure@email.com"
+    });
 
     expect(bookingRes.statusCode).toBe(201);
 
-    // Setup Stripe to fail
     mockStripe.paymentIntents.create.mockRejectedValue(
       new Error("Payment processing failed")
     );
 
-    // Attempt payment
     const paymentRes = await request(app)
       .post("/api/payments/create-intent")
       .send({ amount: 15000 });
@@ -607,10 +587,7 @@ describe("Error Handling E2E", () => {
     expect(paymentRes.statusCode).toBe(500);
     expect(paymentRes.body.error).toBe("Payment failed");
 
-    // Verify booking still exists
-    const checkRes = await request(app)
-      .get(`/api/bookings/${bookingRes.body._id}`);
-
+    const checkRes = await request(app).get(`/api/bookings/${bookingRes.body._id}`);
     expect(checkRes.statusCode).toBe(200);
     expect(checkRes.body.firstName).toBe("Payment");
   });
