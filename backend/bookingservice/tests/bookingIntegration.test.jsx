@@ -4,7 +4,7 @@
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
-const app = require("../index");
+const application = require("../index");
 const request = require("supertest");
 
 //for db connections
@@ -50,7 +50,7 @@ describe("Booking Integration: /api/bookings", () => {
     };
 
     it("should create booking successfully with valid data", async () => {
-        const res = await request(app)
+        const res = await request(application)
             .post("/api/bookings")
             .send(validBookingData);
 
@@ -74,7 +74,7 @@ describe("Booking Integration: /api/bookings", () => {
             }
         };
 
-        const res = await request(app)
+        const res = await request(application)
             .post("/api/bookings")
             .send(minimalData);
 
@@ -93,7 +93,7 @@ describe("Booking Integration: /api/bookings", () => {
             bookingForSomeone: true
         };
 
-        const res = await request(app)
+        const res = await request(application)
             .post("/api/bookings")
             .send(bookingForOther);
 
@@ -110,7 +110,7 @@ describe("Booking Integration: /api/bookings", () => {
             email: "sarah@email.com"
         };
 
-        const res = await request(app)
+        const res = await request(application)
             .post("/api/bookings")
             .send(bookingWithNumericUserId);
 
@@ -143,7 +143,7 @@ describe("Booking Integration: /api/bookings", () => {
             }
         };
 
-        const res = await request(app)
+        const res = await request(application)
             .post("/api/bookings")
             .send(complexBooking);
 
@@ -160,7 +160,7 @@ describe("Booking Integration: /api/bookings/:id", () => {
 
     beforeAll(async () => {
         // Create a test booking for retrieval tests
-        const res = await request(app)
+        const res = await request(application)
             .post("/api/bookings")
             .send({
                 firstName: "TestGet",
@@ -177,7 +177,7 @@ describe("Booking Integration: /api/bookings/:id", () => {
     });
 
     it("should return booking with valid ObjectId", async () => {
-        const res = await request(app)
+        const res = await request(application)
             .get(`/api/bookings/${testBookingId}`);
 
         expect(res.statusCode).toBe(200);
@@ -188,7 +188,7 @@ describe("Booking Integration: /api/bookings/:id", () => {
 
     it("should return 404 when booking not found", async () => {
         const nonExistentId = new ObjectId().toString();
-        const res = await request(app)
+        const res = await request(application)
             .get(`/api/bookings/${nonExistentId}`);
 
         expect(res.statusCode).toBe(404);
@@ -196,7 +196,7 @@ describe("Booking Integration: /api/bookings/:id", () => {
     });
 
     it("should return 400 for invalid ObjectId format", async () => {
-        const res = await request(app)
+        const res = await request(application)
             .get("/api/bookings/invalid-id-123");
 
         expect(res.statusCode).toBe(400);
@@ -206,7 +206,7 @@ describe("Booking Integration: /api/bookings/:id", () => {
     it("should handle 24-character hex string ObjectId", async () => {
         const hexStringId = "507f1f77bcf86cd799439011";
         // This will return 404 since it doesn't exist, but should not return 400
-        const res = await request(app)
+        const res = await request(application)
             .get(`/api/bookings/${hexStringId}`);
 
         expect([200, 404]).toContain(res.statusCode); // Either found or not found, but not invalid format
@@ -246,7 +246,7 @@ describe("Booking Integration: /api/bookings/user/:userId", () => {
         };
 
         // Create first booking (older)
-        const res1 = await request(app)
+        const res1 = await request(application)
             .post("/api/bookings")
             .send(booking1Data);
         expect(res1.statusCode).toBe(201);
@@ -256,7 +256,7 @@ describe("Booking Integration: /api/bookings/user/:userId", () => {
         await new Promise(resolve => setTimeout(resolve, 100));
 
         // Create second booking (newer)
-        const res2 = await request(app)
+        const res2 = await request(application)
             .post("/api/bookings")
             .send(booking2Data);
         expect(res2.statusCode).toBe(201);
@@ -264,7 +264,7 @@ describe("Booking Integration: /api/bookings/user/:userId", () => {
     });
 
     it("should return all bookings for user sorted by createdAt desc", async () => {
-        const res = await request(app)
+        const res = await request(application)
             .get(`/api/bookings/user/${ctx.userId}`);
 
         expect(res.statusCode).toBe(200);
@@ -283,7 +283,7 @@ describe("Booking Integration: /api/bookings/user/:userId", () => {
 
     it("should return empty array for user with no bookings", async () => {
         const userWithNoBookings = makeUserId("empty");
-        const res = await request(app)
+        const res = await request(application)
             .get(`/api/bookings/user/${userWithNoBookings}`);
 
         expect(res.statusCode).toBe(200);
@@ -292,7 +292,7 @@ describe("Booking Integration: /api/bookings/user/:userId", () => {
     });
 
     it("should return 400 if userId is missing", async () => {
-        const res = await request(app)
+        const res = await request(application)
             .get("/api/bookings/user/"); // empty userId
 
         expect(res.statusCode).toBe(400); // Express routing handles this
@@ -302,7 +302,7 @@ describe("Booking Integration: /api/bookings/user/:userId", () => {
         const uniqueNumericUserId = Date.now(); // Use unique ID to avoid conflicts
         
         // Create booking with numeric userId
-        const bookingRes = await request(app)
+        const bookingRes = await request(application)
             .post("/api/bookings")
             .send({
                 userId: uniqueNumericUserId,
@@ -316,7 +316,7 @@ describe("Booking Integration: /api/bookings/user/:userId", () => {
         expect(bookingRes.body.userId).toBe(uniqueNumericUserId.toString()); // stored as string
 
         // Retrieve using string userId
-        const getRes = await request(app)
+        const getRes = await request(application)
             .get(`/api/bookings/user/${uniqueNumericUserId}`);
 
         expect(getRes.statusCode).toBe(200);
@@ -357,7 +357,7 @@ describe("Booking Integration: Complete Workflow", () => {
         };
 
         // Step 1: Create booking
-        const createRes = await request(app)
+        const createRes = await request(application)
             .post("/api/bookings")
             .send(bookingData);
 
@@ -366,7 +366,7 @@ describe("Booking Integration: Complete Workflow", () => {
         const bookingId = createRes.body._id;
 
         // Step 2: Get booking by ID
-        const getByIdRes = await request(app)
+        const getByIdRes = await request(application)
             .get(`/api/bookings/${bookingId}`);
 
         expect(getByIdRes.statusCode).toBe(200);
@@ -375,7 +375,7 @@ describe("Booking Integration: Complete Workflow", () => {
         expect(getByIdRes.body.specialRequests).toBe("Ground floor room");
 
         // Step 3: Get all bookings for user
-        const getUserBookingsRes = await request(app)
+        const getUserBookingsRes = await request(application)
             .get(`/api/bookings/user/${userId}`);
 
         expect(getUserBookingsRes.statusCode).toBe(200);
@@ -400,7 +400,7 @@ describe("Booking Integration: Data Persistence", () => {
             }
         };
 
-        const res = await request(app)
+        const res = await request(application)
             .post("/api/bookings")
             .send(bookingData);
 
@@ -432,7 +432,7 @@ describe("Booking Integration: Data Persistence", () => {
             room: { roomDescription: "Test", converted_price: 100 }
         };
 
-        const res = await request(app)
+        const res = await request(application)
             .post("/api/bookings")
             .send(bookingData);
 
@@ -454,7 +454,7 @@ describe("Booking Integration: Error Handling", () => {
     it("should handle database connection gracefully", async () => {
         // This test assumes your error handling is working
         // In a real scenario, you might temporarily close the DB connection
-        const res = await request(app)
+        const res = await request(application)
             .post("/api/bookings")
             .send({
                 firstName: "Error",
